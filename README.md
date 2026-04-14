@@ -21,6 +21,32 @@
 
 ---
 
+## 问题反馈
+
+如果你在安装、配置、使用 Skill / MCP / 运营工作流时遇到问题，或者想提交改进建议，可以直接填写飞书问卷：
+
+- [Skill / MCP / 运营问题反馈收集](https://my.feishu.cn/share/base/form/shrcnAg1QaUD8SjBjqR8gjg8Ftf)
+
+建议把当前使用场景、卡住的步骤、报错信息和期望结果一起写上，后续更容易定位问题。
+
+<img src="./assets/traffic/feishu-feedback-form.png" width="260" alt="飞书问卷反馈二维码" />
+
+---
+
+## 关于作者
+
+关注「**Zach的进化笔记**」，获取 AI x 跨境电商的实战经验、工具和方法论：
+
+<img src="./assets/traffic/wechat-official-account.jpg" width="200" alt="公众号二维码" />
+
+扫码加入群聊「Zach的第二群朋友们👀」，一起交流 AI + 跨境电商的实战玩法：
+
+<img src="./assets/traffic/wechat-group.jpeg" width="200" alt="Zach的第二群朋友们二维码" />
+
+如果群二维码过期，也可以通过上面的公众号获取最新入口。
+
+---
+
 ## 当前状态
 
 **Status: Audit Passed / Not Pushed**
@@ -277,34 +303,6 @@
 4. 修复后告诉我还需要重启 IDE、重新加载工作区，还是重新运行哪个命令
 5. 最后给我一个最短的验证步骤，确认这个 MCP 已经能用了
 ```
-
----
-
-## 问题反馈
-
-如果你在安装、配置、使用 Skill / MCP / 运营工作流时遇到问题，或者想提交改进建议，可以直接填写飞书问卷：
-
-- [Skill / MCP / 运营问题反馈收集](https://my.feishu.cn/share/base/form/shrcnAg1QaUD8SjBjqR8gjg8Ftf)
-
-建议把当前使用场景、卡住的步骤、报错信息和期望结果一起写上，后续更容易定位问题。
-
-<img src="./assets/traffic/feishu-feedback-form.png" width="260" alt="飞书问卷反馈二维码" />
-
----
-
-## 关于作者
-
-关注「**Zach的进化笔记**」，获取 AI x 跨境电商的实战经验、工具和方法论：
-
-<img src="./assets/traffic/wechat-official-account.jpg" width="200" alt="公众号二维码" />
-
-扫码加入群聊「Zach的第二群朋友们👀」，一起交流 AI + 跨境电商的实战玩法：
-
-<img src="./assets/traffic/wechat-group.jpeg" width="200" alt="Zach的第二群朋友们二维码" />
-
-如果群二维码过期，也可以通过上面的公众号获取最新入口。
-
----
 
 ## License
 
