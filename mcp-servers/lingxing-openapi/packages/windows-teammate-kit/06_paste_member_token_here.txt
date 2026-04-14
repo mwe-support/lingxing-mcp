@@ -1,0 +1,11 @@
+请把管理员单独发给你的成员令牌贴在下面这一行：
+
+Bearer replace-with-your-member-token
+
+然后把这个值复制到：
+- 03_project_mcp.json
+- 04_claude_desktop_config.json
+
+注意：
+- 前面的 `Bearer ` 不要删
+- 不要把你的令牌发给别人

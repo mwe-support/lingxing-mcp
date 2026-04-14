@@ -1,0 +1,204 @@
+from __future__ import annotations
+
+import sys
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[3]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from lib.lingxing_openapi.client import PagedRows  # noqa: E402
+from lib.lingxing_openapi.services import LingxingOpenAPIService  # noqa: E402
+
+
+class FakeClient:
+    def __init__(self) -> None:
+        self.get_calls: list[tuple[str, dict | None]] = []
+        self.post_calls: list[tuple[str, dict, dict]] = []
+        self.post_json_calls: list[tuple[str, dict, dict | None]] = []
+
+    def get_cached_token(self):  # noqa: ANN001, D401
+        return None
+
+    def ensure_access_token(self):  # noqa: ANN001, D401
+        raise AssertionError("health_check should not call ensure_access_token in this test")
+
+    def get_json(self, path: str, query_params: dict | None = None) -> dict:
+        self.get_calls.append((path, query_params))
+        if path == "/erp/sc/data/seller/allMarketplace":
+            return {"code": 0, "data": [{"mid": 1, "code": "US", "marketplace_id": "ATVPDKIKX0DER"}]}
+        if path == "/erp/sc/data/seller/lists":
+            return {
+                "code": 0,
+                "data": [
+                    {
+                        "sid": 101,
+                        "mid": 1,
+                        "name": "US Store",
+                        "status": 1,
+                        "seller_id": "A1SELLER",
+                        "marketplace_id": "ATVPDKIKX0DER",
+                    },
+                    {"sid": 202, "mid": 1, "name": "Paused Store", "status": 0},
+                ],
+            }
+        raise AssertionError(f"unexpected get_json path: {path}")
+
+    def paged_post_detailed(self, path: str, body: dict, *, page_size: int, **kwargs) -> PagedRows:  # noqa: ARG002
+        self.post_calls.append((path, body, kwargs))
+        if path == "/erp/sc/data/sales_report/sales":
+            return PagedRows(
+                rows=[
+                    {"asin": "B0TARGET", "r_date": "2026-03-20", "volume": 3, "amount": 120, "order_items": 2},
+                    {"asin": "B0OTHER", "r_date": "2026-03-20", "volume": 1, "amount": 20, "order_items": 1},
+                ],
+                page_count=2,
+                total=2,
+            )
+        if path == "/erp/sc/data/mws/orders":
+            return PagedRows(rows=[{"amazon_order_id": "ORDER-1"}], page_count=1, total=1)
+        if path == "/basicOpen/promotion/listingList":
+            return PagedRows(
+                rows=[
+                    {
+                        "asin": "B0TEST",
+                        "seller_sku": "SKU-1",
+                        "item_name": "Demo Product",
+                        "promotion_list": [
+                            {
+                                "promotion_id": "promo-1",
+                                "category": "2",
+                                "category_text": "秒杀",
+                                "promotion_type_text": "Lightning Deal",
+                                "promotion_start_time": "2026-03-20 00:00:00",
+                                "promotion_end_time": "2026-03-20 23:59:00",
+                            }
+                        ],
+                    }
+                ],
+                page_count=1,
+                total=1,
+            )
+        if path == "/basicOpen/promotionalActivities/secKill/list":
+            return PagedRows(rows=[{"promotion_id": "promo-1", "promotion_type": 2}], page_count=1, total=1)
+        if path in {
+            "/basicOpen/promotionalActivities/manage/list",
+            "/basicOpen/promotionalActivities/vipDiscount/list",
+            "/basicOpen/promotionalActivities/coupon/list",
+        }:
+            return PagedRows(rows=[], page_count=1, total=0)
+        if path == "/basicOpen/baseData/account/list":
+            return PagedRows(
+                rows=[
+                    {"sid": 101, "profile_id": 321, "country_code": "US", "status": 1},
+                    {"sid": 999, "profile_id": 654, "country_code": "CA", "status": 0},
+                ],
+                page_count=1,
+                total=2,
+            )
+        if path == "/bd/profit/statistics/open/seller/list":
+            return PagedRows(rows=[{"sid": 101, "profit": 12.5}], page_count=2, total=1)
+        if path == "/erp/sc/data/mws_report/allOrders":
+            return PagedRows(rows=[{"amazon_order_id": "ALL-1"}], page_count=1, total=1)
+        if path == "/erp/sc/data/mws_report/manageInventory":
+            return PagedRows(rows=[{"asin": "B0TARGET", "available": 9}], page_count=1, total=1)
+        if path == "/pb/openapi/newad/spProductAdReports":
+            return PagedRows(
+                rows=[{"asin": "B0TARGET", "impressions": 10, "clicks": 1, "cost": 2, "orders": 1, "sales": 20, "units": 1}],
+                page_count=1,
+                total=1,
+            )
+        if path == "/pb/openapi/newad/sdProductAdReports":
+            return PagedRows(
+                rows=[{"asin": "B0TARGET", "impressions": 5, "clicks": 2, "cost": 1, "orders": 1, "sales": 10, "units": 2}],
+                page_count=1,
+                total=1,
+            )
+        if path == "/pb/openapi/newad/hsaPurchasedAsinReports":
+            return PagedRows(
+                rows=[{"asin": "B0TARGET", "orders14d": 3, "sales14d": 30, "units_sold14d": 4}],
+                page_count=1,
+                total=1,
+            )
+        if path == "/pb/openapi/newad/listHsaProductAdReport":
+            return PagedRows(
+                rows=[{"ad_creative_id": "creative-1", "impressions": 100, "clicks": 5, "cost": 9}],
+                page_count=1,
+                total=1,
+            )
+        if path == "/pb/openapi/newad/hsaProductAds":
+            return PagedRows(rows=[{"ad_creative_id": "creative-1", "asin": ["B0TARGET"]}], page_count=1, total=1)
+        raise AssertionError(f"unexpected paged_post_detailed path: {path}")
+
+    def post_json(self, path: str, json_body: dict | None = None, query_params: dict | None = None, extra_headers: dict | None = None) -> dict:  # noqa: ARG002
+        self.post_json_calls.append((path, json_body or {}, extra_headers))
+        if path == "/basicOpen/report/create/reportExportTask":
+            return {"code": 0, "data": {"task_id": "task-1"}}
+        if path == "/basicOpen/report/query/reportExportTask":
+            return {"code": 0, "data": {"url": "https://example.com/report.csv"}}
+        if path == "/basicOpen/report/amazonReportExportTask":
+            return {"code": 0, "data": {"url": "https://example.com/report.csv"}}
+        raise AssertionError(f"unexpected post_json path: {path}")
+
+
+class LingxingServiceTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.service = LingxingOpenAPIService(client=FakeClient())
+
+    def test_seller_lists_enriches_marketplace_timezone_and_filters(self) -> None:
+        result = self.service.seller_lists(status=1, marketplace="US")
+        self.assertTrue(result["ok"])
+        self.assertEqual(len(result["data"]), 1)
+        self.assertEqual(result["data"][0]["marketplace_code"], "US")
+        self.assertEqual(result["data"][0]["timezone"], "America/Los_Angeles")
+
+    def test_store_sales_keeps_page_count_in_meta(self) -> None:
+        result = self.service.store_sales(101, "2026-03-20", "2026-03-20")
+        self.assertEqual(result["meta"]["page_count"], 2)
+        self.assertEqual(result["data"][0]["asin"], "B0TARGET")
+
+    def test_resolve_daily_promotions_merges_listing_and_secondary_maps(self) -> None:
+        result = self.service.resolve_daily_promotions(101, "2026-03-20")
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"][0]["asin"], "B0TEST")
+        self.assertEqual(result["data"][0]["promotion_labels"], ["deal.lightning_deal"])
+
+    def test_ad_accounts_filters_by_sid_and_status(self) -> None:
+        result = self.service.ad_accounts(sid=101, status=1)
+        self.assertTrue(result["ok"])
+        self.assertEqual(len(result["data"]), 1)
+        self.assertEqual(result["data"][0]["profile_id"], 321)
+
+    def test_run_endpoint_spec_supports_profit_catalog(self) -> None:
+        result = self.service.run_endpoint_spec(
+            "lingxing_profit_seller",
+            {"sid": 101, "start_date": "2026-03-20", "end_date": "2026-03-20"},
+        )
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"][0]["profit"], 12.5)
+        self.assertEqual(result["meta"]["page_count"], 2)
+
+    def test_asin_ads_daily_rollup_balanced_combines_sp_sd_and_sb(self) -> None:
+        result = self.service.asin_ads_daily_rollup(101, "B0TARGET", "2026-03-20", "2026-03-20")
+        self.assertTrue(result["ok"])
+        row = result["data"][0]
+        self.assertEqual(row["impressions"], 115.0)
+        self.assertEqual(row["clicks"], 8.0)
+        self.assertEqual(row["cost"], 12.0)
+        self.assertEqual(row["ad_orders"], 5.0)
+        self.assertEqual(row["ad_sales"], 60.0)
+        self.assertEqual(row["ad_units"], 7.0)
+
+    def test_smoke_check_includes_extended_read_only_surfaces(self) -> None:
+        result = self.service.smoke_check(sid=101, site_date="2026-03-20")
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["data"]["ad_accounts_ok"])
+        self.assertTrue(result["data"]["sp_product_ad_report_ok"])
+        self.assertTrue(result["data"]["profit_seller_ok"])
+        self.assertTrue(result["data"]["source_manage_inventory_ok"])
+
+
+if __name__ == "__main__":
+    unittest.main()

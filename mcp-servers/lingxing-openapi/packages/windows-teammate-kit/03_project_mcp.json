@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "lingxing_mcp": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "http://127.0.0.1:18099/mcp",
+        "--allow-http",
+        "--transport",
+        "http-only",
+        "--header",
+        "Authorization:Bearer replace-with-your-member-token"
+      ]
+    }
+  }
+}

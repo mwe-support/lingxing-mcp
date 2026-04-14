@@ -1,0 +1,8 @@
+GATEWAY_USER=replace-with-gateway-user
+GATEWAY_HOST=replace-with-gateway-host
+LOCAL_PORT=18099
+REMOTE_PORT=8099
+
+说明：
+- 如果管理员已经帮你填好，就直接使用
+- 如果还是占位符，请联系管理员补发

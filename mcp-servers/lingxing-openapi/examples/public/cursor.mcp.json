@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "lingxing_mcp": {
+      "command": "python3",
+      "args": ["mcp-servers/lingxing-openapi/server.py"],
+      "env": {
+        "LINGXING_APP_ID": "${LINGXING_APP_ID}",
+        "LINGXING_APP_SECRET": "${LINGXING_APP_SECRET}",
+        "LINGXING_TOKEN_CACHE_FILE": "${LINGXING_TOKEN_CACHE_FILE}"
+      }
+    }
+  }
+}
