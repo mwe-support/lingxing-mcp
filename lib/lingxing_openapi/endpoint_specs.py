@@ -116,6 +116,32 @@ PRODUCT_PERFORMANCE_ARGS = (
     _s("sort_type"),
 )
 
+LOCAL_PRODUCT_ARGS = (
+    _as("sku_list"),
+    _as("sku_identifier_list"),
+    _i("update_time_start"),
+    _i("update_time_end"),
+    _i("create_time_start"),
+    _i("create_time_end"),
+)
+FBA_WAREHOUSE_DETAIL_ARGS = (
+    _i("sid", required=True),
+    _s("search_field"),
+    _s("search_value"),
+    _s("cid"),
+    _s("bid"),
+    _s("attribute"),
+    _s("asin_principal"),
+    _s("status"),
+    _s("senior_search_list"),
+    _s("fulfillment_channel_type"),
+    _s("is_hide_zero_stock"),
+    _s("is_parant_asin_merge"),
+    _s("is_contain_del_ls"),
+    _b("query_fba_storage_quantity_list"),
+)
+
+
 
 STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
     EndpointSpec(
@@ -611,6 +637,24 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
         search_field="parent_asin",
     ),
     EndpointSpec(
+        tool_name="lingxing_fba_warehouse_detail",
+        description="Query Lingxing FBA warehouse detail v2 by ASIN, MSKU, SKU, FNSKU or other supported fields.",
+        endpoint="/basicOpen/openapi/storage/fbaWarehouseDetail",
+        category="warehouse",
+        args=FBA_WAREHOUSE_DETAIL_ARGS,
+        docs_path="docs/Warehouse/FBAStock_v2.md",
+        page_size=200,
+    ),
+    EndpointSpec(
+        tool_name="lingxing_local_products",
+        description="Query Lingxing local products by local SKU or SKU identifier, including purchase cost and supplier quote raw fields.",
+        endpoint="/erp/sc/routing/data/local_inventory/productList",
+        category="product",
+        args=LOCAL_PRODUCT_ARGS,
+        docs_path="docs/Product/ProductLists.md",
+        page_size=1000,
+    ),
+    EndpointSpec(
         tool_name="lingxing_product_performance",
         description="产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。",
         endpoint="/bd/productPerformance/openApi/asinList",
@@ -863,8 +907,8 @@ EXPERIMENTAL_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
         stable=False,
     ),
     EndpointSpec(
-        tool_name="lingxing_exp_finance_report_asin",
-        description="实验层：结算利润报表 ASIN 视角。",
+        tool_name="lingxing_finance_report_asin",
+        description="结算利润报表 ASIN 视角。",
         endpoint="/bd/profit/report/open/report/asin/list",
         category="profit_report",
         args=PROFIT_ARGS + (_b("monthly_query"), _b("summary_enabled"), _s("order_status")),
@@ -873,7 +917,6 @@ EXPERIMENTAL_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
         data_path="data.records",
         total_path="data.total",
         search_field="asin",
-        stable=False,
     ),
     EndpointSpec(
         tool_name="lingxing_exp_finance_report_seller",

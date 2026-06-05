@@ -1,0 +1,3425 @@
+{
+  "generated_at": "2026-06-05 18:15:09",
+  "source": "LingxingMCPApplication.list_tools()",
+  "tool_count": 89,
+  "tools": [
+    {
+      "index": 1,
+      "name": "lingxing_health_check",
+      "description": "检查领星环境变量、token 状态和基础连通性，不拉业务数据。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "lingxing_seller_lists",
+      "description": "获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [
+        "status",
+        "marketplace"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "店铺状态过滤，按领星 seller/lists 返回的 status 值匹配。"
+          },
+          "marketplace": {
+            "type": "string",
+            "description": "站点代码过滤，例如 US、UK、DE、JP。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "lingxing_marketplaces",
+      "description": "返回领星市场列表，并补充站点时区映射。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "lingxing_store_sales",
+      "description": "按店铺和日期范围拉取 StoreSales，并自动合并分页。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "lingxing_asin_daily_lists",
+      "description": "按店铺、日期和指标类型拉取 AsinDailyLists。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "event_date",
+        "metric_type"
+      ],
+      "optional_args": [
+        "asin_type"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "event_date": {
+            "type": "string"
+          },
+          "metric_type": {
+            "type": "integer"
+          },
+          "asin_type": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "event_date",
+          "metric_type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "lingxing_orders",
+      "description": "按店铺与时间窗口拉取 Orderlists，并自动合并分页。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "date_type"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "date_type": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "lingxing_order_details",
+      "description": "按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [
+        "order_id",
+        "order_ids"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "description": "单个亚马逊订单号；也可用英文逗号、中文逗号、分号或换行分隔多个订单号。"
+          },
+          "order_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "亚马逊订单号列表。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 8,
+      "name": "lingxing_promotion_listing",
+      "description": "拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "site_date",
+        "start_time",
+        "end_time"
+      ],
+      "optional_args": [
+        "status",
+        "product_status",
+        "promotion_category"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "site_date": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "string"
+          },
+          "status": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "product_status": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "promotion_category": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "sid",
+          "site_date",
+          "start_time",
+          "end_time"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 9,
+      "name": "lingxing_promotion_sec_kill",
+      "description": "拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 10,
+      "name": "lingxing_promotion_manage",
+      "description": "拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 11,
+      "name": "lingxing_promotion_vip_discount",
+      "description": "拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 12,
+      "name": "lingxing_promotion_coupon",
+      "description": "拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 13,
+      "name": "lingxing_resolve_daily_promotions",
+      "description": "输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "target_date"
+      ],
+      "optional_args": [
+        "lookback_days"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "target_date": {
+            "type": "string"
+          },
+          "lookback_days": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "target_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 14,
+      "name": "lingxing_asin_product_snapshot",
+      "description": "按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、FBA/FBM 订单数量和产品链接。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "asin"
+      ],
+      "optional_args": [
+        "start_date",
+        "end_date"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "asin": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "asin"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "lingxing_local_product_costs",
+      "description": "Query Lingxing local product info by local SKU or SKU identifier, returning purchase cost, transport cost, purchaser and supplier quotes.",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [
+        "sku_list",
+        "sku_identifier_list",
+        "update_time_start",
+        "update_time_end",
+        "create_time_start",
+        "create_time_end",
+        "page_size",
+        "include_supplier_quotes",
+        "include_raw"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sku_list": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sku_identifier_list": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "update_time_start": {
+            "type": "integer"
+          },
+          "update_time_end": {
+            "type": "integer"
+          },
+          "create_time_start": {
+            "type": "integer"
+          },
+          "create_time_end": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "include_supplier_quotes": {
+            "type": "boolean"
+          },
+          "include_raw": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 16,
+      "name": "lingxing_smoke_check",
+      "description": "按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [
+        "sid",
+        "date"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "date": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 17,
+      "name": "lingxing_ad_accounts",
+      "description": "查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [
+        "type",
+        "sid",
+        "profile_id",
+        "country_code",
+        "status"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "country_code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 18,
+      "name": "lingxing_report_export_create",
+      "description": "创建亚马逊报告导出任务。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "report_type"
+      ],
+      "optional_args": [
+        "data_start_time",
+        "data_end_time",
+        "marketplace_ids",
+        "region",
+        "seller_id"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_type": {
+            "type": "string"
+          },
+          "data_start_time": {
+            "type": "string"
+          },
+          "data_end_time": {
+            "type": "string"
+          },
+          "marketplace_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "region": {
+            "type": "string"
+          },
+          "seller_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "report_type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 19,
+      "name": "lingxing_report_export_query",
+      "description": "查询亚马逊报告导出任务结果。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "task_id"
+      ],
+      "optional_args": [
+        "sid",
+        "region",
+        "seller_id"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "task_id": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "seller_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 20,
+      "name": "lingxing_report_export_refresh_url",
+      "description": "续期亚马逊报告下载链接。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "report_document_id"
+      ],
+      "optional_args": [
+        "sid",
+        "region",
+        "seller_id"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_document_id": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "seller_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "report_document_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 21,
+      "name": "lingxing_report_export_download",
+      "description": "下载并解析亚马逊报告导出文件。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [
+        "url",
+        "sid",
+        "task_id",
+        "report_document_id",
+        "region",
+        "seller_id"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "sid": {
+            "type": "integer"
+          },
+          "task_id": {
+            "type": "string"
+          },
+          "report_document_id": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "seller_id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 22,
+      "name": "lingxing_asin_ads_daily_rollup",
+      "description": "按 ASIN 汇总每日广告指标，采用 balanced 归因。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "asin",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "attribution_policy"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "asin": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "attribution_policy": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "asin",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 23,
+      "name": "lingxing_asin_weekly_rollup",
+      "description": "按周汇总 ASIN 的总销量、广告指标和促销标签。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "asin",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "asin": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "asin",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 24,
+      "name": "lingxing_ads_sp_campaign_report",
+      "description": "SP 广告活动日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spCampaignReports",
+      "docs_path": "docs/newAd/report/spCampaignReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 25,
+      "name": "lingxing_ads_sp_product_ad_report",
+      "description": "SP 广告商品日报，可直接按 ASIN 聚合。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spProductAdReports",
+      "docs_path": "docs/newAd/report/spProductAdReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 26,
+      "name": "lingxing_ads_sp_keyword_report",
+      "description": "SP 关键词日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spKeywordReports",
+      "docs_path": "docs/newAd/report/spKeywordReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 27,
+      "name": "lingxing_ads_sp_target_report",
+      "description": "SP 商品定位日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spTargetReports",
+      "docs_path": "docs/newAd/report/spTargetReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 28,
+      "name": "lingxing_ads_sp_search_term_report",
+      "description": "SP 用户搜索词日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/queryWordReports",
+      "docs_path": "docs/newAd/report/queryWordReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail",
+        "target_type"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          },
+          "target_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 29,
+      "name": "lingxing_ads_sd_campaign_report",
+      "description": "SD 广告活动日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdCampaignReports",
+      "docs_path": "docs/newAd/report/sdCampaignReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 30,
+      "name": "lingxing_ads_sd_product_ad_report",
+      "description": "SD 广告商品日报，可直接按 ASIN 聚合。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdProductAdReports",
+      "docs_path": "docs/newAd/report/sdProductAdReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 31,
+      "name": "lingxing_ads_sd_target_report",
+      "description": "SD 商品定位日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdTargetReports",
+      "docs_path": "docs/newAd/report/sdTargetReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 32,
+      "name": "lingxing_ads_sb_campaign_report",
+      "description": "SB 广告活动日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/hsaCampaignReports",
+      "docs_path": "docs/newAd/report/hsaCampaignReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 33,
+      "name": "lingxing_ads_sb_creative_report",
+      "description": "SB 广告创意日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/listHsaProductAdReport",
+      "docs_path": "docs/newAd/report/listHsaProductAdReport.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 34,
+      "name": "lingxing_ads_sb_purchased_asin_report",
+      "description": "SB 已购买 ASIN 报表，用于按 ASIN 归因销售/订单。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/hsaPurchasedAsinReports",
+      "docs_path": "docs/newAd/report/hsaPurchasedAsinReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 35,
+      "name": "lingxing_ads_sp_campaign_hourly",
+      "description": "SP 广告活动小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spCampaignHourData",
+      "docs_path": "docs/newAd/report/spCampaignHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 36,
+      "name": "lingxing_ads_sp_placement_hourly",
+      "description": "SP 广告位小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spAdPlacementHourData",
+      "docs_path": "docs/newAd/report/spAdPlacementHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 37,
+      "name": "lingxing_ads_sp_ad_group_hourly",
+      "description": "SP 广告组小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spAdGroupHourData",
+      "docs_path": "docs/newAd/report/spAdGroupHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 38,
+      "name": "lingxing_ads_sp_advertise_hourly",
+      "description": "SP 广告小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spAdvertiseHourData",
+      "docs_path": "docs/newAd/report/spAdvertiseHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 39,
+      "name": "lingxing_ads_sp_target_hourly",
+      "description": "SP 投放小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spTargetHourData",
+      "docs_path": "docs/newAd/report/spTargetHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 40,
+      "name": "lingxing_ads_sb_campaign_hourly",
+      "description": "SB 广告活动小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sbCampaignHourData",
+      "docs_path": "docs/newAd/report/sbCampaignHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 41,
+      "name": "lingxing_ads_sb_ad_group_hourly",
+      "description": "SB 广告组小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sbAdGroupHourData",
+      "docs_path": "docs/newAd/report/sbAdGroupHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 42,
+      "name": "lingxing_ads_sb_target_hourly",
+      "description": "SB 投放小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sbTargetHourData",
+      "docs_path": "docs/newAd/report/sbTargetHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 43,
+      "name": "lingxing_ads_sb_placement_hourly",
+      "description": "SB 广告位小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sbAdPlacementHourData",
+      "docs_path": "docs/newAd/report/sbAdPlacementHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 44,
+      "name": "lingxing_ads_sd_campaign_hourly",
+      "description": "SD 广告活动小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdCampaignHourData",
+      "docs_path": "docs/newAd/report/sdCampaignHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 45,
+      "name": "lingxing_ads_sd_ad_group_hourly",
+      "description": "SD 广告组小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdAdGroupHourData",
+      "docs_path": "docs/newAd/report/sdAdGroupHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 46,
+      "name": "lingxing_ads_sd_advertise_hourly",
+      "description": "SD 广告小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdAdvertiseHourData",
+      "docs_path": "docs/newAd/report/sdAdvertiseHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 47,
+      "name": "lingxing_ads_sd_target_hourly",
+      "description": "SD 投放小时数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdTargetHourData",
+      "docs_path": "docs/newAd/report/sdTargetHourData.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 48,
+      "name": "lingxing_ads_portfolios",
+      "description": "广告组合列表。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/portfolios",
+      "docs_path": "docs/newAd/baseData/portfolios.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 49,
+      "name": "lingxing_ads_sp_campaigns",
+      "description": "SP 广告活动基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/spCampaigns",
+      "docs_path": "docs/newAd/baseData/spCampaigns.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 50,
+      "name": "lingxing_ads_sp_ad_groups",
+      "description": "SP 广告组基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/spAdGroups",
+      "docs_path": "docs/newAd/baseData/spAdGroups.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 51,
+      "name": "lingxing_ads_sp_product_ads",
+      "description": "SP 广告商品基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/spProductAds",
+      "docs_path": "docs/newAd/baseData/spProductAds.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 52,
+      "name": "lingxing_ads_sp_keywords",
+      "description": "SP 关键词基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/spKeywords",
+      "docs_path": "docs/newAd/baseData/spKeywords.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 53,
+      "name": "lingxing_ads_sp_targets",
+      "description": "SP 商品定位基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/spTargets",
+      "docs_path": "docs/newAd/baseData/spTargets.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 54,
+      "name": "lingxing_ads_sd_campaigns",
+      "description": "SD 广告活动基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/sdCampaigns",
+      "docs_path": "docs/newAd/baseData/sdCampaigns.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 55,
+      "name": "lingxing_ads_sd_ad_groups",
+      "description": "SD 广告组基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/sdAdGroups",
+      "docs_path": "docs/newAd/baseData/sdAdGroups.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 56,
+      "name": "lingxing_ads_sd_product_ads",
+      "description": "SD 广告商品基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/sdProductAds",
+      "docs_path": "docs/newAd/baseData/sdProductAds.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 57,
+      "name": "lingxing_ads_sd_targets",
+      "description": "SD 商品定位基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/sdTargets",
+      "docs_path": "docs/newAd/baseData/sdTargets.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 58,
+      "name": "lingxing_ads_sb_campaigns",
+      "description": "SB 广告活动基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/hsaCampaigns",
+      "docs_path": "docs/newAd/baseData/hsaCampaigns.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 59,
+      "name": "lingxing_ads_sb_ad_groups",
+      "description": "SB 广告组基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/hsaAdGroups",
+      "docs_path": "docs/newAd/baseData/hsaAdGroups.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 60,
+      "name": "lingxing_ads_sb_creatives",
+      "description": "SB 广告创意基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/hsaProductAds",
+      "docs_path": "docs/newAd/baseData/sbAdHasProductAds.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 61,
+      "name": "lingxing_ads_sb_targets",
+      "description": "SB 投放基础数据。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_base",
+      "endpoint": "/pb/openapi/newad/sbTargeting",
+      "docs_path": "docs/newAd/baseData/sbTargeting.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 62,
+      "name": "lingxing_profit_seller",
+      "description": "店铺维度利润统计。",
+      "registered_by": "endpoint_spec",
+      "category": "profit",
+      "endpoint": "/bd/profit/statistics/open/seller/list",
+      "docs_path": "docs/Statistics/statisticsOpenSeller.md",
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "currency_code",
+        "search_value",
+        "monthly_query"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "search_value": {
+            "type": "string"
+          },
+          "monthly_query": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 63,
+      "name": "lingxing_profit_asin",
+      "description": "ASIN 维度利润统计。",
+      "registered_by": "endpoint_spec",
+      "category": "profit",
+      "endpoint": "/bd/profit/statistics/open/asin/list",
+      "docs_path": "docs/Statistics/statisticsOpenASIN.md",
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "currency_code",
+        "search_value"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "search_value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 64,
+      "name": "lingxing_profit_parent_asin",
+      "description": "父 ASIN 维度利润统计。",
+      "registered_by": "endpoint_spec",
+      "category": "profit",
+      "endpoint": "/bd/profit/statistics/open/parent/asin/list",
+      "docs_path": "docs/Statistics/statisticsOpenParent.md",
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "currency_code",
+        "search_value"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "search_value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 65,
+      "name": "lingxing_fba_warehouse_detail",
+      "description": "Query Lingxing FBA warehouse detail v2 by ASIN, MSKU, SKU, FNSKU or other supported fields.",
+      "registered_by": "endpoint_spec",
+      "category": "warehouse",
+      "endpoint": "/basicOpen/openapi/storage/fbaWarehouseDetail",
+      "docs_path": "docs/Warehouse/FBAStock_v2.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "search_field",
+        "search_value",
+        "cid",
+        "bid",
+        "attribute",
+        "asin_principal",
+        "status",
+        "senior_search_list",
+        "fulfillment_channel_type",
+        "is_hide_zero_stock",
+        "is_parant_asin_merge",
+        "is_contain_del_ls",
+        "query_fba_storage_quantity_list"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "search_field": {
+            "type": "string"
+          },
+          "search_value": {
+            "type": "string"
+          },
+          "cid": {
+            "type": "string"
+          },
+          "bid": {
+            "type": "string"
+          },
+          "attribute": {
+            "type": "string"
+          },
+          "asin_principal": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "senior_search_list": {
+            "type": "string"
+          },
+          "fulfillment_channel_type": {
+            "type": "string"
+          },
+          "is_hide_zero_stock": {
+            "type": "string"
+          },
+          "is_parant_asin_merge": {
+            "type": "string"
+          },
+          "is_contain_del_ls": {
+            "type": "string"
+          },
+          "query_fba_storage_quantity_list": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 66,
+      "name": "lingxing_local_products",
+      "description": "Query Lingxing local products by local SKU or SKU identifier, including purchase cost and supplier quote raw fields.",
+      "registered_by": "endpoint_spec",
+      "category": "product",
+      "endpoint": "/erp/sc/routing/data/local_inventory/productList",
+      "docs_path": "docs/Product/ProductLists.md",
+      "required_args": [],
+      "optional_args": [
+        "sku_list",
+        "sku_identifier_list",
+        "update_time_start",
+        "update_time_end",
+        "create_time_start",
+        "create_time_end"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sku_list": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sku_identifier_list": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "update_time_start": {
+            "type": "integer"
+          },
+          "update_time_end": {
+            "type": "integer"
+          },
+          "create_time_start": {
+            "type": "integer"
+          },
+          "create_time_end": {
+            "type": "integer"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 67,
+      "name": "lingxing_product_performance",
+      "description": "产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。",
+      "registered_by": "endpoint_spec",
+      "category": "source",
+      "endpoint": "/bd/productPerformance/openApi/asinList",
+      "docs_path": "docs/Statistics/AsinListNew.md",
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "search_field",
+        "search_value",
+        "summary_field",
+        "mid",
+        "currency_code",
+        "is_recently_enum",
+        "purchase_status",
+        "sort_field",
+        "sort_type"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "search_field": {
+            "type": "string"
+          },
+          "search_value": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary_field": {
+            "type": "string"
+          },
+          "mid": {
+            "type": "integer"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "is_recently_enum": {
+            "type": "boolean"
+          },
+          "purchase_status": {
+            "type": "integer"
+          },
+          "sort_field": {
+            "type": "string"
+          },
+          "sort_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 68,
+      "name": "lingxing_source_all_orders",
+      "description": "亚马逊源表所有订单。",
+      "registered_by": "endpoint_spec",
+      "category": "source",
+      "endpoint": "/erp/sc/data/mws_report/allOrders",
+      "docs_path": "docs/SourceData/AllOrders.md",
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "date_type"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "date_type": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 69,
+      "name": "lingxing_source_manage_inventory",
+      "description": "亚马逊源表 FBA 库存。",
+      "registered_by": "endpoint_spec",
+      "category": "source",
+      "endpoint": "/erp/sc/data/mws_report/manageInventory",
+      "docs_path": "docs/SourceData/ManageInventory.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 70,
+      "name": "lingxing_source_daily_inventory",
+      "description": "亚马逊源表每日库存。",
+      "registered_by": "endpoint_spec",
+      "category": "source",
+      "endpoint": "/erp/sc/data/mws_report/dailyInventory",
+      "docs_path": "docs/SourceData/DailyInventory.md",
+      "required_args": [
+        "sid",
+        "event_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "event_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "event_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 71,
+      "name": "lingxing_source_reserved_inventory",
+      "description": "亚马逊源表预留库存。",
+      "registered_by": "endpoint_spec",
+      "category": "source",
+      "endpoint": "/erp/sc/data/mws_report/reservedInventory",
+      "docs_path": "docs/SourceData/ReservedInventory.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 72,
+      "name": "lingxing_source_transaction",
+      "description": "亚马逊源表交易明细。",
+      "registered_by": "endpoint_spec",
+      "category": "source",
+      "endpoint": "/erp/sc/data/mws_report/transaction",
+      "docs_path": "docs/SourceData/Transaction.md",
+      "required_args": [
+        "sid",
+        "event_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "event_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "event_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 73,
+      "name": "lingxing_fba_stock_aggregate",
+      "description": "FBA 库存新报表汇总。",
+      "registered_by": "endpoint_spec",
+      "category": "stock",
+      "endpoint": "/cost/center/openApi/fba/gather/query",
+      "docs_path": "docs/Statistics/FbaStockAggregateListNew.md",
+      "required_args": [
+        "sid",
+        "start_month",
+        "end_month"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_month": {
+            "type": "string"
+          },
+          "end_month": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_month",
+          "end_month"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 74,
+      "name": "lingxing_fba_stock_detail",
+      "description": "FBA 库存新报表明细。",
+      "registered_by": "endpoint_spec",
+      "category": "stock",
+      "endpoint": "/cost/center/openApi/fba/detail/query",
+      "docs_path": "docs/Statistics/FbaStockDetailListNew.md",
+      "required_args": [
+        "sid",
+        "start_month",
+        "end_month"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_month": {
+            "type": "string"
+          },
+          "end_month": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_month",
+          "end_month"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 75,
+      "name": "lingxing_replenishment_summary",
+      "description": "补货建议列表。",
+      "registered_by": "endpoint_spec",
+      "category": "replenishment_summary",
+      "endpoint": "/erp/sc/routing/restocking/analysis/getSummaryList",
+      "docs_path": "docs/FBASug/GetSummaryList.md",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "asin",
+        "mode"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "asin": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 76,
+      "name": "lingxing_replenishment_asin_info",
+      "description": "补货建议 ASIN 明细。",
+      "registered_by": "endpoint_spec",
+      "category": "replenishment_info",
+      "endpoint": "/erp/sc/routing/fbaSug/asin/getInfo",
+      "docs_path": "docs/FBASug/InfoASIN.md",
+      "required_args": [
+        "sid",
+        "asin"
+      ],
+      "optional_args": [
+        "mode"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "asin": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "asin"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 77,
+      "name": "lingxing_exp_ads_sp_placement_report",
+      "description": "实验层：SP 广告位日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/campaignPlacementReports",
+      "docs_path": "docs/newAd/report/campaignPlacementReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 78,
+      "name": "lingxing_exp_ads_sp_ad_group_report",
+      "description": "实验层：SP 广告组日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/spAdGroupReports",
+      "docs_path": "docs/newAd/report/spAdGroupReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 79,
+      "name": "lingxing_exp_ads_sp_purchased_asin_report",
+      "description": "实验层：SP 已购买 ASIN 报表。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/asinReports",
+      "docs_path": "docs/newAd/report/asinReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 80,
+      "name": "lingxing_exp_ads_sb_campaign_placement_report",
+      "description": "实验层：SB 广告位日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/hsaCampaignPlacementReports",
+      "docs_path": "docs/newAd/report/hsaCampaignPlacementReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 81,
+      "name": "lingxing_exp_ads_sb_ad_group_report",
+      "description": "实验层：SB 广告组日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/hsaAdGroupReports",
+      "docs_path": "docs/newAd/report/hsaAdGroupReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 82,
+      "name": "lingxing_exp_ads_sb_target_report",
+      "description": "实验层：SB 投放日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/listHsaTargetingReport",
+      "docs_path": "docs/newAd/report/listHsaTargetingReport.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 83,
+      "name": "lingxing_exp_ads_sb_search_term_report",
+      "description": "实验层：SB 用户搜索词日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/hsaQueryWordReports",
+      "docs_path": "docs/newAd/report/hsaQueryWordReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 84,
+      "name": "lingxing_exp_ads_sb_keyword_placement_report",
+      "description": "实验层：SB 关键词广告位日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/listHsaKeywordPlacementReport",
+      "docs_path": "docs/newAd/report/listHsaKeywordPlacementReport.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 85,
+      "name": "lingxing_exp_ads_sd_ad_group_report",
+      "description": "实验层：SD 广告组日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdAdGroupReports",
+      "docs_path": "docs/newAd/report/sdAdGroupReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 86,
+      "name": "lingxing_exp_ads_sd_match_target_report",
+      "description": "实验层：SD 匹配目标日报。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/sdMatchTargetReports",
+      "docs_path": "docs/newAd/report/sdMatchTargetReports.md",
+      "required_args": [
+        "sid",
+        "report_date"
+      ],
+      "optional_args": [
+        "profile_id",
+        "show_detail"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "report_date": {
+            "type": "string"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "show_detail": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "report_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 87,
+      "name": "lingxing_exp_ads_aba_report",
+      "description": "实验层：ABA 搜索词周报下载信息。",
+      "registered_by": "endpoint_spec",
+      "category": "ad_report",
+      "endpoint": "/pb/openapi/newad/abaReport",
+      "docs_path": "docs/newAd/reportDownload/abaReport.md",
+      "required_args": [
+        "country",
+        "data_start_time"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "data_start_time": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "country",
+          "data_start_time"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 88,
+      "name": "lingxing_finance_report_asin",
+      "description": "结算利润报表 ASIN 视角。",
+      "registered_by": "endpoint_spec",
+      "category": "profit_report",
+      "endpoint": "/bd/profit/report/open/report/asin/list",
+      "docs_path": "docs/Finance/bdASIN.md",
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "currency_code",
+        "search_value",
+        "monthly_query",
+        "summary_enabled",
+        "order_status"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "search_value": {
+            "type": "string"
+          },
+          "monthly_query": {
+            "type": "boolean"
+          },
+          "summary_enabled": {
+            "type": "boolean"
+          },
+          "order_status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 89,
+      "name": "lingxing_exp_finance_report_seller",
+      "description": "实验层：结算利润报表店铺视角。",
+      "registered_by": "endpoint_spec",
+      "category": "profit_report",
+      "endpoint": "/bd/profit/report/open/report/seller/list",
+      "docs_path": "docs/Finance/bdSeller.md",
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "currency_code",
+        "monthly_query",
+        "order_status"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "currency_code": {
+            "type": "string"
+          },
+          "monthly_query": {
+            "type": "boolean"
+          },
+          "order_status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

@@ -99,6 +99,26 @@ def _sum_number(rows: list[dict[str, Any]], key: str) -> float:
     return total
 
 
+def _number_value(value: Any, default: float = 0.0) -> float:
+    if value in (None, ""):
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _int_value(value: Any, default: int = 0) -> int:
+    return int(_number_value(value, float(default)))
+
+
+def _first_non_empty(*values: Any) -> Any:
+    for value in values:
+        if value not in (None, ""):
+            return value
+    return None
+
+
 @dataclass
 class LingxingResult:
     ok: bool
@@ -306,6 +326,135 @@ class LingxingOpenAPIService:
             sid=sid,
             date_range=f"{start_date}~{end_date}",
             extra_meta={"date_type": date_type},
+        )
+
+    def order_details(self, order_id: str | None = None, order_ids: Any = None) -> dict[str, Any]:
+        endpoint = "/erp/sc/data/mws/orderDetail"
+        requested_values: list[str] = []
+
+        def collect(value: Any) -> None:
+            if value in (None, ""):
+                return
+            if isinstance(value, list):
+                for item in value:
+                    collect(item)
+                return
+            text = str(value).replace("，", ",").replace(";", ",").replace("\n", ",")
+            for part in text.split(","):
+                order_text = part.strip()
+                if order_text:
+                    requested_values.append(order_text)
+
+        collect(order_id)
+        collect(order_ids)
+
+        normalized_order_ids: list[str] = []
+        seen: set[str] = set()
+        for value in requested_values:
+            if value not in seen:
+                normalized_order_ids.append(value)
+                seen.add(value)
+
+        if not normalized_order_ids:
+            raise LingxingConfigError("缺少必要参数: order_id 或 order_ids")
+        if len(normalized_order_ids) > 1000:
+            raise LingxingConfigError("order_details 单次最多查询 1000 个订单号；领星接口每批最多 200 个，服务端会自动分批")
+
+        rows: list[dict[str, Any]] = []
+        chunk_size = 200
+        for index in range(0, len(normalized_order_ids), chunk_size):
+            chunk = normalized_order_ids[index:index + chunk_size]
+            payload = self.client.post_json(endpoint, {"order_id": ",".join(chunk)})
+            data = payload.get("data") or []
+            if isinstance(data, dict):
+                data = [data]
+            if not isinstance(data, list):
+                raise LingxingConfigError(f"{endpoint} 返回 data 不是数组或对象")
+            for row in data:
+                rows.append(dict(row) if isinstance(row, dict) else {"value": row})
+
+        warnings: list[str] = []
+        store_by_sid: dict[int, dict[str, Any]] = {}
+        order_sids = {
+            int(row.get("sid"))
+            for row in rows
+            if isinstance(row, dict) and str(row.get("sid") or "").isdigit()
+        }
+        if order_sids:
+            try:
+                seller_rows = self.seller_lists().get("data") or []
+                for seller in seller_rows:
+                    sid_value = seller.get("sid")
+                    if str(sid_value or "").isdigit():
+                        sid_int = int(sid_value)
+                        if sid_int in order_sids:
+                            store_by_sid[sid_int] = dict(seller)
+            except LingxingClientError as exc:
+                warnings.append("订单已返回，但店铺列表查询失败，未能补充店铺名。" + f" {exc.message}")
+
+        stores: list[dict[str, Any]] = []
+        for sid_value in sorted(order_sids):
+            seller = store_by_sid.get(sid_value, {})
+            store_name = str(
+                seller.get("name")
+                or seller.get("store_name")
+                or seller.get("seller_name")
+                or seller.get("account_name")
+                or ""
+            ).strip()
+            stores.append({
+                "sid": sid_value,
+                "store_name": store_name or None,
+                "marketplace_code": seller.get("marketplace_code"),
+                "timezone": seller.get("timezone"),
+                "status": seller.get("status"),
+            })
+
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            sid_text = str(row.get("sid") or "")
+            if not sid_text.isdigit():
+                continue
+            seller = store_by_sid.get(int(sid_text), {})
+            store_name = str(
+                seller.get("name")
+                or seller.get("store_name")
+                or seller.get("seller_name")
+                or seller.get("account_name")
+                or ""
+            ).strip()
+            row["store_name"] = store_name or None
+            row["marketplace_code"] = seller.get("marketplace_code")
+            row["store_timezone"] = seller.get("timezone")
+
+        found_order_ids = {
+            str(row.get("amazon_order_id") or row.get("order_id") or "").strip()
+            for row in rows
+            if isinstance(row, dict) and str(row.get("amazon_order_id") or row.get("order_id") or "").strip()
+        }
+        missing_order_ids = [order for order in normalized_order_ids if order not in found_order_ids]
+        if missing_order_ids:
+            warnings.append("??????? orderDetail ????????")
+
+        return self._result(
+            data={
+                "requested_order_ids": normalized_order_ids,
+                "found_order_ids": [order for order in normalized_order_ids if order in found_order_ids],
+                "missing_order_ids": missing_order_ids,
+                "found_count": len(rows),
+                "stores": stores,
+                "orders": rows,
+            },
+            endpoint=endpoint,
+            page_count=(len(normalized_order_ids) + chunk_size - 1) // chunk_size,
+            warnings=warnings,
+            extra_meta={
+                "docs_path": "skills/zach-lingxing-openapi-client/references/openapi_docs/Sale_OrderDetail.md",
+                "request_chunk_size": chunk_size,
+                "max_order_ids": 1000,
+                "upstream_max_order_ids_per_request": 200,
+            },
         )
 
     def promotion_listing(
@@ -522,6 +671,498 @@ class LingxingOpenAPIService:
             },
         )
 
+    def fba_warehouse_detail(
+        self,
+        *,
+        sid: int,
+        search_field: str = "asin",
+        search_value: str | None = None,
+        page_size: int = 200,
+        cid: str | None = None,
+        bid: str | None = None,
+        attribute: str | None = None,
+        asin_principal: str | None = None,
+        status: str | None = None,
+        senior_search_list: str | None = None,
+        fulfillment_channel_type: str = "FBA",
+        is_hide_zero_stock: str = "0",
+        is_parant_asin_merge: str = "0",
+        is_contain_del_ls: str = "0",
+        query_fba_storage_quantity_list: bool | None = None,
+    ) -> dict[str, Any]:
+        endpoint = "/basicOpen/openapi/storage/fbaWarehouseDetail"
+        normalized_page_size = max(20, min(int(page_size or 200), 200))
+        body: dict[str, Any] = {
+            "offset": 0,
+            "length": normalized_page_size,
+            "sid": str(sid),
+            "search_field": str(search_field or "asin"),
+            "fulfillment_channel_type": str(fulfillment_channel_type or "FBA"),
+            "is_hide_zero_stock": str(is_hide_zero_stock if is_hide_zero_stock not in (None, "") else "0"),
+            "is_parant_asin_merge": str(is_parant_asin_merge if is_parant_asin_merge not in (None, "") else "0"),
+            "is_contain_del_ls": str(is_contain_del_ls if is_contain_del_ls not in (None, "") else "0"),
+        }
+        if search_value not in (None, ""):
+            body["search_value"] = str(search_value)
+        for key, value in {
+            "cid": cid,
+            "bid": bid,
+            "attribute": attribute,
+            "asin_principal": asin_principal,
+            "status": status,
+            "senior_search_list": senior_search_list,
+        }.items():
+            if value not in (None, ""):
+                body[key] = str(value)
+        if query_fba_storage_quantity_list is not None:
+            body["query_fba_storage_quantity_list"] = bool(query_fba_storage_quantity_list)
+
+        page = self.client.paged_post_detailed(endpoint, body, page_size=normalized_page_size)
+        return self._result(
+            data=page.rows,
+            endpoint=endpoint,
+            page_count=page.page_count,
+            sid=int(sid),
+            extra_meta={
+                "docs_path": "docs/Warehouse/FBAStock_v2.md",
+                "filters": body,
+                "total": page.total,
+            },
+        )
+
+    def asin_product_snapshot(
+        self,
+        *,
+        sid: int,
+        asin: str,
+        start_date: str | None = None,
+        end_date: str | None = None,
+    ) -> dict[str, Any]:
+        normalized_asin = str(asin or "").strip().upper()
+        if not normalized_asin:
+            raise LingxingConfigError("asin_product_snapshot requires asin")
+
+        if end_date in (None, ""):
+            end_day = datetime.now().date() - timedelta(days=1)
+            normalized_end_date = end_day.isoformat()
+        else:
+            normalized_end_date = str(end_date).strip()
+            end_day = _parse_iso_date(normalized_end_date)
+        if start_date in (None, ""):
+            start_day = end_day - timedelta(days=29)
+            normalized_start_date = start_day.isoformat()
+        else:
+            normalized_start_date = str(start_date).strip()
+            start_day = _parse_iso_date(normalized_start_date)
+        if start_day > end_day:
+            raise LingxingConfigError("start_date must be on or before end_date")
+
+        warnings: list[str] = []
+
+        fba_result = self.fba_warehouse_detail(
+            sid=sid,
+            search_field="asin",
+            search_value=normalized_asin,
+            page_size=200,
+            fulfillment_channel_type="FBA",
+            is_hide_zero_stock="0",
+            is_parant_asin_merge="0",
+            is_contain_del_ls="0",
+        )
+        fba_rows = [dict(row) for row in (fba_result.get("data") or [])]
+        fba_rows = [row for row in fba_rows if str(row.get("asin") or "").upper() == normalized_asin]
+        if not fba_rows:
+            warnings.append(f"No FBAStock_v2 rows matched sid={sid}, asin={normalized_asin}.")
+
+        performance_result = self.run_endpoint_spec(
+            "lingxing_product_performance",
+            {
+                "sid": sid,
+                "start_date": normalized_start_date,
+                "end_date": normalized_end_date,
+                "search_field": "asin",
+                "search_value": [normalized_asin],
+                "summary_field": "sku",
+                "sort_field": "volume",
+                "sort_type": "desc",
+                "is_recently_enum": False,
+                "purchase_status": 0,
+            },
+        )
+        performance_rows = [dict(row) for row in (performance_result.get("data") or [])]
+        if not performance_rows:
+            warnings.append(f"No productPerformance rows matched sid={sid}, asin={normalized_asin}.")
+
+        finance_result = self.run_endpoint_spec(
+            "lingxing_finance_report_asin",
+            {
+                "sid": sid,
+                "start_date": normalized_start_date,
+                "end_date": normalized_end_date,
+                "search_value": normalized_asin,
+            },
+        )
+        finance_rows = [dict(row) for row in (finance_result.get("data") or [])]
+        finance_rows = [row for row in finance_rows if str(row.get("asin") or row.get("asins") or "").upper() == normalized_asin]
+        if not finance_rows:
+            warnings.append(f"No bdASIN finance report rows matched sid={sid}, asin={normalized_asin}.")
+
+        local_skus = sorted({str(row.get("sku") or "").strip() for row in fba_rows if str(row.get("sku") or "").strip()})
+        local_cost_by_sku: dict[str, dict[str, Any]] = {}
+        if local_skus and any(row.get("cg_price") in (None, "") for row in fba_rows):
+            try:
+                local_cost_result = self.local_product_costs(
+                    sku_list=local_skus,
+                    include_supplier_quotes=True,
+                    include_raw=False,
+                )
+                for item in local_cost_result.get("data") or []:
+                    sku = str(item.get("sku") or "").strip()
+                    if sku:
+                        local_cost_by_sku[sku] = dict(item)
+            except LingxingClientError as exc:
+                warnings.append(f"local_product_costs fallback failed: {exc.message}")
+
+        performance_by_local_sku: dict[str, dict[str, Any]] = {}
+        performance_by_seller_sku: dict[str, dict[str, Any]] = {}
+        for row in performance_rows:
+            sku = str(row.get("sku") or row.get("local_sku") or "").strip()
+            if sku:
+                performance_by_local_sku.setdefault(sku, row)
+            for price_item in row.get("price_list") or []:
+                local_sku = str(price_item.get("local_sku") or "").strip()
+                seller_sku = str(price_item.get("seller_sku") or "").strip()
+                if local_sku:
+                    performance_by_local_sku.setdefault(local_sku, row)
+                if seller_sku:
+                    performance_by_seller_sku.setdefault(seller_sku, row)
+
+        def performance_for(row: dict[str, Any]) -> dict[str, Any] | None:
+            local_sku = str(row.get("sku") or "").strip()
+            seller_sku = str(row.get("seller_sku") or "").strip()
+            return performance_by_local_sku.get(local_sku) or performance_by_seller_sku.get(seller_sku)
+
+        def price_for(perf_row: dict[str, Any] | None, fba_row: dict[str, Any] | None = None) -> dict[str, Any] | None:
+            if not perf_row:
+                return None
+            price_list = [dict(item) for item in (perf_row.get("price_list") or [])]
+            if not price_list:
+                return None
+            local_sku = str((fba_row or {}).get("sku") or "").strip()
+            seller_sku = str((fba_row or {}).get("seller_sku") or "").strip()
+            sku_matches = [
+                item for item in price_list
+                if (local_sku and str(item.get("local_sku") or "").strip() == local_sku)
+                or (seller_sku and str(item.get("seller_sku") or "").strip() == seller_sku)
+            ]
+            if sku_matches:
+                return sku_matches[0]
+            return price_list[0]
+
+        def amazon_url_from(perf_row: dict[str, Any] | None) -> str | None:
+            if not perf_row:
+                return None
+            for asin_item in perf_row.get("asins") or []:
+                if str(asin_item.get("asin") or "").upper() == normalized_asin and asin_item.get("amazon_url"):
+                    return str(asin_item.get("amazon_url"))
+            for asin_item in perf_row.get("asins") or []:
+                if asin_item.get("amazon_url"):
+                    return str(asin_item.get("amazon_url"))
+            return None
+
+        def sum_finance_number(key: str) -> float:
+            return sum(_number_value(row.get(key)) for row in finance_rows)
+
+        sales_quantity = {
+            "fba_orders": _int_value(sum_finance_number("fbaSalesQuantity")),
+            "fbm_orders": _int_value(sum_finance_number("fbmSalesQuantity")),
+            "totalSalesQuantity": _int_value(sum_finance_number("totalSalesQuantity")),
+            "source": "bdASIN",
+            "field_mapping": {
+                "fba_orders": "fbaSalesQuantity",
+                "fbm_orders": "fbmSalesQuantity",
+                "totalSalesQuantity": "totalSalesQuantity",
+            },
+        }
+
+        per_sku: list[dict[str, Any]] = []
+        for row in fba_rows:
+            perf_row = performance_for(row)
+            price_item = price_for(perf_row, row)
+            local_sku = str(row.get("sku") or "").strip()
+            fallback_cost = (local_cost_by_sku.get(local_sku) or {}).get("purchase") or {}
+            purchase_amount = _first_non_empty(row.get("cg_price"), fallback_cost.get("cg_price"))
+            transport_cost = _first_non_empty(row.get("cg_transport_costs"), fallback_cost.get("cg_transport_costs"))
+            inventory = self._snapshot_inventory_from_fba_row(row)
+            per_sku.append(
+                {
+                    "sku": local_sku or None,
+                    "seller_sku": row.get("seller_sku"),
+                    "fnsku": row.get("fnsku"),
+                    "asin": row.get("asin"),
+                    "fulfillment_channel": row.get("fulfillment_channel"),
+                    "product_name": _first_non_empty(row.get("product_name"), (perf_row or {}).get("local_name"), (perf_row or {}).get("item_name")),
+                    "frontend_price": {
+                        "amount": (price_item or {}).get("price"),
+                        "currency_icon": (perf_row or {}).get("currency_icon"),
+                        "source": "productPerformance.price_list.price" if price_item else None,
+                    },
+                    "purchase_cost": {
+                        "amount": purchase_amount,
+                        "currency_icon": (fallback_cost.get("primary_supplier_quote") or {}).get("cg_currency_icon") or "\N{YEN SIGN}",
+                        "transport_cost": transport_cost,
+                        "source": "fbaWarehouseDetail.cg_price" if row.get("cg_price") not in (None, "") else ("local_product_costs.purchase.cg_price" if fallback_cost else None),
+                    },
+                    "inventory": inventory,
+                    "product_link": amazon_url_from(perf_row),
+                }
+            )
+
+        if not per_sku:
+            for perf_row in performance_rows:
+                price_item = price_for(perf_row)
+                per_sku.append(
+                    {
+                        "sku": perf_row.get("sku"),
+                        "seller_sku": (price_item or {}).get("seller_sku"),
+                        "fnsku": None,
+                        "asin": normalized_asin,
+                        "fulfillment_channel": None,
+                        "product_name": _first_non_empty(perf_row.get("local_name"), perf_row.get("item_name")),
+                        "frontend_price": {
+                            "amount": (price_item or {}).get("price"),
+                            "currency_icon": perf_row.get("currency_icon"),
+                            "source": "productPerformance.price_list.price" if price_item else None,
+                        },
+                        "purchase_cost": {
+                            "amount": perf_row.get("cg_price"),
+                            "currency_icon": perf_row.get("cg_price_currency_icon") or "\N{YEN SIGN}",
+                            "transport_cost": None,
+                            "source": "productPerformance.cg_price" if perf_row.get("cg_price") not in (None, "") else None,
+                        },
+                        "inventory": self._empty_snapshot_inventory(),
+                        "product_link": amazon_url_from(perf_row),
+                    }
+                )
+
+        representative = per_sku[0] if per_sku else None
+        product_link = (representative or {}).get("product_link")
+        if not product_link:
+            product_link = f"https://www.amazon.com/dp/{normalized_asin}"
+            warnings.append("No amazon_url found in productPerformance; generated a generic amazon.com dp URL.")
+
+        data = {
+            "sid": int(sid),
+            "asin": normalized_asin,
+            "date_range": {"start_date": normalized_start_date, "end_date": normalized_end_date},
+            "product_name": (representative or {}).get("product_name"),
+            "product_link": product_link,
+            "frontend_price": (representative or {}).get("frontend_price") or {"amount": None, "currency_icon": None, "source": None},
+            "purchase_cost": (representative or {}).get("purchase_cost") or {"amount": None, "currency_icon": "\N{YEN SIGN}", "transport_cost": None, "source": None},
+            "sales_quantity": sales_quantity,
+            "inventory": self._sum_snapshot_inventory([item.get("inventory") or {} for item in per_sku]),
+            "per_sku": per_sku,
+        }
+        if not per_sku:
+            warnings.append("No SKU rows were available from FBAStock_v2 or productPerformance.")
+        return self._result(
+            data=data,
+            endpoint="asin_product_snapshot",
+            page_count=(
+                int(fba_result.get("meta", {}).get("page_count") or 0)
+                + int(performance_result.get("meta", {}).get("page_count") or 0)
+                + int(finance_result.get("meta", {}).get("page_count") or 0)
+            ),
+            sid=int(sid),
+            date_range=f"{normalized_start_date}~{normalized_end_date}",
+            warnings=sorted(set(warnings)),
+            extra_meta={
+                "endpoints": [
+                    fba_result.get("meta", {}).get("endpoint"),
+                    performance_result.get("meta", {}).get("endpoint"),
+                    finance_result.get("meta", {}).get("endpoint"),
+                ],
+                "inventory_scope": "FBA only; FBM quantity is intentionally excluded.",
+                "sales_quantity_source": "bdASIN",
+            },
+        )
+
+    def _country_matches(self, requested: str, value: Any) -> bool:
+        requested_text = str(requested or "").strip().upper()
+        value_text = str(value or "").strip().upper()
+        if not requested_text or not value_text:
+            return False
+        aliases = {
+            "US": {"US", "USA", "UNITED STATES", "AMERICA", "??", "??"},
+            "CA": {"CA", "CANADA", "???"},
+            "MX": {"MX", "MEXICO", "???"},
+            "UK": {"UK", "GB", "UNITED KINGDOM", "??", "??"},
+            "DE": {"DE", "GERMANY", "??", "??"},
+            "FR": {"FR", "FRANCE", "??", "??"},
+            "IT": {"IT", "ITALY", "???"},
+            "ES": {"ES", "SPAIN", "???"},
+            "JP": {"JP", "JAPAN", "??"},
+            "AU": {"AU", "AUSTRALIA"},
+        }
+        requested_aliases = aliases.get(requested_text, {requested_text})
+        return value_text in requested_aliases or requested_text == value_text
+
+    def _snapshot_inventory_from_fba_row(self, row: dict[str, Any]) -> dict[str, Any]:
+        fba_available = _int_value(row.get("afn_fulfillable_quantity"))
+        fba_direct_inbound = _int_value(row.get("stock_up_num"))
+        fba_transferring = _int_value(row.get("reserved_fc_processing"))
+        fba_researching = _int_value(row.get("afn_researching_quantity"))
+        return {
+            "fba_available": fba_available,
+            "fba_direct_inbound": fba_direct_inbound,
+            "fba_transferring": fba_transferring,
+            "fba_researching": fba_researching,
+            "total_inventory": fba_available + fba_direct_inbound + fba_transferring + fba_researching,
+            "source": "fbaWarehouseDetail",
+        }
+
+    def _empty_snapshot_inventory(self) -> dict[str, Any]:
+        return {
+            "fba_available": 0,
+            "fba_direct_inbound": 0,
+            "fba_transferring": 0,
+            "fba_researching": 0,
+            "total_inventory": 0,
+            "source": "fbaWarehouseDetail",
+        }
+
+    def _sum_snapshot_inventory(self, inventories: list[dict[str, Any]]) -> dict[str, Any]:
+        keys = ["fba_available", "fba_direct_inbound", "fba_transferring", "fba_researching"]
+        totals = {key: sum(_int_value(inventory.get(key)) for inventory in inventories) for key in keys}
+        return {
+            **totals,
+            "total_inventory": sum(totals.values()),
+            "source": "fbaWarehouseDetail",
+        }
+
+    def local_product_costs(
+        self,
+        *,
+        sku_list: list[str] | None = None,
+        sku_identifier_list: list[str] | None = None,
+        update_time_start: int | None = None,
+        update_time_end: int | None = None,
+        create_time_start: int | None = None,
+        create_time_end: int | None = None,
+        page_size: int = 1000,
+        include_supplier_quotes: bool = True,
+        include_raw: bool = False,
+    ) -> dict[str, Any]:
+        endpoint = "/erp/sc/routing/data/local_inventory/productList"
+        sku_values = _listify_strings(sku_list)
+        sku_identifier_values = _listify_strings(sku_identifier_list)
+        if not sku_values and not sku_identifier_values:
+            raise LingxingConfigError("local_product_costs requires sku_list or sku_identifier_list to avoid scanning the full product catalog")
+
+        normalized_page_size = max(1, min(int(page_size or 1000), 1000))
+        body: dict[str, Any] = {
+            "offset": 0,
+            "length": normalized_page_size,
+        }
+        if sku_values:
+            body["sku_list"] = sku_values
+        if sku_identifier_values:
+            body["sku_identifier_list"] = sku_identifier_values
+        for key, value in {
+            "update_time_start": update_time_start,
+            "update_time_end": update_time_end,
+            "create_time_start": create_time_start,
+            "create_time_end": create_time_end,
+        }.items():
+            if value not in (None, ""):
+                body[key] = int(value)
+
+        page = self.client.paged_post_detailed(endpoint, body, page_size=normalized_page_size)
+        rows = [
+            self._normalize_local_product_cost_row(
+                row,
+                include_supplier_quotes=include_supplier_quotes,
+                include_raw=include_raw,
+            )
+            for row in page.rows
+        ]
+        return self._result(
+            data=rows,
+            endpoint=endpoint,
+            page_count=page.page_count,
+            extra_meta={
+                "docs_path": "docs/Product/ProductLists.md",
+                "filters": {
+                    "sku_list": sku_values,
+                    "sku_identifier_list": sku_identifier_values,
+                    "update_time_start": update_time_start,
+                    "update_time_end": update_time_end,
+                    "create_time_start": create_time_start,
+                    "create_time_end": create_time_end,
+                },
+                "total": page.total,
+            },
+        )
+
+    def _normalize_local_product_cost_row(
+        self,
+        row: dict[str, Any],
+        *,
+        include_supplier_quotes: bool,
+        include_raw: bool,
+    ) -> dict[str, Any]:
+        supplier_quotes = row.get("supplier_quote") or []
+        if not isinstance(supplier_quotes, list):
+            supplier_quotes = []
+        primary_quote = next(
+            (quote for quote in supplier_quotes if str(quote.get("is_primary") or "") == "1"),
+            supplier_quotes[0] if supplier_quotes else None,
+        )
+
+        item: dict[str, Any] = {
+            "id": row.get("id"),
+            "sku": row.get("sku"),
+            "sku_identifier": row.get("sku_identifier"),
+            "product_name": row.get("product_name"),
+            "spu": row.get("spu"),
+            "category_name": row.get("category_name"),
+            "brand_name": row.get("brand_name"),
+            "open_status": row.get("open_status"),
+            "status": row.get("status"),
+            "status_text": row.get("status_text"),
+            "purchase": {
+                "cg_price": row.get("cg_price"),
+                "cg_transport_costs": row.get("cg_transport_costs"),
+                "cg_delivery": row.get("cg_delivery"),
+                "purchase_remark": row.get("purchase_remark"),
+                "cg_opt_uid": row.get("cg_opt_uid"),
+                "cg_opt_username": row.get("cg_opt_username"),
+                "primary_supplier_quote": self._normalize_supplier_quote(primary_quote) if primary_quote else None,
+            },
+            "create_time": row.get("create_time"),
+            "update_time": row.get("update_time"),
+        }
+        if include_supplier_quotes:
+            item["supplier_quote"] = [self._normalize_supplier_quote(quote) for quote in supplier_quotes]
+        if include_raw:
+            item["raw"] = row
+        return item
+
+    def _normalize_supplier_quote(self, quote: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "psq_id": quote.get("psq_id"),
+            "product_id": quote.get("product_id"),
+            "supplier_id": quote.get("supplier_id"),
+            "supplier_name": quote.get("supplier_name"),
+            "supplier_code": quote.get("supplier_code"),
+            "is_primary": quote.get("is_primary"),
+            "cg_price": quote.get("cg_price"),
+            "cg_currency_icon": quote.get("cg_currency_icon"),
+            "supplier_product_url": quote.get("supplier_product_url") or [],
+            "quote_remark": quote.get("quote_remark"),
+            "quotes": quote.get("quotes") or [],
+        }
+
     def _seller_context(self, sid: int) -> dict[str, Any]:
         seller = next(
             (item for item in self.seller_lists()["data"] if int(item.get("sid") or 0) == int(sid)),
@@ -727,6 +1368,26 @@ class LingxingOpenAPIService:
             extra_meta={"docs_path": spec.docs_path},
         )
 
+    def _run_warehouse_spec(self, spec: EndpointSpec, args: dict[str, Any]) -> dict[str, Any]:
+        body = self._build_spec_body(spec, args)
+        return self.fba_warehouse_detail(
+            sid=int(body.get("sid") or 0),
+            search_field=str(body.get("search_field") or "asin"),
+            search_value=str(body.get("search_value") or "").strip() or None,
+            page_size=spec.page_size,
+            cid=str(body.get("cid") or "").strip() or None,
+            bid=str(body.get("bid") or "").strip() or None,
+            attribute=str(body.get("attribute") or "").strip() or None,
+            asin_principal=str(body.get("asin_principal") or "").strip() or None,
+            status=str(body.get("status") or "").strip() or None,
+            senior_search_list=str(body.get("senior_search_list") or "").strip() or None,
+            fulfillment_channel_type=str(body.get("fulfillment_channel_type") or "FBA"),
+            is_hide_zero_stock=str(body.get("is_hide_zero_stock") if body.get("is_hide_zero_stock") not in (None, "") else "0"),
+            is_parant_asin_merge=str(body.get("is_parant_asin_merge") if body.get("is_parant_asin_merge") not in (None, "") else "0"),
+            is_contain_del_ls=str(body.get("is_contain_del_ls") if body.get("is_contain_del_ls") not in (None, "") else "0"),
+            query_fba_storage_quantity_list=body.get("query_fba_storage_quantity_list") if "query_fba_storage_quantity_list" in body else None,
+        )
+
     def _run_stock_spec(self, spec: EndpointSpec, args: dict[str, Any]) -> dict[str, Any]:
         sid = int(args.get("sid") or 0)
         context = self._seller_context(sid)
@@ -797,8 +1458,10 @@ class LingxingOpenAPIService:
             return self._run_ad_like_spec(spec, args)
         if spec.category in {"profit", "profit_report"}:
             return self._run_profit_like_spec(spec, args)
-        if spec.category == "source":
+        if spec.category in {"source", "product"}:
             return self._run_source_spec(spec, args)
+        if spec.category == "warehouse":
+            return self._run_warehouse_spec(spec, args)
         if spec.category == "stock":
             return self._run_stock_spec(spec, args)
         if spec.category == "replenishment_summary":

@@ -19,3 +19,33 @@ data/
 BUSINESS.md
 PREAMBLE.md
 stores.yaml
+
+# Local test and analysis caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+
+# Coverage outputs
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Build and package outputs
+build/
+dist/
+*.egg-info/
+
+# Local dependency directories
+.venv/
+venv/
+node_modules/
+
+# Local logs and temporary files
+*.log
+*.tmp
+*.bak
+*.orig
+tmp/
+temp/

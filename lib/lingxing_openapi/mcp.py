@@ -21,6 +21,34 @@ from .services import LingxingOpenAPIService
 SERVER_NAME = "lingxing-openapi"
 SERVER_VERSION = "0.3.0"
 PROTOCOL_VERSION = "2024-11-05"
+ENABLED_TOOLS_ENV = "LINGXING_MCP_ENABLED_TOOLS"
+
+
+def _enabled_tool_names_from_env() -> set[str] | None:
+    raw_value = os.getenv(ENABLED_TOOLS_ENV, "").strip()
+    if not raw_value:
+        return None
+    normalized = raw_value.replace("\n", ",").replace(";", ",")
+    names = {name.strip() for name in normalized.split(",") if name.strip()}
+    return names or None
+
+
+def _filter_enabled_tools(tools: dict[str, "ToolDefinition"]) -> dict[str, "ToolDefinition"]:
+    enabled_names = _enabled_tool_names_from_env()
+    if enabled_names is None:
+        return tools
+
+    unknown_names = sorted(enabled_names.difference(tools))
+    if unknown_names:
+        sys.stderr.write(
+            f"Ignoring unknown MCP tool names from {ENABLED_TOOLS_ENV}: "
+            f"{', '.join(unknown_names)}\n"
+        )
+
+    filtered = {name: tool for name, tool in tools.items() if name in enabled_names}
+    if not filtered:
+        raise LingxingConfigError(f"{ENABLED_TOOLS_ENV} did not match any registered MCP tools")
+    return filtered
 
 
 def _json_text(value: Any) -> str:
@@ -43,6 +71,17 @@ def _required_int(args: dict[str, Any], key: str) -> int:
     if value is None:
         raise LingxingConfigError(f"缺少必要参数: {key}")
     return value
+
+
+def _optional_bool(args: dict[str, Any], key: str, default: bool = False) -> bool:
+    value = args.get(key)
+    if value in (None, ""):
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
 def _required_text(args: dict[str, Any], key: str) -> str:
@@ -101,12 +140,12 @@ class LingxingMCPApplication:
             ),
             "lingxing_seller_lists": ToolDefinition(
                 name="lingxing_seller_lists",
-                description="返回领星店铺列表，可按 status 或 marketplace 过滤。",
+                description="获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。",
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "status": {"type": "integer"},
-                        "marketplace": {"type": "string"},
+                        "status": {"type": "integer", "description": "店铺状态过滤，按领星 seller/lists 返回的 status 值匹配。"},
+                        "marketplace": {"type": "string", "description": "站点代码过滤，例如 US、UK、DE、JP。"},
                     },
                     "additionalProperties": False,
                 },
@@ -180,6 +219,22 @@ class LingxingMCPApplication:
                     _required_text(args, "start_date"),
                     _required_text(args, "end_date"),
                     date_type=_optional_int(args, "date_type") or 1,
+                ),
+            ),
+            "lingxing_order_details": ToolDefinition(
+                name="lingxing_order_details",
+                description="按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "order_id": {"type": "string", "description": "单个亚马逊订单号；也可用英文逗号、中文逗号、分号或换行分隔多个订单号。"},
+                        "order_ids": {"type": "array", "items": {"type": "string"}, "description": "亚马逊订单号列表。"},
+                    },
+                    "additionalProperties": False,
+                },
+                handler=lambda args: self.service.order_details(
+                    order_id=str(args.get("order_id") or "").strip() or None,
+                    order_ids=_listify_strings(args.get("order_ids")),
                 ),
             ),
             "lingxing_promotion_listing": ToolDefinition(
@@ -302,6 +357,57 @@ class LingxingMCPApplication:
                     _required_int(args, "sid"),
                     _required_text(args, "target_date"),
                     lookback_days=_optional_int(args, "lookback_days") or 90,
+                ),
+            ),
+            "lingxing_asin_product_snapshot": ToolDefinition(
+                name="lingxing_asin_product_snapshot",
+                description="按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、FBA/FBM 订单数量和产品链接。",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "sid": {"type": "integer"},
+                        "asin": {"type": "string"},
+                        "start_date": {"type": "string"},
+                        "end_date": {"type": "string"},
+                    },
+                    "required": ["sid", "asin"],
+                    "additionalProperties": False,
+                },
+                handler=lambda args: self.service.asin_product_snapshot(
+                    sid=_required_int(args, "sid"),
+                    asin=_required_text(args, "asin"),
+                    start_date=str(args.get("start_date") or "").strip() or None,
+                    end_date=str(args.get("end_date") or "").strip() or None,
+                ),
+            ),
+            "lingxing_local_product_costs": ToolDefinition(
+                name="lingxing_local_product_costs",
+                description="Query Lingxing local product info by local SKU or SKU identifier, returning purchase cost, transport cost, purchaser and supplier quotes.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "sku_list": {"type": "array", "items": {"type": "string"}},
+                        "sku_identifier_list": {"type": "array", "items": {"type": "string"}},
+                        "update_time_start": {"type": "integer"},
+                        "update_time_end": {"type": "integer"},
+                        "create_time_start": {"type": "integer"},
+                        "create_time_end": {"type": "integer"},
+                        "page_size": {"type": "integer"},
+                        "include_supplier_quotes": {"type": "boolean"},
+                        "include_raw": {"type": "boolean"},
+                    },
+                    "additionalProperties": False,
+                },
+                handler=lambda args: self.service.local_product_costs(
+                    sku_list=_listify_strings(args.get("sku_list")),
+                    sku_identifier_list=_listify_strings(args.get("sku_identifier_list")),
+                    update_time_start=_optional_int(args, "update_time_start"),
+                    update_time_end=_optional_int(args, "update_time_end"),
+                    create_time_start=_optional_int(args, "create_time_start"),
+                    create_time_end=_optional_int(args, "create_time_end"),
+                    page_size=_optional_int(args, "page_size") or 1000,
+                    include_supplier_quotes=_optional_bool(args, "include_supplier_quotes", True),
+                    include_raw=_optional_bool(args, "include_raw", False),
                 ),
             ),
             "lingxing_smoke_check": ToolDefinition(
@@ -487,7 +593,7 @@ class LingxingMCPApplication:
                 input_schema=spec.input_schema,
                 handler=lambda args, tool_name=spec.tool_name: self.service.run_endpoint_spec(tool_name, args),
             )
-        return tools
+        return _filter_enabled_tools(tools)
 
     def list_tools(self) -> list[dict[str, Any]]:
         return [tool.as_mcp_tool() for tool in self.tools.values()]
