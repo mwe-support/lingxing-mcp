@@ -4,10 +4,10 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 SYNC_SCRIPT="$ROOT_DIR/mcp-servers/lingxing-openapi/deploy/sync_gateway_bundle.sh"
 REMOTE=""
-REMOTE_DIR="/opt/lingxing-mcp/current"
+REMOTE_DIR="/public/lingxing-mcp"
 SERVICE_NAME="lingxing-mcp"
 SERVICE_USER="lingxing-mcp"
-ENV_FILE="/etc/lingxing-mcp.env"
+ENV_FILE="/etc/lingxing-mcp/lingxing-mcp.env"
 
 usage() {
   cat <<'EOF'
@@ -29,15 +29,21 @@ usage() {
   LINGXING_MCP_TOKENS_FILE
   LINGXING_MCP_HOST
   LINGXING_MCP_PORT
+  LINGXING_MCP_ENABLED_TOOLS
+  LINGXING_OPENAPI_RATE_LIMIT_ENABLED
+  LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS
+  LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST
+  LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT
+  LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES
   TAILSCALE_AUTH_KEY
   TAILSCALE_HOSTNAME
   TAILSCALE_ENABLE_SSH
 
 选项：
-  --repo-dir PATH        远端仓库目录，默认 /opt/lingxing-mcp/current
+  --repo-dir PATH        远端仓库目录，默认 /public/lingxing-mcp
   --service-name NAME    systemd 服务名，默认 lingxing-mcp
   --service-user NAME    systemd 运行用户，默认 lingxing-mcp
-  --env-file PATH        远端环境文件，默认 /etc/lingxing-mcp.env
+  --env-file PATH        远端环境文件，默认 /etc/lingxing-mcp/lingxing-mcp.env
   -h, --help             显示帮助
 EOF
 }
@@ -124,6 +130,12 @@ TOKEN_CACHE_ESC="$(escape "$TOKEN_CACHE_FILE")"
 TOKENS_FILE_ESC="$(escape "$TOKENS_FILE")"
 HOST_ESC="$(escape "$MCP_HOST")"
 PORT_ESC="$(escape "$MCP_PORT")"
+ENABLED_TOOLS_ESC="$(escape "${LINGXING_MCP_ENABLED_TOOLS:-}")"
+RATE_LIMIT_ENABLED_ESC="$(escape "${LINGXING_OPENAPI_RATE_LIMIT_ENABLED:-}")"
+RATE_LIMIT_DEFAULT_RPS_ESC="$(escape "${LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS:-}")"
+RATE_LIMIT_DEFAULT_BURST_ESC="$(escape "${LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST:-}")"
+RATE_LIMIT_WAIT_TIMEOUT_ESC="$(escape "${LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT:-}")"
+RATE_LIMIT_OVERRIDES_ESC="$(escape "${LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES:-}")"
 REMOTE_DIR_ESC="$(escape "$REMOTE_DIR")"
 SERVICE_NAME_ESC="$(escape "$SERVICE_NAME")"
 SERVICE_USER_ESC="$(escape "$SERVICE_USER")"
@@ -141,6 +153,12 @@ ssh "$REMOTE" \
     LINGXING_MCP_TOKENS_FILE=${TOKENS_FILE_ESC} \
     LINGXING_MCP_HOST=${HOST_ESC} \
     LINGXING_MCP_PORT=${PORT_ESC} \
+    LINGXING_MCP_ENABLED_TOOLS=${ENABLED_TOOLS_ESC} \
+    LINGXING_OPENAPI_RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED_ESC} \
+    LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS=${RATE_LIMIT_DEFAULT_RPS_ESC} \
+    LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST=${RATE_LIMIT_DEFAULT_BURST_ESC} \
+    LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT=${RATE_LIMIT_WAIT_TIMEOUT_ESC} \
+    LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES=${RATE_LIMIT_OVERRIDES_ESC} \
     bash ${REMOTE_INSTALL_ESC} \
       --repo-dir ${REMOTE_DIR_ESC} \
       --service-name ${SERVICE_NAME_ESC} \

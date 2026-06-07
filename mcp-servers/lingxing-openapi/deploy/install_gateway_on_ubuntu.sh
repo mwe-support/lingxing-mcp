@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_DIR="/opt/lingxing-mcp/current"
+REPO_DIR="/public/lingxing-mcp"
 SERVICE_NAME="lingxing-mcp"
 SERVICE_USER="lingxing-mcp"
-ENV_FILE="/etc/lingxing-mcp.env"
+ENV_FILE="/etc/lingxing-mcp/lingxing-mcp.env"
 TEMPLATE_PATH="mcp-servers/lingxing-openapi/deploy/lingxing-mcp.service.template"
 DEFAULT_HOST="${LINGXING_MCP_HOST:-127.0.0.1}"
 DEFAULT_PORT="${LINGXING_MCP_PORT:-8099}"
+DEFAULT_ENABLED_TOOLS="lingxing_health_check,lingxing_seller_lists,lingxing_marketplaces,lingxing_order_details,lingxing_order_lists,lingxing_asin_product_snapshot,lingxing_fba_warehouse_detail,lingxing_local_product_costs,lingxing_product_performance,lingxing_finance_report_asin"
 
 usage() {
   cat <<'EOF'
@@ -15,10 +16,10 @@ usage() {
   sudo bash mcp-servers/lingxing-openapi/deploy/install_gateway_on_ubuntu.sh [选项]
 
 选项：
-  --repo-dir PATH        服务器上的仓库目录，默认 /opt/lingxing-mcp/current
+  --repo-dir PATH        服务器上的仓库目录，默认 /public/lingxing-mcp
   --service-name NAME    systemd 服务名，默认 lingxing-mcp
   --service-user NAME    运行服务的 Linux 用户，默认 lingxing-mcp
-  --env-file PATH        环境变量文件，默认 /etc/lingxing-mcp.env
+  --env-file PATH        环境变量文件，默认 /etc/lingxing-mcp/lingxing-mcp.env
 
 可通过环境变量直接注入：
   LINGXING_APP_ID
@@ -28,6 +29,12 @@ usage() {
   LINGXING_MCP_TOKENS_FILE
   LINGXING_MCP_HOST
   LINGXING_MCP_PORT
+  LINGXING_MCP_ENABLED_TOOLS
+  LINGXING_OPENAPI_RATE_LIMIT_ENABLED
+  LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS
+  LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST
+  LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT
+  LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES
 EOF
 }
 
@@ -108,6 +115,12 @@ LINGXING_MCP_BEARER_TOKEN=${LINGXING_MCP_BEARER_TOKEN:-replace-me}
 LINGXING_MCP_TOKENS_FILE=${TOKENS_FILE}
 LINGXING_MCP_HOST=${DEFAULT_HOST}
 LINGXING_MCP_PORT=${DEFAULT_PORT}
+LINGXING_MCP_ENABLED_TOOLS=${LINGXING_MCP_ENABLED_TOOLS:-${DEFAULT_ENABLED_TOOLS}}
+LINGXING_OPENAPI_RATE_LIMIT_ENABLED=${LINGXING_OPENAPI_RATE_LIMIT_ENABLED:-1}
+LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS=${LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS:-1}
+LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST=${LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST:-1}
+LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT=${LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT:-60}
+LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES=${LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES:-/bd/profit/report/open/report/asin/list=10:10}
 PYTHONUNBUFFERED=1
 EOF
 chmod 600 "$ENV_FILE"

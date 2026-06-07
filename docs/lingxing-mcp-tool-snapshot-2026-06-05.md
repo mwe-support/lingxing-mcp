@@ -34,7 +34,7 @@
 | 12 | `lingxing_promotion_coupon` | `manual` | `manual` | `sid`, `start_date`, `end_date` | - | - | 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。 |
 | 13 | `lingxing_resolve_daily_promotions` | `manual` | `manual` | `sid`, `target_date` | `lookback_days` | - | 输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。 |
 | 14 | `lingxing_asin_product_snapshot` | `manual` | `manual` | `sid`, `asin` | `start_date`, `end_date` | - | 按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。 |
-| 15 | `lingxing_local_product_costs` | `manual` | `manual` | - | `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end`, `page_size`, `include_supplier_quotes`, `include_raw` | - | Query Lingxing local product info by local SKU or SKU identifier, returning purchase cost, transport cost, purchaser and supplier quotes. |
+| 15 | `lingxing_local_product_costs` | `manual` | `manual` | - | `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end`, `page_size`, `include_supplier_quotes`, `include_raw` | - | 按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。 |
 | 16 | `lingxing_smoke_check` | `manual` | `manual` | - | `sid`, `date` | - | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
 | 17 | `lingxing_ad_accounts` | `manual` | `manual` | - | `type`, `sid`, `profile_id`, `country_code`, `status` | - | 查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。 |
 | 18 | `lingxing_report_export_create` | `manual` | `manual` | `sid`, `report_type` | `data_start_time`, `data_end_time`, `marketplace_ids`, `region`, `seller_id` | - | 创建亚马逊报告导出任务。 |
@@ -84,8 +84,8 @@
 | 62 | `lingxing_profit_seller` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value`, `monthly_query` | `/bd/profit/statistics/open/seller/list` | 店铺维度利润统计。 |
 | 63 | `lingxing_profit_asin` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value` | `/bd/profit/statistics/open/asin/list` | ASIN 维度利润统计。 |
 | 64 | `lingxing_profit_parent_asin` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value` | `/bd/profit/statistics/open/parent/asin/list` | 父 ASIN 维度利润统计。 |
-| 65 | `lingxing_fba_warehouse_detail` | `endpoint_spec` | `warehouse` | `sid` | `search_field`, `search_value`, `cid`, `bid`, `attribute`, `asin_principal`, `status`, `senior_search_list`, `fulfillment_channel_type`, `is_hide_zero_stock`, `is_parant_asin_merge`, `is_contain_del_ls`, `query_fba_storage_quantity_list` | `/basicOpen/openapi/storage/fbaWarehouseDetail` | Query Lingxing FBA warehouse detail v2 by ASIN, MSKU, SKU, FNSKU or other supported fields. |
-| 66 | `lingxing_local_products` | `endpoint_spec` | `product` | - | `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end` | `/erp/sc/routing/data/local_inventory/productList` | Query Lingxing local products by local SKU or SKU identifier, including purchase cost and supplier quote raw fields. |
+| 65 | `lingxing_fba_warehouse_detail` | `endpoint_spec` | `warehouse` | `sid` | `search_field`, `search_value`, `cid`, `bid`, `attribute`, `asin_principal`, `status`, `senior_search_list`, `fulfillment_channel_type`, `is_hide_zero_stock`, `is_parant_asin_merge`, `is_contain_del_ls`, `query_fba_storage_quantity_list` | `/basicOpen/openapi/storage/fbaWarehouseDetail` | 按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。 |
+| 66 | `lingxing_local_products` | `endpoint_spec` | `product` | - | `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end` | `/erp/sc/routing/data/local_inventory/productList` | 按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。 |
 | 67 | `lingxing_product_performance` | `endpoint_spec` | `source` | `sid`, `start_date`, `end_date` | `search_field`, `search_value`, `summary_field`, `mid`, `currency_code`, `is_recently_enum`, `purchase_status`, `sort_field`, `sort_type` | `/bd/productPerformance/openApi/asinList` | 产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。 |
 | 68 | `lingxing_source_all_orders` | `endpoint_spec` | `source` | `sid`, `start_date`, `end_date` | `date_type` | `/erp/sc/data/mws_report/allOrders` | 亚马逊源表所有订单。 |
 | 69 | `lingxing_source_manage_inventory` | `endpoint_spec` | `source` | `sid` | - | `/erp/sc/data/mws_report/manageInventory` | 亚马逊源表 FBA 库存。 |
@@ -533,7 +533,7 @@
 
 - Output notes: sales.volume 是产品表现销量/销售件数，来源 productPerformance.volume。快照工具暂不输出 FBA/FBM 订单数量；订单类分析请单独使用订单相关工具并按业务口径过滤。
 
-- Description: 按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume，以及利润报表 transaction 视图按 FBA/FBM 区分的订单数量。
+- Description: 按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。
 - Registered by: `manual`
 - Category: `manual`
 - Endpoint: -
@@ -568,7 +568,7 @@
 
 ### 15. `lingxing_local_product_costs`
 
-- Description: Query Lingxing local product info by local SKU or SKU identifier, returning purchase cost, transport cost, purchaser and supplier quotes.
+- Description: 按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。
 - Registered by: `manual`
 - Category: `manual`
 - Endpoint: -
@@ -620,7 +620,7 @@
 
 ### 16. `lingxing_smoke_check`
 
-- Description: 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。
+- Description: 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。
 - Registered by: `manual`
 - Category: `manual`
 - Endpoint: -
@@ -2296,7 +2296,7 @@
 
 ### 65. `lingxing_fba_warehouse_detail`
 
-- Description: Query Lingxing FBA warehouse detail v2 by ASIN, MSKU, SKU, FNSKU or other supported fields.
+- Description: 按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。
 - Registered by: `endpoint_spec`
 - Category: `warehouse`
 - Endpoint: `/basicOpen/openapi/storage/fbaWarehouseDetail`
@@ -2360,7 +2360,7 @@
 
 ### 66. `lingxing_local_products`
 
-- Description: Query Lingxing local products by local SKU or SKU identifier, including purchase cost and supplier quote raw fields.
+- Description: 按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。
 - Registered by: `endpoint_spec`
 - Category: `product`
 - Endpoint: `/erp/sc/routing/data/local_inventory/productList`

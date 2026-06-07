@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REMOTE=""
-REMOTE_DIR="/opt/lingxing-mcp/current"
+REMOTE_DIR="/public/lingxing-mcp"
 TAILSCALE_HOSTNAME="${TAILSCALE_HOSTNAME:-lingxing-mcp-hk}"
 TAILSCALE_ENABLE_SSH="${TAILSCALE_ENABLE_SSH:-0}"
 TAILSCALE_ADVERTISE_TAGS="${TAILSCALE_ADVERTISE_TAGS:-}"
@@ -18,7 +18,7 @@ usage() {
   如果设置了 TAILSCALE_AUTH_KEY，会自动把服务器加入 tailnet。
 
 选项：
-  --repo-dir PATH   远端仓库目录，默认 /opt/lingxing-mcp/current
+  --repo-dir PATH   远端仓库目录，默认 /public/lingxing-mcp
   -h, --help        显示帮助
 
 可选环境变量：

@@ -3,12 +3,12 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 REMOTE="${1:-}"
-REMOTE_DIR="${2:-/opt/lingxing-mcp/current}"
+REMOTE_DIR="${2:-/public/lingxing-mcp}"
 
 if [[ -z "$REMOTE" ]]; then
   cat <<'EOF' >&2
 用法：
-  bash mcp-servers/lingxing-openapi/deploy/sync_gateway_bundle.sh user@server [/opt/lingxing-mcp/current]
+  bash mcp-servers/lingxing-openapi/deploy/sync_gateway_bundle.sh user@server [/public/lingxing-mcp]
 
 说明：
   该脚本会把运行领星 MCP 所需的最小代码集同步到远端服务器。

@@ -382,7 +382,7 @@ class LingxingMCPApplication:
             ),
             "lingxing_local_product_costs": ToolDefinition(
                 name="lingxing_local_product_costs",
-                description="Query Lingxing local product info by local SKU or SKU identifier, returning purchase cost, transport cost, purchaser and supplier quotes.",
+                description="按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。",
                 input_schema={
                     "type": "object",
                     "properties": {

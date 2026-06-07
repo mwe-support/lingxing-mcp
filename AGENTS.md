@@ -35,8 +35,8 @@ Important positioning from repository docs:
 
 Deployment paths used by the current gateway:
 
-- Source repo: `/public/lingxing-mcp`
-- Deployed app: `/opt/lingxing-mcp/app`
+- Source and live app directory: `/public/lingxing-mcp`
+- Service working directory: `/public/lingxing-mcp`
 - Service: `lingxing-mcp.service`
 - Env file: `/etc/lingxing-mcp/lingxing-mcp.env`
 - Tokens file: `/etc/lingxing-mcp/tokens.json`
@@ -179,6 +179,7 @@ Implementation notes:
 ## Documentation Sync
 
 Documentation is part of the implementation contract. Whenever source code changes affect MCP behavior, update the matching documentation in the same work item. This includes tool registration, allowlist policy, tool descriptions, input schemas, output fields, endpoint mappings, deployment behavior, and test or smoke-check commands.
+Before every commit, scan the changed files and relevant documentation/configuration files to confirm their wording and behavior contracts are consistent, and remove conflicts between descriptions, examples, setup notes, and implementation details.
 
 For MCP tool changes, refresh or update the tool snapshot documents under `docs/` so they match the current registered tool names, descriptions, schemas, categories, and enablement rationale. Do not leave stale names such as old experimental tool names, removed parameters, or outdated output descriptions in docs. If a relevant document cannot be updated in the current turn, explicitly report the gap and the reason.
 
@@ -233,17 +234,14 @@ Before using repository deployment scripts, note:
 
 - `deploy_gateway_via_ssh.sh` expects real `LINGXING_APP_ID`, `LINGXING_APP_SECRET`, and `LINGXING_MCP_BEARER_TOKEN` in the caller environment; avoid echoing the expanded command.
 - `sync_gateway_bundle.sh` uses `rsync --delete` for the target bundle. Do not use it against the currently hand-maintained deployment path unless that destructive sync is intended.
-- The public install script defaults from upstream docs may use `/opt/lingxing-mcp/current` and `/etc/lingxing-mcp.env`; the current live gateway in this environment uses `/opt/lingxing-mcp/app` and `/etc/lingxing-mcp/lingxing-mcp.env`. Prefer the live environment paths unless explicitly migrating.
+- The deployment scripts default to the current live service layout: `/public/lingxing-mcp` and `/etc/lingxing-mcp/lingxing-mcp.env`. Do not reintroduce the older upstream default paths unless explicitly migrating.
 
 1. Work in `/public/lingxing-mcp`.
 2. Check `git status --short` before edits.
-3. Back up changed deployment files under `/opt/lingxing-mcp/backups/<purpose>-YYYYMMDD-HHMMSS/` before syncing.
-4. Compile in the source repo.
-5. Sync only the changed files to `/opt/lingxing-mcp/app`.
-6. Compile in `/opt/lingxing-mcp/app`.
-7. Restart `lingxing-mcp.service`.
-8. Verify `systemctl is-active` and HTTP MCP behavior.
-9. Report changed files, backup directory, and verification results.
+3. Compile in `/public/lingxing-mcp`.
+4. Restart `lingxing-mcp.service` when runtime Python code or service env changed.
+5. Verify `systemctl is-active` and HTTP MCP behavior.
+6. Report changed files and verification results.
 
 Do not use destructive git commands such as `git reset --hard` or `git checkout --` unless explicitly requested by the user.
 

@@ -435,7 +435,7 @@ class LingxingOpenAPIService:
         }
         missing_order_ids = [order for order in normalized_order_ids if order not in found_order_ids]
         if missing_order_ids:
-            warnings.append("??????? orderDetail ????????")
+            warnings.append("部分订单号未在 orderDetail 返回结果中匹配。")
 
         return self._result(
             data={
@@ -966,15 +966,15 @@ class LingxingOpenAPIService:
         if not requested_text or not value_text:
             return False
         aliases = {
-            "US": {"US", "USA", "UNITED STATES", "AMERICA", "??", "??"},
-            "CA": {"CA", "CANADA", "???"},
-            "MX": {"MX", "MEXICO", "???"},
-            "UK": {"UK", "GB", "UNITED KINGDOM", "??", "??"},
-            "DE": {"DE", "GERMANY", "??", "??"},
-            "FR": {"FR", "FRANCE", "??", "??"},
-            "IT": {"IT", "ITALY", "???"},
-            "ES": {"ES", "SPAIN", "???"},
-            "JP": {"JP", "JAPAN", "??"},
+            "US": {"US", "USA", "UNITED STATES", "AMERICA"},
+            "CA": {"CA", "CANADA"},
+            "MX": {"MX", "MEXICO"},
+            "UK": {"UK", "GB", "UNITED KINGDOM"},
+            "DE": {"DE", "GERMANY"},
+            "FR": {"FR", "FRANCE"},
+            "IT": {"IT", "ITALY"},
+            "ES": {"ES", "SPAIN"},
+            "JP": {"JP", "JAPAN"},
             "AU": {"AU", "AUSTRALIA"},
         }
         requested_aliases = aliases.get(requested_text, {requested_text})

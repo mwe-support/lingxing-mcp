@@ -638,7 +638,7 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
     ),
     EndpointSpec(
         tool_name="lingxing_fba_warehouse_detail",
-        description="Query Lingxing FBA warehouse detail v2 by ASIN, MSKU, SKU, FNSKU or other supported fields.",
+        description="按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。",
         endpoint="/basicOpen/openapi/storage/fbaWarehouseDetail",
         category="warehouse",
         args=FBA_WAREHOUSE_DETAIL_ARGS,
@@ -647,7 +647,7 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
     ),
     EndpointSpec(
         tool_name="lingxing_local_products",
-        description="Query Lingxing local products by local SKU or SKU identifier, including purchase cost and supplier quote raw fields.",
+        description="按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。",
         endpoint="/erp/sc/routing/data/local_inventory/productList",
         category="product",
         args=LOCAL_PRODUCT_ARGS,
