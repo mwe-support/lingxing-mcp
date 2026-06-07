@@ -9,6 +9,7 @@ import io
 import json
 import os
 import subprocess
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -33,6 +34,153 @@ DEFAULT_TOKEN_CACHE = Path("runtime/lingxing/token_cache.json")
 AUTH_BASE_URL = "https://openapi.lingxing.com"
 DOC_BASE_URL = "https://apidoc.lingxing.com"
 SUCCESS_CODES = {0, "0", 1, "1", 200, "200"}
+
+
+@dataclass(frozen=True)
+class RateLimitRule:
+    rate_per_second: float
+    burst: int
+    source: str = "default"
+
+
+KNOWN_RATE_LIMIT_RULES: dict[str, RateLimitRule] = {
+    # Capacity-1 endpoints in the current production allowlist.
+    "/erp/sc/data/seller/lists": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/erp/sc/data/seller/allMarketplace": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/erp/sc/data/mws/orders": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/erp/sc/data/mws/orderDetail": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/bd/productPerformance/openApi/asinList": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/basicOpen/finance/profitReport/order/transcation/list": RateLimitRule(1.0, 1, "openapi_docs"),
+    # Capacity-10 endpoints in the current production allowlist.
+    "/bd/profit/report/open/report/asin/list": RateLimitRule(10.0, 10, "openapi_docs"),
+    "/erp/sc/data/mws_report/allOrders": RateLimitRule(10.0, 10, "openapi_docs"),
+    # Production endpoints without local capacity docs use a conservative queue.
+    "/basicOpen/openapi/storage/fbaWarehouseDetail": RateLimitRule(1.0, 1, "conservative"),
+    "/erp/sc/routing/data/local_inventory/productList": RateLimitRule(1.0, 1, "conservative"),
+}
+
+
+_RATE_LIMIT_BUCKETS: dict[str, "_TokenBucket"] = {}
+_RATE_LIMIT_BUCKETS_LOCK = threading.Lock()
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    return raw.strip().lower() not in {"0", "false", "no", "off"}
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError:
+        return default
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+def _normalize_endpoint(path: str) -> str:
+    return f"/{str(path).lstrip('/')}"
+
+
+def _parse_rate_limit_overrides(raw: str) -> dict[str, RateLimitRule]:
+    rules: dict[str, RateLimitRule] = {}
+    for item in raw.split(","):
+        item = item.strip()
+        if not item or "=" not in item:
+            continue
+        endpoint, spec = item.split("=", 1)
+        endpoint = _normalize_endpoint(endpoint.strip())
+        parts = [part.strip() for part in spec.split(":", 1)]
+        try:
+            rate = float(parts[0])
+            burst = int(parts[1]) if len(parts) > 1 and parts[1] else max(1, int(rate))
+        except ValueError:
+            continue
+        rules[endpoint] = RateLimitRule(rate, max(1, burst), "env")
+    return rules
+
+
+def _rate_limit_rule_for_endpoint(endpoint: str) -> RateLimitRule:
+    endpoint = _normalize_endpoint(endpoint)
+    overrides = _parse_rate_limit_overrides(os.getenv("LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES", ""))
+    if endpoint in overrides:
+        return overrides[endpoint]
+    if endpoint in KNOWN_RATE_LIMIT_RULES:
+        return KNOWN_RATE_LIMIT_RULES[endpoint]
+    return RateLimitRule(
+        _env_float("LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS", 1.0),
+        max(1, _env_int("LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST", 1)),
+        "default",
+    )
+
+
+class _TokenBucket:
+    def __init__(self, rule: RateLimitRule) -> None:
+        self.rate_per_second = max(0.0, float(rule.rate_per_second))
+        self.capacity = max(1, int(rule.burst))
+        self.tokens = float(self.capacity)
+        self.updated_at = time.monotonic()
+        self.condition = threading.Condition()
+
+    def update(self, rule: RateLimitRule) -> None:
+        with self.condition:
+            self._refill(time.monotonic())
+            self.rate_per_second = max(0.0, float(rule.rate_per_second))
+            self.capacity = max(1, int(rule.burst))
+            self.tokens = min(float(self.capacity), self.tokens)
+            self.condition.notify_all()
+
+    def _refill(self, now: float) -> None:
+        if self.rate_per_second <= 0:
+            self.updated_at = now
+            return
+        elapsed = max(0.0, now - self.updated_at)
+        if elapsed:
+            self.tokens = min(float(self.capacity), self.tokens + elapsed * self.rate_per_second)
+            self.updated_at = now
+
+    def acquire(self, timeout: float) -> float | None:
+        if self.rate_per_second <= 0:
+            return 0.0
+        started_at = time.monotonic()
+        deadline = started_at + timeout if timeout > 0 else started_at
+        with self.condition:
+            while True:
+                now = time.monotonic()
+                self._refill(now)
+                if self.tokens >= 1.0:
+                    self.tokens -= 1.0
+                    return now - started_at
+                remaining = deadline - now
+                if remaining <= 0:
+                    return None
+                seconds_until_token = (1.0 - self.tokens) / self.rate_per_second
+                self.condition.wait(min(remaining, max(0.01, seconds_until_token)))
+
+
+def _get_rate_limit_bucket(endpoint: str, rule: RateLimitRule) -> _TokenBucket:
+    endpoint = _normalize_endpoint(endpoint)
+    with _RATE_LIMIT_BUCKETS_LOCK:
+        bucket = _RATE_LIMIT_BUCKETS.get(endpoint)
+        if bucket is None:
+            bucket = _TokenBucket(rule)
+            _RATE_LIMIT_BUCKETS[endpoint] = bucket
+        else:
+            bucket.update(rule)
+        return bucket
 
 
 @dataclass
@@ -335,6 +483,28 @@ class LingxingOpenAPIClient:
                 details={"payload": payload},
             )
 
+    def _apply_rate_limit(self, endpoint: str) -> None:
+        if not _env_bool("LINGXING_OPENAPI_RATE_LIMIT_ENABLED", True):
+            return
+        endpoint = _normalize_endpoint(endpoint)
+        rule = _rate_limit_rule_for_endpoint(endpoint)
+        if rule.rate_per_second <= 0:
+            return
+        timeout = max(0.0, _env_float("LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT", 60.0))
+        waited = _get_rate_limit_bucket(endpoint, rule).acquire(timeout)
+        if waited is None:
+            raise LingxingRequestError(
+                "等待领星 OpenAPI 限流令牌超时，请稍后重试或调低客户端并发。",
+                endpoint=endpoint,
+                code="local_rate_limit_timeout",
+                details={
+                    "rate_per_second": rule.rate_per_second,
+                    "burst": rule.burst,
+                    "rule_source": rule.source,
+                    "wait_timeout": timeout,
+                },
+            )
+
     def get_json(self, path: str, query_params: dict[str, Any] | None = None) -> dict[str, Any]:
         path = f"/{path.lstrip('/')}"
         query_params = dict(query_params or {})
@@ -342,6 +512,7 @@ class LingxingOpenAPIClient:
         merged_query = {**public_query, **{key: _stringify_sign_value(value) for key, value in query_params.items()}}
         query = urllib.parse.urlencode(merged_query)
         request = urllib.request.Request(url=f"{self.base_url}{path}?{query}", method="GET")
+        self._apply_rate_limit(path)
         payload = self._request(request, endpoint=path)
         self._ensure_success(payload, path)
         return payload
@@ -369,6 +540,7 @@ class LingxingOpenAPIClient:
             method="POST",
             headers=headers,
         )
+        self._apply_rate_limit(path)
         payload = self._request(request, endpoint=path)
         self._ensure_success(payload, path)
         return payload

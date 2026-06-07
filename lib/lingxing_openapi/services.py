@@ -793,20 +793,6 @@ class LingxingOpenAPIService:
         if not performance_rows:
             warnings.append(f"No productPerformance rows matched sid={sid}, asin={normalized_asin}.")
 
-        finance_result = self.run_endpoint_spec(
-            "lingxing_finance_report_asin",
-            {
-                "sid": sid,
-                "start_date": normalized_start_date,
-                "end_date": normalized_end_date,
-                "search_value": normalized_asin,
-            },
-        )
-        finance_rows = [dict(row) for row in (finance_result.get("data") or [])]
-        finance_rows = [row for row in finance_rows if str(row.get("asin") or row.get("asins") or "").upper() == normalized_asin]
-        if not finance_rows:
-            warnings.append(f"No bdASIN finance report rows matched sid={sid}, asin={normalized_asin}.")
-
         local_skus = sorted({str(row.get("sku") or "").strip() for row in fba_rows if str(row.get("sku") or "").strip()})
         local_cost_by_sku: dict[str, dict[str, Any]] = {}
         if local_skus and any(row.get("cg_price") in (None, "") for row in fba_rows):
@@ -870,21 +856,10 @@ class LingxingOpenAPIService:
                     return str(asin_item.get("amazon_url"))
             return None
 
-        def sum_finance_number(key: str) -> float:
-            return sum(_number_value(row.get(key)) for row in finance_rows)
-
-        sales_quantity = {
-            "fba_orders": _int_value(sum_finance_number("fbaSalesQuantity")),
-            "fbm_orders": _int_value(sum_finance_number("fbmSalesQuantity")),
-            "totalSalesQuantity": _int_value(sum_finance_number("totalSalesQuantity")),
-            "source": "bdASIN",
-            "field_mapping": {
-                "fba_orders": "fbaSalesQuantity",
-                "fbm_orders": "fbmSalesQuantity",
-                "totalSalesQuantity": "totalSalesQuantity",
-            },
+        sales = {
+            "volume": _int_value(sum(_number_value(row.get("volume")) for row in performance_rows)),
+            "source": "productPerformance.volume",
         }
-
         per_sku: list[dict[str, Any]] = []
         for row in fba_rows:
             perf_row = performance_for(row)
@@ -959,7 +934,7 @@ class LingxingOpenAPIService:
             "product_link": product_link,
             "frontend_price": (representative or {}).get("frontend_price") or {"amount": None, "currency_icon": None, "source": None},
             "purchase_cost": (representative or {}).get("purchase_cost") or {"amount": None, "currency_icon": "\N{YEN SIGN}", "transport_cost": None, "source": None},
-            "sales_quantity": sales_quantity,
+            "sales": sales,
             "inventory": self._sum_snapshot_inventory([item.get("inventory") or {} for item in per_sku]),
             "per_sku": per_sku,
         }
@@ -971,7 +946,6 @@ class LingxingOpenAPIService:
             page_count=(
                 int(fba_result.get("meta", {}).get("page_count") or 0)
                 + int(performance_result.get("meta", {}).get("page_count") or 0)
-                + int(finance_result.get("meta", {}).get("page_count") or 0)
             ),
             sid=int(sid),
             date_range=f"{normalized_start_date}~{normalized_end_date}",
@@ -980,10 +954,9 @@ class LingxingOpenAPIService:
                 "endpoints": [
                     fba_result.get("meta", {}).get("endpoint"),
                     performance_result.get("meta", {}).get("endpoint"),
-                    finance_result.get("meta", {}).get("endpoint"),
                 ],
                 "inventory_scope": "FBA only; FBM quantity is intentionally excluded.",
-                "sales_quantity_source": "bdASIN",
+                "sales_source": "productPerformance.volume",
             },
         )
 

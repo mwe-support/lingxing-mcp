@@ -233,7 +233,7 @@
 ## 这个仓库当前支持什么
 
 - 基础能力：`lingxing_health_check`、`lingxing_smoke_check`、`lingxing_seller_lists`、`lingxing_marketplaces`
-- 店铺经营：`lingxing_store_sales`、`lingxing_asin_daily_lists`、`lingxing_orders`、`lingxing_product_performance`
+- 店铺经营：`lingxing_store_sales`、`lingxing_asin_daily_lists`、`lingxing_order_lists`、`lingxing_product_performance`
 - 促销：`lingxing_promotion_*`、`lingxing_resolve_daily_promotions`
 - 广告：`lingxing_ad_accounts`、`lingxing_ads_sp_*`、`lingxing_ads_sd_*`、`lingxing_ads_sb_*`
 - 利润：`lingxing_profit_seller`、`lingxing_profit_asin`、`lingxing_profit_parent_asin`
@@ -303,6 +303,22 @@
 4. 修复后告诉我还需要重启 IDE、重新加载工作区，还是重新运行哪个命令
 5. 最后给我一个最短的验证步骤，确认这个 MCP 已经能用了
 ```
+
+### OpenAPI rate limiting
+
+The HTTP gateway accepts concurrent MCP clients, but Lingxing OpenAPI calls are queued inside `LingxingOpenAPIClient` before each signed business request. This prevents unrestricted client concurrency from turning into upstream Lingxing rate-limit errors.
+
+Runtime knobs:
+
+```bash
+LINGXING_OPENAPI_RATE_LIMIT_ENABLED=1
+LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS=1
+LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST=1
+LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT=60
+LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES=/bd/profit/report/open/report/asin/list=10:10
+```
+
+Known capacity-1 endpoints, such as order lists, order details, seller lists, marketplace lists, and product performance, are queued at `1 request/second`. Known capacity-10 endpoints, such as `lingxing_finance_report_asin`, are queued at `10 requests/second`. Unknown endpoints stay conservative until their official token bucket capacity is verified.
 
 ## License
 

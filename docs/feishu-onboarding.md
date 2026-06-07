@@ -167,7 +167,7 @@
 3. 在 Claude Code / Codex / Cursor 里接入 MCP 配置
 4. 先做一次最小健康检查
 5. 再按业务场景验证：
-   - 经营数据：`lingxing_store_sales` / `lingxing_orders`
+   - 经营数据：`lingxing_store_sales` / `lingxing_order_lists`
    - 流量广告：`lingxing_product_performance` / `lingxing_ads_sp_*`
    - 周汇总：`lingxing_asin_weekly_rollup`
 

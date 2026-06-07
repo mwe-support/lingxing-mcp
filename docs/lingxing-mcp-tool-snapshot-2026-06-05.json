@@ -140,8 +140,8 @@
     },
     {
       "index": 6,
-      "name": "lingxing_orders",
-      "description": "按店铺与时间窗口拉取 Orderlists，并自动合并分页。",
+      "name": "lingxing_order_lists",
+      "description": "按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
@@ -449,7 +449,7 @@
     {
       "index": 14,
       "name": "lingxing_asin_product_snapshot",
-      "description": "按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、FBA/FBM 订单数量和产品链接。",
+      "description": "按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
@@ -483,7 +483,8 @@
           "asin"
         ],
         "additionalProperties": false
-      }
+      },
+      "output_notes": "sales.volume 是产品表现销量/销售件数，来源 productPerformance.volume。快照工具暂不输出 FBA/FBM 订单数量；订单类分析请单独使用订单相关工具并按业务口径过滤。"
     },
     {
       "index": 15,

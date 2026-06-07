@@ -62,6 +62,7 @@ lingxing_health_check
 lingxing_seller_lists
 lingxing_marketplaces
 lingxing_order_details
+lingxing_order_lists
 lingxing_asin_product_snapshot
 lingxing_fba_warehouse_detail
 lingxing_local_product_costs
@@ -88,6 +89,22 @@ Use the shared client and service layer instead of hand-rolled HTTP calls.
 - Use `paged_post_detailed` for paginated APIs and pass `data_path`, `total_path`, `next_token_path`, and pagination mode from `EndpointSpec` when available.
 - Preserve the standard service result envelope: `ok`, `data`, `meta`, and `warnings`.
 - Prefer structured API parsing over ad hoc string parsing.
+
+## OpenAPI Rate Limiting
+
+Lingxing OpenAPI throttling is centralized in `lib/lingxing_openapi/client.py`. Do not add ad hoc sleeps or per-tool throttling in service methods unless there is a tool-specific business reason.
+
+Current behavior:
+
+- `LINGXING_OPENAPI_RATE_LIMIT_ENABLED` defaults to enabled.
+- Throttling is process-wide and grouped by normalized OpenAPI endpoint path.
+- Capacity-1 endpoints are queued at `1 request/second` with burst `1`.
+- Capacity-10 endpoints are queued at `10 requests/second` with burst `10`.
+- Endpoints without local capacity documentation default to `LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS=1` and `LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST=1`.
+- `LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT` defaults to `60` seconds. If the queue cannot obtain a token in time, return a local `local_rate_limit_timeout` error instead of leaking upstream Lingxing rate-limit failures.
+- `LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES` can tune rules without code changes, using comma-separated `endpoint=rate:burst` entries, for example `/bd/profit/report/open/report/asin/list=5:5`.
+
+When adding a new MCP tool backed by a new Lingxing endpoint, check the official OpenAPI document for token bucket capacity and update `KNOWN_RATE_LIMIT_RULES` in `client.py`. If the capacity is unknown, keep the default conservative rule and document the uncertainty.
 
 ## ASIN Product Snapshot Rules
 
@@ -125,10 +142,9 @@ Data source rules:
 - FBA transferring: `reserved_fc_processing`.
 - FBA researching: `afn_researching_quantity`.
 - Total inventory: sum of the four FBA fields above.
-- FBA/FBM sales quantity split: use `lingxing_finance_report_asin` / bdASIN only.
-- FBA orders: sum `fbaSalesQuantity`.
-- FBM orders: sum `fbmSalesQuantity`.
-- Total sales quantity: sum `totalSalesQuantity`. This is the only total sales quantity field to expose.
+- Sales volume in the snapshot comes from `productPerformance.volume`.
+- Do not include FBA/FBM order counts in `lingxing_asin_product_snapshot` unless the user explicitly approves a new order-count design.
+- Do not treat bdASIN `fbaSalesQuantity`, `fbmSalesQuantity`, or `totalSalesQuantity` as order counts; those fields are sales quantity metrics.
 - Do not infer FBA/FBM from SKU names, MSKU suffixes, or `productPerformance.price_list`.
 - Do not include raw upstream API objects such as `raw_refs` in the MCP output unless the user explicitly asks for raw debugging.
 
@@ -172,14 +188,14 @@ Minimum static verification after Python changes:
 
 ```bash
 cd /public/lingxing-mcp
-/opt/miniconda3/bin/python -m compileall -q lib mcp-servers
+python3 -m compileall -q lib mcp-servers
 ```
 
 Useful unit tests from the reference skills:
 
 ```bash
 cd /public/lingxing-mcp
-/opt/miniconda3/bin/python -m unittest \
+python3 -m unittest \
   skills.zach-lingxing-openapi-client.tests.test_lingxing_client \
   skills.zach-lingxing-openapi-client.tests.test_lingxing_services \
   skills.zach-lingxing-mcp.tests.test_mcp_server \
@@ -204,9 +220,8 @@ For `lingxing_asin_product_snapshot`, a known smoke-test case is:
 Expected shape:
 
 - Required input schema only contains `sid` and `asin`; `start_date` and `end_date` are optional.
-- `sales_quantity.fba_orders` comes from `fbaSalesQuantity`.
-- `sales_quantity.fbm_orders` comes from `fbmSalesQuantity`.
-- `sales_quantity.totalSalesQuantity` comes from `totalSalesQuantity`.
+- `sales.volume` comes from `productPerformance.volume`.
+- Output should not contain FBA/FBM order counts by default.
 - `inventory` contains FBA-only fields.
 - Output should not contain raw upstream response blobs by default.
 

@@ -64,7 +64,7 @@ bash mcp-servers/lingxing-openapi/deploy/install_gateway_on_ubuntu.sh --help
 - `lingxing_store_sales`
 - `lingxing_asin_daily_lists`
 - `lingxing_product_performance`
-- `lingxing_orders`
+- `lingxing_order_lists`
 - `lingxing_promotion_listing`
 - `lingxing_promotion_sec_kill`
 - `lingxing_promotion_manage`

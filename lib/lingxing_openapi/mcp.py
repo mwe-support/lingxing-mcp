@@ -200,9 +200,9 @@ class LingxingMCPApplication:
                     asin_type=_optional_int(args, "asin_type") or 1,
                 ),
             ),
-            "lingxing_orders": ToolDefinition(
-                name="lingxing_orders",
-                description="按店铺与时间窗口拉取 Orderlists，并自动合并分页。",
+            "lingxing_order_lists": ToolDefinition(
+                name="lingxing_order_lists",
+                description="按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。",
                 input_schema={
                     "type": "object",
                     "properties": {
@@ -361,7 +361,7 @@ class LingxingMCPApplication:
             ),
             "lingxing_asin_product_snapshot": ToolDefinition(
                 name="lingxing_asin_product_snapshot",
-                description="按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、FBA/FBM 订单数量和产品链接。",
+                description="按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。",
                 input_schema={
                     "type": "object",
                     "properties": {

@@ -25,7 +25,7 @@
 | 3 | `lingxing_marketplaces` | `manual` | `manual` | - | - | - | 返回领星市场列表，并补充站点时区映射。 |
 | 4 | `lingxing_store_sales` | `manual` | `manual` | `sid`, `start_date`, `end_date` | - | - | 按店铺和日期范围拉取 StoreSales，并自动合并分页。 |
 | 5 | `lingxing_asin_daily_lists` | `manual` | `manual` | `sid`, `event_date`, `metric_type` | `asin_type` | - | 按店铺、日期和指标类型拉取 AsinDailyLists。 |
-| 6 | `lingxing_orders` | `manual` | `manual` | `sid`, `start_date`, `end_date` | `date_type` | - | 按店铺与时间窗口拉取 Orderlists，并自动合并分页。 |
+| 6 | `lingxing_order_lists` | `manual` | `manual` | `sid`, `start_date`, `end_date` | `date_type` | - | 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。 |
 | 7 | `lingxing_order_details` | `manual` | `manual` | - | `order_id`, `order_ids` | - | 按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。 |
 | 8 | `lingxing_promotion_listing` | `manual` | `manual` | `sid`, `site_date`, `start_time`, `end_time` | `status`, `product_status`, `promotion_category` | - | 拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。 |
 | 9 | `lingxing_promotion_sec_kill` | `manual` | `manual` | `sid`, `start_date`, `end_date` | - | - | 拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。 |
@@ -33,7 +33,7 @@
 | 11 | `lingxing_promotion_vip_discount` | `manual` | `manual` | `sid`, `start_date`, `end_date` | - | - | 拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。 |
 | 12 | `lingxing_promotion_coupon` | `manual` | `manual` | `sid`, `start_date`, `end_date` | - | - | 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。 |
 | 13 | `lingxing_resolve_daily_promotions` | `manual` | `manual` | `sid`, `target_date` | `lookback_days` | - | 输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。 |
-| 14 | `lingxing_asin_product_snapshot` | `manual` | `manual` | `sid`, `asin` | `start_date`, `end_date` | - | 按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、FBA/FBM 订单数量和产品链接。 |
+| 14 | `lingxing_asin_product_snapshot` | `manual` | `manual` | `sid`, `asin` | `start_date`, `end_date` | - | 按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。 |
 | 15 | `lingxing_local_product_costs` | `manual` | `manual` | - | `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end`, `page_size`, `include_supplier_quotes`, `include_raw` | - | Query Lingxing local product info by local SKU or SKU identifier, returning purchase cost, transport cost, purchaser and supplier quotes. |
 | 16 | `lingxing_smoke_check` | `manual` | `manual` | - | `sid`, `date` | - | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
 | 17 | `lingxing_ad_accounts` | `manual` | `manual` | - | `type`, `sid`, `profile_id`, `country_code`, `status` | - | 查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。 |
@@ -244,9 +244,9 @@
 }
 ```
 
-### 6. `lingxing_orders`
+### 6. `lingxing_order_lists`
 
-- Description: 按店铺与时间窗口拉取 Orderlists，并自动合并分页。
+- Description: 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。
 - Registered by: `manual`
 - Category: `manual`
 - Endpoint: -
@@ -531,7 +531,9 @@
 
 ### 14. `lingxing_asin_product_snapshot`
 
-- Description: 按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、FBA/FBM 订单数量和产品链接。
+- Output notes: sales.volume 是产品表现销量/销售件数，来源 productPerformance.volume。快照工具暂不输出 FBA/FBM 订单数量；订单类分析请单独使用订单相关工具并按业务口径过滤。
+
+- Description: 按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume，以及利润报表 transaction 视图按 FBA/FBM 区分的订单数量。
 - Registered by: `manual`
 - Category: `manual`
 - Endpoint: -
@@ -618,7 +620,7 @@
 
 ### 16. `lingxing_smoke_check`
 
-- Description: 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。
+- Description: 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。
 - Registered by: `manual`
 - Category: `manual`
 - Endpoint: -

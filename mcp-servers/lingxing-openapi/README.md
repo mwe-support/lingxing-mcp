@@ -44,7 +44,7 @@
 - `lingxing_marketplaces`
 - `lingxing_store_sales`
 - `lingxing_asin_daily_lists`
-- `lingxing_orders`
+- `lingxing_order_lists`
 - `lingxing_promotion_listing`
 - `lingxing_promotion_sec_kill`
 - `lingxing_promotion_manage`
@@ -118,3 +118,20 @@ python3 mcp-servers/lingxing-openapi/deploy/manage_tokens.py \
 填写时建议补充当前接法、报错信息和卡住的步骤，方便后续排查。
 
 <img src="../../assets/traffic/feishu-feedback-form.png" width="260" alt="飞书问卷反馈二维码" />
+
+
+## OpenAPI rate limiting
+
+The server does not require each MCP client to self-throttle. Business requests are throttled in the shared OpenAPI client by endpoint path before calling Lingxing. The default is enabled and conservative for unknown endpoints.
+
+Useful environment variables:
+
+```bash
+LINGXING_OPENAPI_RATE_LIMIT_ENABLED=1
+LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS=1
+LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST=1
+LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT=60
+LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES=/bd/profit/report/open/report/asin/list=10:10
+```
+
+Use `LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES` only after checking the official Lingxing token bucket capacity for the endpoint.
