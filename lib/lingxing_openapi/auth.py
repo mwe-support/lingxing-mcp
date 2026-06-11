@@ -38,6 +38,7 @@ class AuthTokenRecord:
     created_at: str
     updated_at: str
     revoked_at: str | None = None
+    role: str | None = None
 
     @property
     def is_active(self) -> bool:
@@ -51,6 +52,7 @@ class AuthTokenRecord:
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "revoked_at": self.revoked_at,
+            "role": self.role or "minimal",
             "token_preview": _mask_token(self.token),
         }
 
@@ -60,6 +62,7 @@ class AuthMatch:
     mode: str
     token_id: str
     description: str
+    role: str | None = None
 
 
 @dataclass(frozen=True)
@@ -87,10 +90,10 @@ class BearerAuthConfig:
         if not token:
             return None
         if self.bootstrap_token and secrets.compare_digest(token, self.bootstrap_token):
-            return AuthMatch(mode="single", token_id="bootstrap", description="bootstrap")
+            return AuthMatch(mode="single", token_id="bootstrap", description="bootstrap", role=None)
         for record in self.records:
             if record.is_active and secrets.compare_digest(token, record.token):
-                return AuthMatch(mode="multi", token_id=record.token_id, description=record.description)
+                return AuthMatch(mode="multi", token_id=record.token_id, description=record.description, role=record.role)
         return None
 
     def summary(self) -> dict[str, Any]:
@@ -102,21 +105,25 @@ class BearerAuthConfig:
         }
 
 
+def _record_to_file_dict(record: AuthTokenRecord) -> dict[str, Any]:
+    payload = {
+        "id": record.token_id,
+        "description": record.description,
+        "token": record.token,
+        "status": record.status,
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+        "revoked_at": record.revoked_at,
+    }
+    if record.role:
+        payload["role"] = record.role
+    return payload
+
+
 def build_tokens_payload(records: list[AuthTokenRecord]) -> dict[str, Any]:
     return {
         "version": TOKENS_FILE_VERSION,
-        "tokens": [
-            {
-                "id": record.token_id,
-                "description": record.description,
-                "token": record.token,
-                "status": record.status,
-                "created_at": record.created_at,
-                "updated_at": record.updated_at,
-                "revoked_at": record.revoked_at,
-            }
-            for record in records
-        ],
+        "tokens": [_record_to_file_dict(record) for record in records],
     }
 
 
@@ -128,6 +135,7 @@ def _parse_record(raw: dict[str, Any], index: int) -> AuthTokenRecord:
     created_at = str(raw.get("created_at") or "").strip() or _now_iso()
     updated_at = str(raw.get("updated_at") or "").strip() or created_at
     revoked_at = str(raw.get("revoked_at") or "").strip() or None
+    role = str(raw.get("role") or "").strip() or None
     enabled = raw.get("enabled")
     if enabled is False and status == "active":
         status = "disabled"
@@ -139,6 +147,7 @@ def _parse_record(raw: dict[str, Any], index: int) -> AuthTokenRecord:
         created_at=created_at,
         updated_at=updated_at,
         revoked_at=revoked_at,
+        role=role,
     )
 
 
@@ -177,7 +186,14 @@ def load_bearer_auth_config(*, bootstrap_token: str = "", tokens_file: str = "")
     return config
 
 
-def init_tokens_file(tokens_file: str | Path, *, token_id: str, description: str, token: str | None = None) -> tuple[Path, str]:
+def init_tokens_file(
+    tokens_file: str | Path,
+    *,
+    token_id: str,
+    description: str,
+    token: str | None = None,
+    role: str | None = None,
+) -> tuple[Path, str]:
     path = Path(tokens_file).expanduser()
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
@@ -192,17 +208,26 @@ def init_tokens_file(tokens_file: str | Path, *, token_id: str, description: str
             status="active",
             created_at=now,
             updated_at=now,
+            role=role.strip() or None if role else None,
         )
     ]
     path.write_text(json.dumps(build_tokens_payload(records), ensure_ascii=False, indent=2), encoding="utf-8")
     return path, value
 
 
-def upsert_token(tokens_file: str | Path, *, token_id: str, description: str, token: str | None = None) -> str:
+def upsert_token(
+    tokens_file: str | Path,
+    *,
+    token_id: str,
+    description: str,
+    token: str | None = None,
+    role: str | None = None,
+) -> str:
     path = Path(tokens_file).expanduser()
     existing = list(load_tokens_file(path))
     value = token or generate_member_token()
     now = _now_iso()
+    normalized_role = role.strip() or None if role else None
     replaced = False
     for index, record in enumerate(existing):
         if record.token_id == token_id:
@@ -213,6 +238,7 @@ def upsert_token(tokens_file: str | Path, *, token_id: str, description: str, to
                 status="active",
                 created_at=record.created_at,
                 updated_at=now,
+                role=normalized_role if role is not None else record.role,
             )
             replaced = True
             break
@@ -225,6 +251,7 @@ def upsert_token(tokens_file: str | Path, *, token_id: str, description: str, to
                 status="active",
                 created_at=now,
                 updated_at=now,
+                role=normalized_role,
             )
         )
     path.write_text(json.dumps(build_tokens_payload(existing), ensure_ascii=False, indent=2), encoding="utf-8")
@@ -246,6 +273,7 @@ def revoke_token(tokens_file: str | Path, *, token_id: str) -> bool:
                 created_at=record.created_at,
                 updated_at=now,
                 revoked_at=now,
+                role=record.role,
             )
             changed = True
             break
@@ -268,7 +296,33 @@ def rotate_token(tokens_file: str | Path, *, token_id: str, token: str | None = 
                 status="active",
                 created_at=record.created_at,
                 updated_at=now,
+                role=record.role,
             )
             path.write_text(json.dumps(build_tokens_payload(existing), ensure_ascii=False, indent=2), encoding="utf-8")
             return value
     raise LingxingConfigError(f"未找到令牌 ID: {token_id}")
+
+
+def set_token_role(tokens_file: str | Path, *, token_id: str, role: str | None) -> bool:
+    path = Path(tokens_file).expanduser()
+    existing = list(load_tokens_file(path))
+    now = _now_iso()
+    normalized_role = role.strip() or None if role else None
+    changed = False
+    for index, record in enumerate(existing):
+        if record.token_id == token_id:
+            existing[index] = AuthTokenRecord(
+                token_id=record.token_id,
+                token=record.token,
+                description=record.description,
+                status=record.status,
+                created_at=record.created_at,
+                updated_at=now,
+                revoked_at=record.revoked_at,
+                role=normalized_role,
+            )
+            changed = True
+            break
+    if changed:
+        path.write_text(json.dumps(build_tokens_payload(existing), ensure_ascii=False, indent=2), encoding="utf-8")
+    return changed

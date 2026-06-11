@@ -74,6 +74,13 @@ python3 mcp-servers/lingxing-openapi/deploy/manage_tokens.py --tokens-file /etc/
 ```bash
 python3 mcp-servers/lingxing-openapi/deploy/manage_tokens.py --tokens-file /etc/lingxing-mcp/tokens.json add --id alice-mac --description "Alice MacBook"
 ```
+Role notes:
+
+- `minimal` is the default role and uses the built-in least-privilege role allowlist.
+- Existing tokens without `role` are treated as `minimal`.
+- Use `--role operations` or `--role finance` when adding role-specific users.
+- Use `set-role` to change a role without rotating the token. Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`.
+
 
 ## 固定出口部署脚本
 

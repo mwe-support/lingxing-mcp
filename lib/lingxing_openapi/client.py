@@ -95,6 +95,11 @@ def _normalize_endpoint(path: str) -> str:
     return f"/{str(path).lstrip('/')}"
 
 
+def normalize_rate_limit_endpoint(path: str) -> str:
+    """Return the canonical endpoint key used by local rate limiting."""
+    return _normalize_endpoint(path)
+
+
 def _parse_rate_limit_overrides(raw: str) -> dict[str, RateLimitRule]:
     rules: dict[str, RateLimitRule] = {}
     for item in raw.split(","):
@@ -125,6 +130,44 @@ def _rate_limit_rule_for_endpoint(endpoint: str) -> RateLimitRule:
         max(1, _env_int("LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST", 1)),
         "default",
     )
+
+
+def rate_limit_rule_for_endpoint(endpoint: str) -> RateLimitRule:
+    """Return the effective rate-limit rule for an OpenAPI endpoint."""
+    return _rate_limit_rule_for_endpoint(endpoint)
+
+
+def rate_limit_runtime_settings() -> dict[str, Any]:
+    """Return process runtime settings that affect local OpenAPI throttling."""
+    return {
+        "enabled": _env_bool("LINGXING_OPENAPI_RATE_LIMIT_ENABLED", True),
+        "default_rate_per_second": _env_float("LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS", 1.0),
+        "default_burst": max(1, _env_int("LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST", 1)),
+        "wait_timeout_seconds": _env_float("LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT", 60.0),
+        "override_count": len(_parse_rate_limit_overrides(os.getenv("LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES", ""))),
+    }
+
+
+def rate_limit_policy_for_endpoint(endpoint: str) -> dict[str, Any]:
+    """Return a machine-readable throttling policy for one endpoint."""
+    normalized = _normalize_endpoint(endpoint)
+    rule = _rate_limit_rule_for_endpoint(normalized)
+    settings = rate_limit_runtime_settings()
+    if not settings["enabled"]:
+        guidance = "服务端本地限流当前关闭；客户端仍应避免并发打爆领星 OpenAPI。"
+    elif rule.rate_per_second <= 1.0 and rule.burst <= 1:
+        guidance = "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+    else:
+        guidance = f"该 endpoint 允许较高吞吐；客户端并发不应超过 burst={rule.burst}，长期速率不应超过 {rule.rate_per_second:g} req/s。"
+    return {
+        "endpoint": normalized,
+        "rate_per_second": rule.rate_per_second,
+        "burst": rule.burst,
+        "source": rule.source,
+        "enabled": settings["enabled"],
+        "wait_timeout_seconds": settings["wait_timeout_seconds"],
+        "client_guidance": guidance,
+    }
 
 
 class _TokenBucket:

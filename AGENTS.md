@@ -48,17 +48,21 @@ Deployment paths used by the current gateway:
 - Keep business APIs read-only unless the user explicitly asks for a write-capable endpoint and confirms the risk.
 - Treat Lingxing `403` as likely authorization, API permission, authorization expiry, or IP allowlist issue before changing code.
 - Treat HTTP `missing_or_invalid_bearer` as MCP gateway authentication failure, not Lingxing API failure.
-- Do not expose all MCP tools by default. Use the server-side allowlist in `LINGXING_MCP_ENABLED_TOOLS`.
+- Do not expose all MCP tools by default. Use role-based allowlists in `LINGXING_MCP_ROLE_TOOLS` or the built-in role defaults; `LINGXING_MCP_ENABLED_TOOLS` is deprecated and should not be reintroduced.
 - MCP tool descriptions must be written in Chinese. Tool names may remain English, but `description`, user-facing schema explanations, warnings, and business field notes should use Chinese unless an upstream API field name is being quoted.
 - Public examples under `mcp-servers/lingxing-openapi/examples/public/` must remain sanitized placeholders only. Never replace example values with real credentials, real tokens, real server addresses, or internal URLs.
 - Treat `manage_tokens.py list --show-token` output as secret material; do not paste it into chat or logs.
 
 ## Current MCP Tool Policy
 
-The production service should expose a minimal allowlist, not all registered tools. The current expected minimal business set is:
+The default member-token role is `minimal`. Tokens without a `role` field are treated as `minimal`. Role-specific visibility must be enforced in both `tools/list` and `tools/call`; hiding a tool from the list is not sufficient. Current built-in roles are `minimal`, `operations`, and `finance`. Every role must include `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`; code should enforce these base tools even when role mappings are overridden.
+
+The production service should expose role-based allowlists, not all registered tools. The current expected `minimal` role set is:
 
 ```text
 lingxing_health_check
+lingxing_smoke_check
+lingxing_rate_limit_policy
 lingxing_seller_lists
 lingxing_marketplaces
 lingxing_order_details
@@ -73,7 +77,7 @@ lingxing_finance_report_asin
 When adding or renaming MCP tools:
 
 - Update the tool definition or `EndpointSpec`.
-- Update `LINGXING_MCP_ENABLED_TOOLS` if the tool must be visible to clients.
+- Update the built-in role mapping or `LINGXING_MCP_ROLE_TOOLS` if the tool must be visible to a role.
 - Run `tools/list` against the running HTTP MCP endpoint after restart.
 - Update `docs/lingxing-mcp-tool-snapshot-*.md/json` when the visible tool surface changes materially.
 
@@ -104,7 +108,9 @@ Current behavior:
 - `LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT` defaults to `60` seconds. If the queue cannot obtain a token in time, return a local `local_rate_limit_timeout` error instead of leaking upstream Lingxing rate-limit failures.
 - `LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES` can tune rules without code changes, using comma-separated `endpoint=rate:burst` entries, for example `/bd/profit/report/open/report/asin/list=5:5`.
 
-When adding a new MCP tool backed by a new Lingxing endpoint, check the official OpenAPI document for token bucket capacity and update `KNOWN_RATE_LIMIT_RULES` in `client.py`. If the capacity is unknown, keep the default conservative rule and document the uncertainty.
+Every registered MCP tool must expose a visible `限流：` line in its `tools/list` description. Simple `EndpointSpec` tools inherit this automatically from `spec.endpoint`; handwritten tools must set `rate_limit_endpoints` explicitly or intentionally leave it empty only when the tool is local-only. Keep `lingxing_rate_limit_policy` available in every role so clients can obtain machine-readable endpoint policies.
+
+When adding a new MCP tool backed by a new Lingxing endpoint, check the official OpenAPI document for token bucket capacity and update `KNOWN_RATE_LIMIT_RULES` in `client.py`. If the capacity is unknown, keep the default conservative rule and document the uncertainty in the tool metadata and snapshot.
 
 ## ASIN Product Snapshot Rules
 
@@ -253,7 +259,7 @@ Use this high-level routing before deep debugging:
 
 - Lingxing backend setup requires a super administrator in `设置 -> 业务配置 -> 基础 -> 开放接口`.
 - Confirm the allowlisted IP is the fixed-egress server public outbound IP, not the operator laptop IP.
-- If the chain has not reached `healthz`, `lingxing_health_check`, and then `lingxing_smoke_check`, do not start debugging high-level business tools.
+- If the chain has not reached `healthz`, `lingxing_health_check`, `lingxing_rate_limit_policy`, and then `lingxing_smoke_check`, do not start debugging high-level business tools.
 
 1. Check whether the MCP gateway process is running.
 2. Check Bearer authentication and token file validity.
@@ -263,8 +269,9 @@ Use this high-level routing before deep debugging:
 6. Check request shape, pagination settings, `data_path`, and date range semantics.
 7. Only then modify client or service code.
 
-For rate-limit errors such as Lingxing `code=103`:
+For rate-limit errors such as Lingxing `code=103` or local `local_rate_limit_timeout`:
 
+- First inspect `lingxing_rate_limit_policy` and the `限流：` line in `tools/list`.
 - Do not parallelize calls to the same constrained endpoint.
 - Prefer serial calls with short delay or retry.
 - Avoid broad scans when a specific `sid` and `asin` are available.

@@ -12,7 +12,8 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 
-from .auth import BearerAuthConfig, load_bearer_auth_config
+from .auth import AuthMatch, BearerAuthConfig, load_bearer_auth_config
+from .client import rate_limit_policy_for_endpoint, rate_limit_runtime_settings
 from .endpoint_specs import ALL_ENDPOINT_SPECS
 from .errors import LingxingClientError, LingxingConfigError
 from .services import LingxingOpenAPIService
@@ -21,34 +22,186 @@ from .services import LingxingOpenAPIService
 SERVER_NAME = "lingxing-openapi"
 SERVER_VERSION = "0.3.0"
 PROTOCOL_VERSION = "2024-11-05"
-ENABLED_TOOLS_ENV = "LINGXING_MCP_ENABLED_TOOLS"
+ROLE_TOOL_MAP_ENV = "LINGXING_MCP_ROLE_TOOLS"
+BASE_ROLE_TOOL_NAMES = {
+    "lingxing_health_check",
+    "lingxing_smoke_check",
+    "lingxing_rate_limit_policy",
+}
+DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
+    "minimal": BASE_ROLE_TOOL_NAMES
+    | {
+        "lingxing_seller_lists",
+        "lingxing_marketplaces",
+        "lingxing_order_details",
+        "lingxing_order_lists",
+        "lingxing_asin_product_snapshot",
+        "lingxing_fba_warehouse_detail",
+        "lingxing_local_product_costs",
+        "lingxing_product_performance",
+        "lingxing_finance_report_asin",
+    },
+    "operations": BASE_ROLE_TOOL_NAMES
+    | {
+        "lingxing_seller_lists",
+        "lingxing_marketplaces",
+        "lingxing_order_details",
+        "lingxing_order_lists",
+        "lingxing_asin_product_snapshot",
+        "lingxing_fba_warehouse_detail",
+        "lingxing_local_product_costs",
+        "lingxing_product_performance",
+    },
+    "finance": BASE_ROLE_TOOL_NAMES
+    | {
+        "lingxing_store_sales",
+        "lingxing_profit_seller",
+        "lingxing_profit_asin",
+        "lingxing_finance_report_asin",
+        "lingxing_local_product_costs",
+        "lingxing_fba_stock_aggregate",
+        "lingxing_exp_finance_report_seller",
+        "lingxing_seller_lists",
+        "lingxing_order_details",
+        "lingxing_fba_warehouse_detail",
+        "lingxing_fba_stock_detail",
+        "lingxing_source_transaction",
+    },
+}
+ROLE_ALIASES = {
+    "legacy": "minimal",
+    "base": "minimal",
+    "readonly": "minimal",
+    "read_only": "minimal",
+    "minimum": "minimal",
+    "operation": "operations",
+    "ops": "operations",
+    "financial": "finance",
+}
+CORS_ALLOW_HEADERS = ", ".join(
+    [
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "CF-Access-Client-Id",
+        "CF-Access-Client-Secret",
+        "Mcp-Session-Id",
+        "Last-Event-ID",
+    ]
+)
 
 
-def _enabled_tool_names_from_env() -> set[str] | None:
-    raw_value = os.getenv(ENABLED_TOOLS_ENV, "").strip()
-    if not raw_value:
-        return None
-    normalized = raw_value.replace("\n", ",").replace(";", ",")
-    names = {name.strip() for name in normalized.split(",") if name.strip()}
-    return names or None
+MANUAL_TOOL_RATE_LIMIT_ENDPOINTS: dict[str, tuple[str, ...]] = {
+    "lingxing_health_check": ("/api/auth-server/oauth/access-token",),
+    "lingxing_rate_limit_policy": (),
+    "lingxing_seller_lists": ("/erp/sc/data/seller/lists", "/erp/sc/data/seller/allMarketplace"),
+    "lingxing_marketplaces": ("/erp/sc/data/seller/allMarketplace",),
+    "lingxing_store_sales": ("/erp/sc/data/sales_report/sales",),
+    "lingxing_asin_daily_lists": ("/erp/sc/data/sales_report/asinDailyLists",),
+    "lingxing_order_lists": ("/erp/sc/data/mws/orders",),
+    "lingxing_order_details": ("/erp/sc/data/mws/orderDetail", "/erp/sc/data/seller/lists", "/erp/sc/data/seller/allMarketplace"),
+    "lingxing_promotion_listing": ("/basicOpen/promotion/listingList",),
+    "lingxing_promotion_sec_kill": ("/basicOpen/promotionalActivities/secKill/list",),
+    "lingxing_promotion_manage": ("/basicOpen/promotionalActivities/manage/list",),
+    "lingxing_promotion_vip_discount": ("/basicOpen/promotionalActivities/vipDiscount/list",),
+    "lingxing_promotion_coupon": ("/basicOpen/promotionalActivities/coupon/list",),
+    "lingxing_resolve_daily_promotions": (
+        "/basicOpen/promotion/listingList",
+        "/basicOpen/promotionalActivities/secKill/list",
+        "/basicOpen/promotionalActivities/manage/list",
+        "/basicOpen/promotionalActivities/vipDiscount/list",
+        "/basicOpen/promotionalActivities/coupon/list",
+    ),
+    "lingxing_asin_product_snapshot": (
+        "/basicOpen/openapi/storage/fbaWarehouseDetail",
+        "/bd/productPerformance/openApi/asinList",
+        "/erp/sc/routing/data/local_inventory/productList",
+    ),
+    "lingxing_local_product_costs": ("/erp/sc/routing/data/local_inventory/productList",),
+    "lingxing_smoke_check": (
+        "/erp/sc/data/seller/lists",
+        "/erp/sc/data/seller/allMarketplace",
+        "/erp/sc/data/sales_report/sales",
+        "/erp/sc/data/mws/orders",
+        "/basicOpen/promotion/listingList",
+        "/basicOpen/baseData/account/list",
+        "/pb/openapi/newad/spProductAdReports",
+        "/pb/openapi/newad/sdProductAdReports",
+        "/pb/openapi/newad/hsaPurchasedAsinReports",
+        "/bd/profit/statistics/open/seller/list",
+        "/erp/sc/data/mws_report/allOrders",
+        "/erp/sc/data/mws_report/manageInventory",
+    ),
+    "lingxing_ad_accounts": ("/basicOpen/baseData/account/list",),
+    "lingxing_report_export_create": ("/basicOpen/report/create/reportExportTask",),
+    "lingxing_report_export_query": ("/basicOpen/report/query/reportExportTask",),
+    "lingxing_report_export_refresh_url": ("/basicOpen/report/amazonReportExportTask",),
+    "lingxing_report_export_download": (
+        "/basicOpen/report/query/reportExportTask",
+        "/basicOpen/report/amazonReportExportTask",
+    ),
+    "lingxing_asin_ads_daily_rollup": (
+        "/basicOpen/baseData/account/list",
+        "/pb/openapi/newad/hsaProductAds",
+        "/pb/openapi/newad/spProductAdReports",
+        "/pb/openapi/newad/sdProductAdReports",
+        "/pb/openapi/newad/hsaPurchasedAsinReports",
+        "/pb/openapi/newad/listHsaProductAdReport",
+    ),
+    "lingxing_asin_weekly_rollup": (
+        "/erp/sc/data/sales_report/sales",
+        "/basicOpen/baseData/account/list",
+        "/pb/openapi/newad/hsaProductAds",
+        "/pb/openapi/newad/spProductAdReports",
+        "/pb/openapi/newad/sdProductAdReports",
+        "/pb/openapi/newad/hsaPurchasedAsinReports",
+        "/pb/openapi/newad/listHsaProductAdReport",
+        "/basicOpen/promotion/listingList",
+        "/basicOpen/promotionalActivities/secKill/list",
+        "/basicOpen/promotionalActivities/manage/list",
+        "/basicOpen/promotionalActivities/vipDiscount/list",
+        "/basicOpen/promotionalActivities/coupon/list",
+    ),
+}
 
 
-def _filter_enabled_tools(tools: dict[str, "ToolDefinition"]) -> dict[str, "ToolDefinition"]:
-    enabled_names = _enabled_tool_names_from_env()
-    if enabled_names is None:
-        return tools
+def _normalize_role(role: str | None) -> str:
+    normalized = str(role or "").strip()
+    if not normalized:
+        return ""
+    lowered = normalized.lower().replace("-", "_")
+    return ROLE_ALIASES.get(normalized, ROLE_ALIASES.get(lowered, lowered))
 
-    unknown_names = sorted(enabled_names.difference(tools))
-    if unknown_names:
-        sys.stderr.write(
-            f"Ignoring unknown MCP tool names from {ENABLED_TOOLS_ENV}: "
-            f"{', '.join(unknown_names)}\n"
-        )
 
-    filtered = {name: tool for name, tool in tools.items() if name in enabled_names}
-    if not filtered:
-        raise LingxingConfigError(f"{ENABLED_TOOLS_ENV} did not match any registered MCP tools")
-    return filtered
+def _split_tool_names(value: Any) -> set[str]:
+    if isinstance(value, str):
+        normalized = value.replace("\n", ",").replace(";", ",")
+        return {item.strip() for item in normalized.split(",") if item.strip()}
+    if isinstance(value, list):
+        return {str(item).strip() for item in value if str(item).strip()}
+    raise LingxingConfigError(f"{ROLE_TOOL_MAP_ENV} role value must be a list, string, or null")
+
+
+def _role_tool_names_from_env() -> dict[str, set[str]]:
+    mapping = {role: set(tool_names) for role, tool_names in DEFAULT_ROLE_TOOL_NAMES.items()}
+    raw_value = os.getenv(ROLE_TOOL_MAP_ENV, "").strip()
+    if raw_value:
+        try:
+            payload = json.loads(raw_value)
+        except json.JSONDecodeError as exc:
+            raise LingxingConfigError(f"{ROLE_TOOL_MAP_ENV} must be a JSON object") from exc
+        if not isinstance(payload, dict):
+            raise LingxingConfigError(f"{ROLE_TOOL_MAP_ENV} must be a JSON object")
+        for role, tool_names in payload.items():
+            normalized_role = _normalize_role(str(role))
+            if not normalized_role:
+                continue
+            if tool_names is None:
+                mapping[normalized_role] = BASE_ROLE_TOOL_NAMES | set(DEFAULT_ROLE_TOOL_NAMES.get(normalized_role, set()))
+            else:
+                mapping[normalized_role] = BASE_ROLE_TOOL_NAMES | _split_tool_names(tool_names)
+    mapping.setdefault("minimal", set(DEFAULT_ROLE_TOOL_NAMES["minimal"]))
+    return mapping
 
 
 def _json_text(value: Any) -> str:
@@ -108,17 +261,51 @@ def _listify_strings(value: Any) -> list[str]:
     return [str(value)]
 
 
+def _unique_endpoints(endpoints: tuple[str, ...] | list[str]) -> tuple[str, ...]:
+    seen: set[str] = set()
+    values: list[str] = []
+    for endpoint in endpoints:
+        text = str(endpoint or "").strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        values.append(text)
+    return tuple(values)
+
+
+def _rate_limit_description(endpoints: tuple[str, ...]) -> str:
+    endpoints = _unique_endpoints(endpoints)
+    if not endpoints:
+        return "限流：本工具不直接调用领星业务 OpenAPI，或仅返回本地网关策略；客户端可并发调用，但不应把它作为业务查询循环。"
+    if len(endpoints) == 1:
+        policy = rate_limit_policy_for_endpoint(endpoints[0])
+        return (
+            f"限流：endpoint {policy['endpoint']}，"
+            f"{policy['rate_per_second']:g} req/s，burst {policy['burst']}，来源 {policy['source']}；"
+            f"{policy['client_guidance']}"
+        )
+    policies = [rate_limit_policy_for_endpoint(endpoint) for endpoint in endpoints]
+    strict = min(policies, key=lambda item: (float(item['rate_per_second']), int(item['burst'])))
+    return (
+        f"限流：聚合工具，涉及 {len(policies)} 个 endpoint；最严格为 {strict['endpoint']} "
+        f"{strict['rate_per_second']:g} req/s，burst {strict['burst']}；"
+        "客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。"
+    )
+
+
 @dataclass
 class ToolDefinition:
     name: str
     description: str
     input_schema: dict[str, Any]
     handler: Callable[[dict[str, Any]], dict[str, Any]]
+    rate_limit_endpoints: tuple[str, ...] = ()
 
     def as_mcp_tool(self) -> dict[str, Any]:
+        description = f"{self.description}\n{_rate_limit_description(self.rate_limit_endpoints)}"
         return {
             "name": self.name,
-            "description": self.description,
+            "description": description,
             "inputSchema": self.input_schema,
         }
 
@@ -129,6 +316,7 @@ class LingxingMCPApplication:
     def __init__(self, service: LingxingOpenAPIService | None = None) -> None:
         self.service = service or LingxingOpenAPIService()
         self.tools = self._build_tools()
+        self.role_tool_names = _role_tool_names_from_env()
 
     def _build_tools(self) -> dict[str, ToolDefinition]:
         tools = {
@@ -137,6 +325,20 @@ class LingxingMCPApplication:
                 description="检查领星环境变量、token 状态和基础连通性，不拉业务数据。",
                 input_schema={"type": "object", "properties": {}, "additionalProperties": False},
                 handler=lambda _: self.service.health_check(),
+            ),
+            "lingxing_rate_limit_policy": ToolDefinition(
+                name="lingxing_rate_limit_policy",
+                description="返回当前 MCP 工具到领星 OpenAPI endpoint 的限流政策，供客户端 agent 在调用前按 endpoint 自主排队。",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "tool_name": {"type": "string", "description": "可选；只查询某一个 MCP 工具的限流策略。"},
+                    },
+                    "additionalProperties": False,
+                },
+                handler=lambda args: self.rate_limit_policy(
+                    tool_name=str(args.get("tool_name") or "").strip() or None
+                ),
             ),
             "lingxing_seller_lists": ToolDefinition(
                 name="lingxing_seller_lists",
@@ -592,17 +794,92 @@ class LingxingMCPApplication:
                 description=spec.description,
                 input_schema=spec.input_schema,
                 handler=lambda args, tool_name=spec.tool_name: self.service.run_endpoint_spec(tool_name, args),
+                rate_limit_endpoints=(spec.endpoint,),
             )
-        return _filter_enabled_tools(tools)
+        for tool_name, endpoints in MANUAL_TOOL_RATE_LIMIT_ENDPOINTS.items():
+            tool = tools.get(tool_name)
+            if tool is not None and not tool.rate_limit_endpoints:
+                tool.rate_limit_endpoints = _unique_endpoints(endpoints)
+        return tools
 
-    def list_tools(self) -> list[dict[str, Any]]:
-        return [tool.as_mcp_tool() for tool in self.tools.values()]
+    def _tools_for_auth(self, auth_match: AuthMatch | None = None) -> dict[str, ToolDefinition]:
+        role = _normalize_role(auth_match.role if auth_match else None) or "minimal"
+        allowed_names = self.role_tool_names.get(role)
+        if allowed_names is None:
+            return {}
+        unknown_names = sorted(allowed_names.difference(self.tools))
+        if unknown_names:
+            sys.stderr.write(f"Ignoring unknown MCP tool names for role {role}: {', '.join(unknown_names)}\n")
+        return {name: tool for name, tool in self.tools.items() if name in allowed_names}
 
-    def call_tool(self, name: str, arguments: dict[str, Any] | None) -> dict[str, Any]:
-        tool = self.tools.get(name)
+    def list_tools(self, auth_match: AuthMatch | None = None) -> list[dict[str, Any]]:
+        return [tool.as_mcp_tool() for tool in self._tools_for_auth(auth_match).values()]
+
+    def call_tool(self, name: str, arguments: dict[str, Any] | None, auth_match: AuthMatch | None = None) -> dict[str, Any]:
+        tool = self._tools_for_auth(auth_match).get(name)
         if tool is None:
-            raise LingxingConfigError(f"未知工具: {name}")
+            role = _normalize_role(auth_match.role if auth_match else None) or "minimal"
+            raise LingxingConfigError(f"Tool is not available for this role or does not exist: {name} (role={role})")
         return tool.handler(arguments or {})
+
+    def rate_limit_policy(self, tool_name: str | None = None) -> dict[str, Any]:
+        selected_tools: dict[str, ToolDefinition]
+        if tool_name:
+            tool = self.tools.get(tool_name)
+            if tool is None:
+                raise LingxingConfigError(f"?? MCP ??: {tool_name}")
+            selected_tools = {tool_name: tool}
+        else:
+            selected_tools = self.tools
+
+        tool_policies: list[dict[str, Any]] = []
+        for name in sorted(selected_tools):
+            tool = selected_tools[name]
+            endpoints = _unique_endpoints(tool.rate_limit_endpoints)
+            endpoint_policies = [rate_limit_policy_for_endpoint(endpoint) for endpoint in endpoints]
+            if endpoint_policies:
+                client_guidance = (
+                    endpoint_policies[0]["client_guidance"]
+                    if len(endpoint_policies) == 1
+                    else "聚合工具会串行触发多个 endpoint；客户端应按 endpoint 维度排队，避免同类查询并发。"
+                )
+            else:
+                client_guidance = "本工具不直接调用领星业务 OpenAPI；可低风险调用，但不应在业务查询循环中高频轮询。"
+            tool_policies.append(
+                {
+                    "tool_name": name,
+                    "description": tool.description,
+                    "rate_limit_description": _rate_limit_description(endpoints),
+                    "endpoints": endpoints,
+                    "endpoint_policies": endpoint_policies,
+                    "client_guidance": client_guidance,
+                }
+            )
+
+        return {
+            "ok": True,
+            "data": {
+                "scope": "all_registered_tools" if tool_name is None else "single_tool",
+                "tool_count": len(tool_policies),
+                "runtime_settings": rate_limit_runtime_settings(),
+                "client_rules": [
+                    "调用任意业务工具前先读取 tools/list 的限流说明；复杂任务可先调用 lingxing_rate_limit_policy 获取机器可读策略。",
+                    "按 endpoint 分组限流，不按工具名分组；多个工具可能共享同一个领星 endpoint。",
+                    "capacity=1 的 endpoint 必须串行调用，默认 1 秒 1 次，不要并发。",
+                    "聚合工具由服务端串行调用内部 endpoint；客户端不要把同一聚合查询拆成并发子调用。",
+                    "收到 local_rate_limit_timeout 时缩小查询范围或降低并发，而不是立即重试。",
+                ],
+                "tools": tool_policies,
+            },
+            "meta": {
+                "endpoint": "local_rate_limit_policy",
+                "page_count": 1,
+                "request_ts": _now_text(),
+                "sid": None,
+                "date_range": None,
+            },
+            "warnings": [],
+        }
 
     def initialize_result(self) -> dict[str, Any]:
         return {
@@ -652,7 +929,7 @@ class LingxingMCPApplication:
             payload["data"] = data
         return {"jsonrpc": "2.0", "id": request_id, "error": payload}
 
-    def dispatch(self, request: dict[str, Any]) -> dict[str, Any] | None:
+    def dispatch(self, request: dict[str, Any], auth_match: AuthMatch | None = None) -> dict[str, Any] | None:
         method = request.get("method")
         request_id = request.get("id")
         params = request.get("params") or {}
@@ -664,7 +941,7 @@ class LingxingMCPApplication:
         if method == "ping":
             return self._jsonrpc_result(request_id, {})
         if method == "tools/list":
-            return self._jsonrpc_result(request_id, {"tools": self.list_tools()})
+            return self._jsonrpc_result(request_id, {"tools": self.list_tools(auth_match)})
         if method == "resources/list":
             return self._jsonrpc_result(request_id, {"resources": []})
         if method == "prompts/list":
@@ -673,7 +950,7 @@ class LingxingMCPApplication:
             try:
                 name = str(params.get("name") or "").strip()
                 arguments = params.get("arguments") or {}
-                result = self.call_tool(name, arguments)
+                result = self.call_tool(name, arguments, auth_match)
                 return self._jsonrpc_result(request_id, self._tool_result(result))
             except LingxingClientError as exc:
                 return self._jsonrpc_result(request_id, self._tool_result(self._tool_error_payload(exc), is_error=True))
@@ -745,6 +1022,8 @@ def process_http_request(
         }
     if path != "/mcp":
         return HTTPStatus.NOT_FOUND, {"error": "not_found"}
+    if method == "OPTIONS":
+        return HTTPStatus.NO_CONTENT, {}
     match = auth.authenticate_header(authorization)
     if match is None:
         return HTTPStatus.UNAUTHORIZED, {
@@ -760,6 +1039,7 @@ def process_http_request(
             "auth": {
                 "mode": match.mode,
                 "token_id": match.token_id,
+                "role": _normalize_role(match.role) or "minimal",
             },
         }
     if method == "POST":
@@ -767,12 +1047,10 @@ def process_http_request(
             request = json.loads((body or b"").decode("utf-8"))
         except json.JSONDecodeError:
             return HTTPStatus.BAD_REQUEST, {"error": "invalid_json"}
-        response = app.dispatch(request)
+        response = app.dispatch(request, auth_match=match)
         if response is None:
             return HTTPStatus.ACCEPTED, {"ok": True}
         return HTTPStatus.OK, response
-    if method == "OPTIONS":
-        return HTTPStatus.NO_CONTENT, {}
     return HTTPStatus.METHOD_NOT_ALLOWED, {"error": "method_not_allowed"}
 
 
@@ -780,11 +1058,18 @@ def _build_http_handler(app: LingxingMCPApplication, auth: BearerAuthConfig) -> 
     class Handler(BaseHTTPRequestHandler):
         server_version = "LingxingMCP/1.0"
 
+        def _send_cors_headers(self) -> None:
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Headers", CORS_ALLOW_HEADERS)
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Expose-Headers", "Mcp-Session-Id")
+
         def _send_json(self, status: int, payload: dict[str, Any]) -> None:
             body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
+            self._send_cors_headers()
             self.end_headers()
             self.wfile.write(body)
 
@@ -819,9 +1104,7 @@ def _build_http_handler(app: LingxingMCPApplication, auth: BearerAuthConfig) -> 
                 headers={key: value for key, value in self.headers.items()},
             )
             self.send_response(status)
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self._send_cors_headers()
             self.end_headers()
 
         def log_message(self, format: str, *args: Any) -> None:  # noqa: A003

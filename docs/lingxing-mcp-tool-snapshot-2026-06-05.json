@@ -1,15 +1,93 @@
 {
-  "generated_at": "2026-06-05 18:15:09",
-  "source": "LingxingMCPApplication.list_tools()",
-  "tool_count": 89,
+  "generated_at": "2026-06-11 15:31:02",
+  "source": "LingxingMCPApplication tool registry plus built-in role allowlists and rate-limit metadata",
+  "tool_count": 90,
+  "runtime_rate_limit_settings": {
+    "enabled": true,
+    "default_rate_per_second": 1.0,
+    "default_burst": 1,
+    "wait_timeout_seconds": 60.0,
+    "override_count": 0
+  },
+  "role_policy": {
+    "finance": {
+      "tool_count": 15,
+      "tools": [
+        "lingxing_exp_finance_report_seller",
+        "lingxing_fba_stock_aggregate",
+        "lingxing_fba_stock_detail",
+        "lingxing_fba_warehouse_detail",
+        "lingxing_finance_report_asin",
+        "lingxing_health_check",
+        "lingxing_local_product_costs",
+        "lingxing_order_details",
+        "lingxing_profit_asin",
+        "lingxing_profit_seller",
+        "lingxing_rate_limit_policy",
+        "lingxing_seller_lists",
+        "lingxing_smoke_check",
+        "lingxing_source_transaction",
+        "lingxing_store_sales"
+      ]
+    },
+    "minimal": {
+      "tool_count": 12,
+      "tools": [
+        "lingxing_asin_product_snapshot",
+        "lingxing_fba_warehouse_detail",
+        "lingxing_finance_report_asin",
+        "lingxing_health_check",
+        "lingxing_local_product_costs",
+        "lingxing_marketplaces",
+        "lingxing_order_details",
+        "lingxing_order_lists",
+        "lingxing_product_performance",
+        "lingxing_rate_limit_policy",
+        "lingxing_seller_lists",
+        "lingxing_smoke_check"
+      ]
+    },
+    "operations": {
+      "tool_count": 11,
+      "tools": [
+        "lingxing_asin_product_snapshot",
+        "lingxing_fba_warehouse_detail",
+        "lingxing_health_check",
+        "lingxing_local_product_costs",
+        "lingxing_marketplaces",
+        "lingxing_order_details",
+        "lingxing_order_lists",
+        "lingxing_product_performance",
+        "lingxing_rate_limit_policy",
+        "lingxing_seller_lists",
+        "lingxing_smoke_check"
+      ]
+    }
+  },
   "tools": [
     {
       "index": 1,
       "name": "lingxing_health_check",
-      "description": "检查领星环境变量、token 状态和基础连通性，不拉业务数据。",
+      "description": "检查领星环境变量、token 状态和基础连通性，不拉业务数据。\n限流：endpoint /api/auth-server/oauth/access-token，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "检查领星环境变量、token 状态和基础连通性，不拉业务数据。",
+      "rate_limit_description": "限流：endpoint /api/auth-server/oauth/access-token，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/api/auth-server/oauth/access-token"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/api/auth-server/oauth/access-token",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [],
       "optional_args": [],
@@ -21,11 +99,64 @@
     },
     {
       "index": 2,
-      "name": "lingxing_seller_lists",
-      "description": "获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。",
+      "name": "lingxing_rate_limit_policy",
+      "description": "返回当前 MCP 工具到领星 OpenAPI endpoint 的限流政策，供客户端 agent 在调用前按 endpoint 自主排队。\n限流：本工具不直接调用领星业务 OpenAPI，或仅返回本地网关策略；客户端可并发调用，但不应把它作为业务查询循环。",
+      "base_description": "返回当前 MCP 工具到领星 OpenAPI endpoint 的限流政策，供客户端 agent 在调用前按 endpoint 自主排队。",
+      "rate_limit_description": "限流：本工具不直接调用领星业务 OpenAPI，或仅返回本地网关策略；客户端可并发调用，但不应把它作为业务查询循环。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [],
+      "endpoint_policies": [],
+      "docs_path": null,
+      "required_args": [],
+      "optional_args": [
+        "tool_name"
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tool_name": {
+            "type": "string",
+            "description": "可选；只查询某一个 MCP 工具的限流策略。"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "lingxing_seller_lists",
+      "description": "获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。\n限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。",
+      "rate_limit_description": "限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "endpoints": [
+        "/erp/sc/data/seller/lists",
+        "/erp/sc/data/seller/allMarketplace"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/seller/lists",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/data/seller/allMarketplace",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [],
       "optional_args": [
@@ -48,12 +179,28 @@
       }
     },
     {
-      "index": 3,
+      "index": 4,
       "name": "lingxing_marketplaces",
-      "description": "返回领星市场列表，并补充站点时区映射。",
+      "description": "返回领星市场列表，并补充站点时区映射。\n限流：endpoint /erp/sc/data/seller/allMarketplace，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "返回领星市场列表，并补充站点时区映射。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/seller/allMarketplace，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/erp/sc/data/seller/allMarketplace"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/seller/allMarketplace",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [],
       "optional_args": [],
@@ -64,12 +211,28 @@
       }
     },
     {
-      "index": 4,
+      "index": 5,
       "name": "lingxing_store_sales",
-      "description": "按店铺和日期范围拉取 StoreSales，并自动合并分页。",
+      "description": "按店铺和日期范围拉取 StoreSales，并自动合并分页。\n限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "按店铺和日期范围拉取 StoreSales，并自动合并分页。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/erp/sc/data/sales_report/sales"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/sales_report/sales",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -99,12 +262,28 @@
       }
     },
     {
-      "index": 5,
+      "index": 6,
       "name": "lingxing_asin_daily_lists",
-      "description": "按店铺、日期和指标类型拉取 AsinDailyLists。",
+      "description": "按店铺、日期和指标类型拉取 AsinDailyLists。\n限流：endpoint /erp/sc/data/sales_report/asinDailyLists，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "按店铺、日期和指标类型拉取 AsinDailyLists。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/sales_report/asinDailyLists，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/erp/sc/data/sales_report/asinDailyLists"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/sales_report/asinDailyLists",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -139,12 +318,28 @@
       }
     },
     {
-      "index": 6,
+      "index": 7,
       "name": "lingxing_order_lists",
-      "description": "按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。",
+      "description": "按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。\n限流：endpoint /erp/sc/data/mws/orders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws/orders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/erp/sc/data/mws/orders"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/mws/orders",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -179,12 +374,48 @@
       }
     },
     {
-      "index": 7,
+      "index": 8,
       "name": "lingxing_order_details",
-      "description": "按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。",
+      "description": "按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。\n限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/mws/orderDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。",
+      "rate_limit_description": "限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/mws/orderDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/erp/sc/data/mws/orderDetail",
+        "/erp/sc/data/seller/lists",
+        "/erp/sc/data/seller/allMarketplace"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/mws/orderDetail",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/data/seller/lists",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/data/seller/allMarketplace",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [],
       "optional_args": [
@@ -210,12 +441,28 @@
       }
     },
     {
-      "index": 8,
+      "index": 9,
       "name": "lingxing_promotion_listing",
-      "description": "拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。",
+      "description": "拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。\n限流：endpoint /basicOpen/promotion/listingList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。",
+      "rate_limit_description": "限流：endpoint /basicOpen/promotion/listingList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/promotion/listingList"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/promotion/listingList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -272,47 +519,28 @@
       }
     },
     {
-      "index": 9,
-      "name": "lingxing_promotion_sec_kill",
-      "description": "拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。",
-      "registered_by": "manual",
-      "category": "manual",
-      "endpoint": null,
-      "docs_path": null,
-      "required_args": [
-        "sid",
-        "start_date",
-        "end_date"
-      ],
-      "optional_args": [],
-      "input_schema": {
-        "type": "object",
-        "properties": {
-          "sid": {
-            "type": "integer"
-          },
-          "start_date": {
-            "type": "string"
-          },
-          "end_date": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "sid",
-          "start_date",
-          "end_date"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
       "index": 10,
-      "name": "lingxing_promotion_manage",
-      "description": "拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。",
+      "name": "lingxing_promotion_sec_kill",
+      "description": "拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。\n限流：endpoint /basicOpen/promotionalActivities/secKill/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。",
+      "rate_limit_description": "限流：endpoint /basicOpen/promotionalActivities/secKill/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/promotionalActivities/secKill/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/promotionalActivities/secKill/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -343,11 +571,27 @@
     },
     {
       "index": 11,
-      "name": "lingxing_promotion_vip_discount",
-      "description": "拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。",
+      "name": "lingxing_promotion_manage",
+      "description": "拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。\n限流：endpoint /basicOpen/promotionalActivities/manage/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。",
+      "rate_limit_description": "限流：endpoint /basicOpen/promotionalActivities/manage/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/promotionalActivities/manage/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/promotionalActivities/manage/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -378,11 +622,27 @@
     },
     {
       "index": 12,
-      "name": "lingxing_promotion_coupon",
-      "description": "拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。",
+      "name": "lingxing_promotion_vip_discount",
+      "description": "拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。\n限流：endpoint /basicOpen/promotionalActivities/vipDiscount/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。",
+      "rate_limit_description": "限流：endpoint /basicOpen/promotionalActivities/vipDiscount/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/promotionalActivities/vipDiscount/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/promotionalActivities/vipDiscount/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -413,11 +673,118 @@
     },
     {
       "index": 13,
-      "name": "lingxing_resolve_daily_promotions",
-      "description": "输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。",
+      "name": "lingxing_promotion_coupon",
+      "description": "拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。\n限流：endpoint /basicOpen/promotionalActivities/coupon/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。",
+      "rate_limit_description": "限流：endpoint /basicOpen/promotionalActivities/coupon/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/promotionalActivities/coupon/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/promotionalActivities/coupon/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "docs_path": null,
+      "required_args": [
+        "sid",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid",
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "index": 14,
+      "name": "lingxing_resolve_daily_promotions",
+      "description": "输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。\n限流：聚合工具，涉及 5 个 endpoint；最严格为 /basicOpen/promotion/listingList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。",
+      "rate_limit_description": "限流：聚合工具，涉及 5 个 endpoint；最严格为 /basicOpen/promotion/listingList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "registered_by": "manual",
+      "category": "manual",
+      "endpoint": null,
+      "endpoints": [
+        "/basicOpen/promotion/listingList",
+        "/basicOpen/promotionalActivities/secKill/list",
+        "/basicOpen/promotionalActivities/manage/list",
+        "/basicOpen/promotionalActivities/vipDiscount/list",
+        "/basicOpen/promotionalActivities/coupon/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/promotion/listingList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotionalActivities/secKill/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotionalActivities/manage/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotionalActivities/vipDiscount/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotionalActivities/coupon/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -447,12 +814,48 @@
       }
     },
     {
-      "index": 14,
+      "index": 15,
       "name": "lingxing_asin_product_snapshot",
-      "description": "按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。",
+      "description": "按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。\n限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。",
+      "rate_limit_description": "限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/openapi/storage/fbaWarehouseDetail",
+        "/bd/productPerformance/openApi/asinList",
+        "/erp/sc/routing/data/local_inventory/productList"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/openapi/storage/fbaWarehouseDetail",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "conservative",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/bd/productPerformance/openApi/asinList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/routing/data/local_inventory/productList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "conservative",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -483,16 +886,31 @@
           "asin"
         ],
         "additionalProperties": false
-      },
-      "output_notes": "sales.volume 是产品表现销量/销售件数，来源 productPerformance.volume。快照工具暂不输出 FBA/FBM 订单数量；订单类分析请单独使用订单相关工具并按业务口径过滤。"
+      }
     },
     {
-      "index": 15,
+      "index": 16,
       "name": "lingxing_local_product_costs",
-      "description": "按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。",
+      "description": "按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。\n限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。",
+      "rate_limit_description": "限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/erp/sc/routing/data/local_inventory/productList"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/routing/data/local_inventory/productList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "conservative",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [],
       "optional_args": [
@@ -547,12 +965,138 @@
       }
     },
     {
-      "index": 16,
+      "index": 17,
       "name": "lingxing_smoke_check",
-      "description": "按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。",
+      "description": "按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。\n限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。",
+      "rate_limit_description": "限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/erp/sc/data/seller/lists",
+        "/erp/sc/data/seller/allMarketplace",
+        "/erp/sc/data/sales_report/sales",
+        "/erp/sc/data/mws/orders",
+        "/basicOpen/promotion/listingList",
+        "/basicOpen/baseData/account/list",
+        "/pb/openapi/newad/spProductAdReports",
+        "/pb/openapi/newad/sdProductAdReports",
+        "/pb/openapi/newad/hsaPurchasedAsinReports",
+        "/bd/profit/statistics/open/seller/list",
+        "/erp/sc/data/mws_report/allOrders",
+        "/erp/sc/data/mws_report/manageInventory"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/seller/lists",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/data/seller/allMarketplace",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/data/sales_report/sales",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/data/mws/orders",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotion/listingList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/baseData/account/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/spProductAdReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/sdProductAdReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/hsaPurchasedAsinReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/bd/profit/statistics/open/seller/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/data/mws_report/allOrders",
+          "rate_per_second": 10.0,
+          "burst": 10,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。"
+        },
+        {
+          "endpoint": "/erp/sc/data/mws_report/manageInventory",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [],
       "optional_args": [
@@ -573,12 +1117,28 @@
       }
     },
     {
-      "index": 17,
+      "index": 18,
       "name": "lingxing_ad_accounts",
-      "description": "查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。",
+      "description": "查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。\n限流：endpoint /basicOpen/baseData/account/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。",
+      "rate_limit_description": "限流：endpoint /basicOpen/baseData/account/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/baseData/account/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/baseData/account/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [],
       "optional_args": [
@@ -611,12 +1171,28 @@
       }
     },
     {
-      "index": 18,
+      "index": 19,
       "name": "lingxing_report_export_create",
-      "description": "创建亚马逊报告导出任务。",
+      "description": "创建亚马逊报告导出任务。\n限流：endpoint /basicOpen/report/create/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "创建亚马逊报告导出任务。",
+      "rate_limit_description": "限流：endpoint /basicOpen/report/create/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/report/create/reportExportTask"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/report/create/reportExportTask",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -665,12 +1241,28 @@
       }
     },
     {
-      "index": 19,
+      "index": 20,
       "name": "lingxing_report_export_query",
-      "description": "查询亚马逊报告导出任务结果。",
+      "description": "查询亚马逊报告导出任务结果。\n限流：endpoint /basicOpen/report/query/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "查询亚马逊报告导出任务结果。",
+      "rate_limit_description": "限流：endpoint /basicOpen/report/query/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/report/query/reportExportTask"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/report/query/reportExportTask",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "task_id"
@@ -703,12 +1295,28 @@
       }
     },
     {
-      "index": 20,
+      "index": 21,
       "name": "lingxing_report_export_refresh_url",
-      "description": "续期亚马逊报告下载链接。",
+      "description": "续期亚马逊报告下载链接。\n限流：endpoint /basicOpen/report/amazonReportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "续期亚马逊报告下载链接。",
+      "rate_limit_description": "限流：endpoint /basicOpen/report/amazonReportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/report/amazonReportExportTask"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/report/amazonReportExportTask",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "report_document_id"
@@ -741,12 +1349,38 @@
       }
     },
     {
-      "index": 21,
+      "index": 22,
       "name": "lingxing_report_export_download",
-      "description": "下载并解析亚马逊报告导出文件。",
+      "description": "下载并解析亚马逊报告导出文件。\n限流：聚合工具，涉及 2 个 endpoint；最严格为 /basicOpen/report/query/reportExportTask 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "下载并解析亚马逊报告导出文件。",
+      "rate_limit_description": "限流：聚合工具，涉及 2 个 endpoint；最严格为 /basicOpen/report/query/reportExportTask 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/report/query/reportExportTask",
+        "/basicOpen/report/amazonReportExportTask"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/report/query/reportExportTask",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/report/amazonReportExportTask",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [],
       "optional_args": [
@@ -783,12 +1417,78 @@
       }
     },
     {
-      "index": 22,
+      "index": 23,
       "name": "lingxing_asin_ads_daily_rollup",
-      "description": "按 ASIN 汇总每日广告指标，采用 balanced 归因。",
+      "description": "按 ASIN 汇总每日广告指标，采用 balanced 归因。\n限流：聚合工具，涉及 6 个 endpoint；最严格为 /basicOpen/baseData/account/list 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "按 ASIN 汇总每日广告指标，采用 balanced 归因。",
+      "rate_limit_description": "限流：聚合工具，涉及 6 个 endpoint；最严格为 /basicOpen/baseData/account/list 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/basicOpen/baseData/account/list",
+        "/pb/openapi/newad/hsaProductAds",
+        "/pb/openapi/newad/spProductAdReports",
+        "/pb/openapi/newad/sdProductAdReports",
+        "/pb/openapi/newad/hsaPurchasedAsinReports",
+        "/pb/openapi/newad/listHsaProductAdReport"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/baseData/account/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/hsaProductAds",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/spProductAdReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/sdProductAdReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/hsaPurchasedAsinReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/listHsaProductAdReport",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -828,12 +1528,138 @@
       }
     },
     {
-      "index": 23,
+      "index": 24,
       "name": "lingxing_asin_weekly_rollup",
-      "description": "按周汇总 ASIN 的总销量、广告指标和促销标签。",
+      "description": "按周汇总 ASIN 的总销量、广告指标和促销标签。\n限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/sales_report/sales 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "按周汇总 ASIN 的总销量、广告指标和促销标签。",
+      "rate_limit_description": "限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/sales_report/sales 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "registered_by": "manual",
       "category": "manual",
       "endpoint": null,
+      "endpoints": [
+        "/erp/sc/data/sales_report/sales",
+        "/basicOpen/baseData/account/list",
+        "/pb/openapi/newad/hsaProductAds",
+        "/pb/openapi/newad/spProductAdReports",
+        "/pb/openapi/newad/sdProductAdReports",
+        "/pb/openapi/newad/hsaPurchasedAsinReports",
+        "/pb/openapi/newad/listHsaProductAdReport",
+        "/basicOpen/promotion/listingList",
+        "/basicOpen/promotionalActivities/secKill/list",
+        "/basicOpen/promotionalActivities/manage/list",
+        "/basicOpen/promotionalActivities/vipDiscount/list",
+        "/basicOpen/promotionalActivities/coupon/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/sales_report/sales",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/baseData/account/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/hsaProductAds",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/spProductAdReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/sdProductAdReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/hsaPurchasedAsinReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/pb/openapi/newad/listHsaProductAdReport",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotion/listingList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotionalActivities/secKill/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotionalActivities/manage/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotionalActivities/vipDiscount/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/promotionalActivities/coupon/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": null,
       "required_args": [
         "sid",
@@ -868,12 +1694,28 @@
       }
     },
     {
-      "index": 24,
+      "index": 25,
       "name": "lingxing_ads_sp_campaign_report",
-      "description": "SP 广告活动日报。",
+      "description": "SP 广告活动日报。\n限流：endpoint /pb/openapi/newad/spCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告活动日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spCampaignReports",
+      "endpoints": [
+        "/pb/openapi/newad/spCampaignReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spCampaignReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spCampaignReports.md",
       "required_args": [
         "sid",
@@ -907,12 +1749,28 @@
       }
     },
     {
-      "index": 25,
+      "index": 26,
       "name": "lingxing_ads_sp_product_ad_report",
-      "description": "SP 广告商品日报，可直接按 ASIN 聚合。",
+      "description": "SP 广告商品日报，可直接按 ASIN 聚合。\n限流：endpoint /pb/openapi/newad/spProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告商品日报，可直接按 ASIN 聚合。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spProductAdReports",
+      "endpoints": [
+        "/pb/openapi/newad/spProductAdReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spProductAdReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spProductAdReports.md",
       "required_args": [
         "sid",
@@ -946,12 +1804,28 @@
       }
     },
     {
-      "index": 26,
+      "index": 27,
       "name": "lingxing_ads_sp_keyword_report",
-      "description": "SP 关键词日报。",
+      "description": "SP 关键词日报。\n限流：endpoint /pb/openapi/newad/spKeywordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 关键词日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spKeywordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spKeywordReports",
+      "endpoints": [
+        "/pb/openapi/newad/spKeywordReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spKeywordReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spKeywordReports.md",
       "required_args": [
         "sid",
@@ -985,12 +1859,28 @@
       }
     },
     {
-      "index": 27,
+      "index": 28,
       "name": "lingxing_ads_sp_target_report",
-      "description": "SP 商品定位日报。",
+      "description": "SP 商品定位日报。\n限流：endpoint /pb/openapi/newad/spTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 商品定位日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spTargetReports",
+      "endpoints": [
+        "/pb/openapi/newad/spTargetReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spTargetReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spTargetReports.md",
       "required_args": [
         "sid",
@@ -1024,12 +1914,28 @@
       }
     },
     {
-      "index": 28,
+      "index": 29,
       "name": "lingxing_ads_sp_search_term_report",
-      "description": "SP 用户搜索词日报。",
+      "description": "SP 用户搜索词日报。\n限流：endpoint /pb/openapi/newad/queryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 用户搜索词日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/queryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/queryWordReports",
+      "endpoints": [
+        "/pb/openapi/newad/queryWordReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/queryWordReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/queryWordReports.md",
       "required_args": [
         "sid",
@@ -1067,12 +1973,28 @@
       }
     },
     {
-      "index": 29,
+      "index": 30,
       "name": "lingxing_ads_sd_campaign_report",
-      "description": "SD 广告活动日报。",
+      "description": "SD 广告活动日报。\n限流：endpoint /pb/openapi/newad/sdCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 广告活动日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdCampaignReports",
+      "endpoints": [
+        "/pb/openapi/newad/sdCampaignReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdCampaignReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdCampaignReports.md",
       "required_args": [
         "sid",
@@ -1106,12 +2028,28 @@
       }
     },
     {
-      "index": 30,
+      "index": 31,
       "name": "lingxing_ads_sd_product_ad_report",
-      "description": "SD 广告商品日报，可直接按 ASIN 聚合。",
+      "description": "SD 广告商品日报，可直接按 ASIN 聚合。\n限流：endpoint /pb/openapi/newad/sdProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 广告商品日报，可直接按 ASIN 聚合。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdProductAdReports",
+      "endpoints": [
+        "/pb/openapi/newad/sdProductAdReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdProductAdReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdProductAdReports.md",
       "required_args": [
         "sid",
@@ -1145,12 +2083,28 @@
       }
     },
     {
-      "index": 31,
+      "index": 32,
       "name": "lingxing_ads_sd_target_report",
-      "description": "SD 商品定位日报。",
+      "description": "SD 商品定位日报。\n限流：endpoint /pb/openapi/newad/sdTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 商品定位日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdTargetReports",
+      "endpoints": [
+        "/pb/openapi/newad/sdTargetReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdTargetReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdTargetReports.md",
       "required_args": [
         "sid",
@@ -1184,12 +2138,28 @@
       }
     },
     {
-      "index": 32,
+      "index": 33,
       "name": "lingxing_ads_sb_campaign_report",
-      "description": "SB 广告活动日报。",
+      "description": "SB 广告活动日报。\n限流：endpoint /pb/openapi/newad/hsaCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 广告活动日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/hsaCampaignReports",
+      "endpoints": [
+        "/pb/openapi/newad/hsaCampaignReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaCampaignReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/hsaCampaignReports.md",
       "required_args": [
         "sid",
@@ -1223,12 +2193,28 @@
       }
     },
     {
-      "index": 33,
+      "index": 34,
       "name": "lingxing_ads_sb_creative_report",
-      "description": "SB 广告创意日报。",
+      "description": "SB 广告创意日报。\n限流：endpoint /pb/openapi/newad/listHsaProductAdReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 广告创意日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/listHsaProductAdReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/listHsaProductAdReport",
+      "endpoints": [
+        "/pb/openapi/newad/listHsaProductAdReport"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/listHsaProductAdReport",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/listHsaProductAdReport.md",
       "required_args": [
         "sid",
@@ -1262,12 +2248,28 @@
       }
     },
     {
-      "index": 34,
+      "index": 35,
       "name": "lingxing_ads_sb_purchased_asin_report",
-      "description": "SB 已购买 ASIN 报表，用于按 ASIN 归因销售/订单。",
+      "description": "SB 已购买 ASIN 报表，用于按 ASIN 归因销售/订单。\n限流：endpoint /pb/openapi/newad/hsaPurchasedAsinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 已购买 ASIN 报表，用于按 ASIN 归因销售/订单。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaPurchasedAsinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/hsaPurchasedAsinReports",
+      "endpoints": [
+        "/pb/openapi/newad/hsaPurchasedAsinReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaPurchasedAsinReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/hsaPurchasedAsinReports.md",
       "required_args": [
         "sid",
@@ -1297,12 +2299,28 @@
       }
     },
     {
-      "index": 35,
+      "index": 36,
       "name": "lingxing_ads_sp_campaign_hourly",
-      "description": "SP 广告活动小时数据。",
+      "description": "SP 广告活动小时数据。\n限流：endpoint /pb/openapi/newad/spCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告活动小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spCampaignHourData",
+      "endpoints": [
+        "/pb/openapi/newad/spCampaignHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spCampaignHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spCampaignHourData.md",
       "required_args": [
         "sid",
@@ -1336,12 +2354,28 @@
       }
     },
     {
-      "index": 36,
+      "index": 37,
       "name": "lingxing_ads_sp_placement_hourly",
-      "description": "SP 广告位小时数据。",
+      "description": "SP 广告位小时数据。\n限流：endpoint /pb/openapi/newad/spAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告位小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spAdPlacementHourData",
+      "endpoints": [
+        "/pb/openapi/newad/spAdPlacementHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spAdPlacementHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spAdPlacementHourData.md",
       "required_args": [
         "sid",
@@ -1375,12 +2409,28 @@
       }
     },
     {
-      "index": 37,
+      "index": 38,
       "name": "lingxing_ads_sp_ad_group_hourly",
-      "description": "SP 广告组小时数据。",
+      "description": "SP 广告组小时数据。\n限流：endpoint /pb/openapi/newad/spAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告组小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spAdGroupHourData",
+      "endpoints": [
+        "/pb/openapi/newad/spAdGroupHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spAdGroupHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spAdGroupHourData.md",
       "required_args": [
         "sid",
@@ -1414,12 +2464,28 @@
       }
     },
     {
-      "index": 38,
+      "index": 39,
       "name": "lingxing_ads_sp_advertise_hourly",
-      "description": "SP 广告小时数据。",
+      "description": "SP 广告小时数据。\n限流：endpoint /pb/openapi/newad/spAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spAdvertiseHourData",
+      "endpoints": [
+        "/pb/openapi/newad/spAdvertiseHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spAdvertiseHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spAdvertiseHourData.md",
       "required_args": [
         "sid",
@@ -1453,12 +2519,28 @@
       }
     },
     {
-      "index": 39,
+      "index": 40,
       "name": "lingxing_ads_sp_target_hourly",
-      "description": "SP 投放小时数据。",
+      "description": "SP 投放小时数据。\n限流：endpoint /pb/openapi/newad/spTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 投放小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spTargetHourData",
+      "endpoints": [
+        "/pb/openapi/newad/spTargetHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spTargetHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spTargetHourData.md",
       "required_args": [
         "sid",
@@ -1492,12 +2574,28 @@
       }
     },
     {
-      "index": 40,
+      "index": 41,
       "name": "lingxing_ads_sb_campaign_hourly",
-      "description": "SB 广告活动小时数据。",
+      "description": "SB 广告活动小时数据。\n限流：endpoint /pb/openapi/newad/sbCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 广告活动小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sbCampaignHourData",
+      "endpoints": [
+        "/pb/openapi/newad/sbCampaignHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sbCampaignHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sbCampaignHourData.md",
       "required_args": [
         "sid",
@@ -1531,12 +2629,28 @@
       }
     },
     {
-      "index": 41,
+      "index": 42,
       "name": "lingxing_ads_sb_ad_group_hourly",
-      "description": "SB 广告组小时数据。",
+      "description": "SB 广告组小时数据。\n限流：endpoint /pb/openapi/newad/sbAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 广告组小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sbAdGroupHourData",
+      "endpoints": [
+        "/pb/openapi/newad/sbAdGroupHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sbAdGroupHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sbAdGroupHourData.md",
       "required_args": [
         "sid",
@@ -1570,12 +2684,28 @@
       }
     },
     {
-      "index": 42,
+      "index": 43,
       "name": "lingxing_ads_sb_target_hourly",
-      "description": "SB 投放小时数据。",
+      "description": "SB 投放小时数据。\n限流：endpoint /pb/openapi/newad/sbTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 投放小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sbTargetHourData",
+      "endpoints": [
+        "/pb/openapi/newad/sbTargetHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sbTargetHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sbTargetHourData.md",
       "required_args": [
         "sid",
@@ -1609,12 +2739,28 @@
       }
     },
     {
-      "index": 43,
+      "index": 44,
       "name": "lingxing_ads_sb_placement_hourly",
-      "description": "SB 广告位小时数据。",
+      "description": "SB 广告位小时数据。\n限流：endpoint /pb/openapi/newad/sbAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 广告位小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sbAdPlacementHourData",
+      "endpoints": [
+        "/pb/openapi/newad/sbAdPlacementHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sbAdPlacementHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sbAdPlacementHourData.md",
       "required_args": [
         "sid",
@@ -1648,12 +2794,28 @@
       }
     },
     {
-      "index": 44,
+      "index": 45,
       "name": "lingxing_ads_sd_campaign_hourly",
-      "description": "SD 广告活动小时数据。",
+      "description": "SD 广告活动小时数据。\n限流：endpoint /pb/openapi/newad/sdCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 广告活动小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdCampaignHourData",
+      "endpoints": [
+        "/pb/openapi/newad/sdCampaignHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdCampaignHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdCampaignHourData.md",
       "required_args": [
         "sid",
@@ -1687,12 +2849,28 @@
       }
     },
     {
-      "index": 45,
+      "index": 46,
       "name": "lingxing_ads_sd_ad_group_hourly",
-      "description": "SD 广告组小时数据。",
+      "description": "SD 广告组小时数据。\n限流：endpoint /pb/openapi/newad/sdAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 广告组小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdAdGroupHourData",
+      "endpoints": [
+        "/pb/openapi/newad/sdAdGroupHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdAdGroupHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdAdGroupHourData.md",
       "required_args": [
         "sid",
@@ -1726,12 +2904,28 @@
       }
     },
     {
-      "index": 46,
+      "index": 47,
       "name": "lingxing_ads_sd_advertise_hourly",
-      "description": "SD 广告小时数据。",
+      "description": "SD 广告小时数据。\n限流：endpoint /pb/openapi/newad/sdAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 广告小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdAdvertiseHourData",
+      "endpoints": [
+        "/pb/openapi/newad/sdAdvertiseHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdAdvertiseHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdAdvertiseHourData.md",
       "required_args": [
         "sid",
@@ -1765,12 +2959,28 @@
       }
     },
     {
-      "index": 47,
+      "index": 48,
       "name": "lingxing_ads_sd_target_hourly",
-      "description": "SD 投放小时数据。",
+      "description": "SD 投放小时数据。\n限流：endpoint /pb/openapi/newad/sdTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 投放小时数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdTargetHourData",
+      "endpoints": [
+        "/pb/openapi/newad/sdTargetHourData"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdTargetHourData",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdTargetHourData.md",
       "required_args": [
         "sid",
@@ -1804,12 +3014,28 @@
       }
     },
     {
-      "index": 48,
+      "index": 49,
       "name": "lingxing_ads_portfolios",
-      "description": "广告组合列表。",
+      "description": "广告组合列表。\n限流：endpoint /pb/openapi/newad/portfolios，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "广告组合列表。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/portfolios，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/portfolios",
+      "endpoints": [
+        "/pb/openapi/newad/portfolios"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/portfolios",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/portfolios.md",
       "required_args": [
         "sid"
@@ -1834,12 +3060,28 @@
       }
     },
     {
-      "index": 49,
+      "index": 50,
       "name": "lingxing_ads_sp_campaigns",
-      "description": "SP 广告活动基础数据。",
+      "description": "SP 广告活动基础数据。\n限流：endpoint /pb/openapi/newad/spCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告活动基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/spCampaigns",
+      "endpoints": [
+        "/pb/openapi/newad/spCampaigns"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spCampaigns",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/spCampaigns.md",
       "required_args": [
         "sid"
@@ -1868,12 +3110,28 @@
       }
     },
     {
-      "index": 50,
+      "index": 51,
       "name": "lingxing_ads_sp_ad_groups",
-      "description": "SP 广告组基础数据。",
+      "description": "SP 广告组基础数据。\n限流：endpoint /pb/openapi/newad/spAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告组基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/spAdGroups",
+      "endpoints": [
+        "/pb/openapi/newad/spAdGroups"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spAdGroups",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/spAdGroups.md",
       "required_args": [
         "sid"
@@ -1902,12 +3160,28 @@
       }
     },
     {
-      "index": 51,
+      "index": 52,
       "name": "lingxing_ads_sp_product_ads",
-      "description": "SP 广告商品基础数据。",
+      "description": "SP 广告商品基础数据。\n限流：endpoint /pb/openapi/newad/spProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 广告商品基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/spProductAds",
+      "endpoints": [
+        "/pb/openapi/newad/spProductAds"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spProductAds",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/spProductAds.md",
       "required_args": [
         "sid"
@@ -1936,12 +3210,28 @@
       }
     },
     {
-      "index": 52,
+      "index": 53,
       "name": "lingxing_ads_sp_keywords",
-      "description": "SP 关键词基础数据。",
+      "description": "SP 关键词基础数据。\n限流：endpoint /pb/openapi/newad/spKeywords，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 关键词基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spKeywords，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/spKeywords",
+      "endpoints": [
+        "/pb/openapi/newad/spKeywords"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spKeywords",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/spKeywords.md",
       "required_args": [
         "sid"
@@ -1970,12 +3260,28 @@
       }
     },
     {
-      "index": 53,
+      "index": 54,
       "name": "lingxing_ads_sp_targets",
-      "description": "SP 商品定位基础数据。",
+      "description": "SP 商品定位基础数据。\n限流：endpoint /pb/openapi/newad/spTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SP 商品定位基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/spTargets",
+      "endpoints": [
+        "/pb/openapi/newad/spTargets"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spTargets",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/spTargets.md",
       "required_args": [
         "sid"
@@ -2004,12 +3310,28 @@
       }
     },
     {
-      "index": 54,
+      "index": 55,
       "name": "lingxing_ads_sd_campaigns",
-      "description": "SD 广告活动基础数据。",
+      "description": "SD 广告活动基础数据。\n限流：endpoint /pb/openapi/newad/sdCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 广告活动基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/sdCampaigns",
+      "endpoints": [
+        "/pb/openapi/newad/sdCampaigns"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdCampaigns",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/sdCampaigns.md",
       "required_args": [
         "sid"
@@ -2038,12 +3360,28 @@
       }
     },
     {
-      "index": 55,
+      "index": 56,
       "name": "lingxing_ads_sd_ad_groups",
-      "description": "SD 广告组基础数据。",
+      "description": "SD 广告组基础数据。\n限流：endpoint /pb/openapi/newad/sdAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 广告组基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/sdAdGroups",
+      "endpoints": [
+        "/pb/openapi/newad/sdAdGroups"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdAdGroups",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/sdAdGroups.md",
       "required_args": [
         "sid"
@@ -2072,12 +3410,28 @@
       }
     },
     {
-      "index": 56,
+      "index": 57,
       "name": "lingxing_ads_sd_product_ads",
-      "description": "SD 广告商品基础数据。",
+      "description": "SD 广告商品基础数据。\n限流：endpoint /pb/openapi/newad/sdProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 广告商品基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/sdProductAds",
+      "endpoints": [
+        "/pb/openapi/newad/sdProductAds"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdProductAds",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/sdProductAds.md",
       "required_args": [
         "sid"
@@ -2106,12 +3460,28 @@
       }
     },
     {
-      "index": 57,
+      "index": 58,
       "name": "lingxing_ads_sd_targets",
-      "description": "SD 商品定位基础数据。",
+      "description": "SD 商品定位基础数据。\n限流：endpoint /pb/openapi/newad/sdTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SD 商品定位基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/sdTargets",
+      "endpoints": [
+        "/pb/openapi/newad/sdTargets"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdTargets",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/sdTargets.md",
       "required_args": [
         "sid"
@@ -2140,12 +3510,28 @@
       }
     },
     {
-      "index": 58,
+      "index": 59,
       "name": "lingxing_ads_sb_campaigns",
-      "description": "SB 广告活动基础数据。",
+      "description": "SB 广告活动基础数据。\n限流：endpoint /pb/openapi/newad/hsaCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 广告活动基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/hsaCampaigns",
+      "endpoints": [
+        "/pb/openapi/newad/hsaCampaigns"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaCampaigns",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/hsaCampaigns.md",
       "required_args": [
         "sid"
@@ -2174,12 +3560,28 @@
       }
     },
     {
-      "index": 59,
+      "index": 60,
       "name": "lingxing_ads_sb_ad_groups",
-      "description": "SB 广告组基础数据。",
+      "description": "SB 广告组基础数据。\n限流：endpoint /pb/openapi/newad/hsaAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 广告组基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/hsaAdGroups",
+      "endpoints": [
+        "/pb/openapi/newad/hsaAdGroups"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaAdGroups",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/hsaAdGroups.md",
       "required_args": [
         "sid"
@@ -2208,12 +3610,28 @@
       }
     },
     {
-      "index": 60,
+      "index": 61,
       "name": "lingxing_ads_sb_creatives",
-      "description": "SB 广告创意基础数据。",
+      "description": "SB 广告创意基础数据。\n限流：endpoint /pb/openapi/newad/hsaProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 广告创意基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/hsaProductAds",
+      "endpoints": [
+        "/pb/openapi/newad/hsaProductAds"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaProductAds",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/sbAdHasProductAds.md",
       "required_args": [
         "sid"
@@ -2238,12 +3656,28 @@
       }
     },
     {
-      "index": 61,
+      "index": 62,
       "name": "lingxing_ads_sb_targets",
-      "description": "SB 投放基础数据。",
+      "description": "SB 投放基础数据。\n限流：endpoint /pb/openapi/newad/sbTargeting，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "SB 投放基础数据。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbTargeting，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_base",
       "endpoint": "/pb/openapi/newad/sbTargeting",
+      "endpoints": [
+        "/pb/openapi/newad/sbTargeting"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sbTargeting",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/baseData/sbTargeting.md",
       "required_args": [
         "sid"
@@ -2272,12 +3706,28 @@
       }
     },
     {
-      "index": 62,
+      "index": 63,
       "name": "lingxing_profit_seller",
-      "description": "店铺维度利润统计。",
+      "description": "店铺维度利润统计。\n限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "店铺维度利润统计。",
+      "rate_limit_description": "限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "profit",
       "endpoint": "/bd/profit/statistics/open/seller/list",
+      "endpoints": [
+        "/bd/profit/statistics/open/seller/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/bd/profit/statistics/open/seller/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Statistics/statisticsOpenSeller.md",
       "required_args": [
         "sid",
@@ -2320,12 +3770,28 @@
       }
     },
     {
-      "index": 63,
+      "index": 64,
       "name": "lingxing_profit_asin",
-      "description": "ASIN 维度利润统计。",
+      "description": "ASIN 维度利润统计。\n限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "ASIN 维度利润统计。",
+      "rate_limit_description": "限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "profit",
       "endpoint": "/bd/profit/statistics/open/asin/list",
+      "endpoints": [
+        "/bd/profit/statistics/open/asin/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/bd/profit/statistics/open/asin/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Statistics/statisticsOpenASIN.md",
       "required_args": [
         "sid",
@@ -2364,12 +3830,28 @@
       }
     },
     {
-      "index": 64,
+      "index": 65,
       "name": "lingxing_profit_parent_asin",
-      "description": "父 ASIN 维度利润统计。",
+      "description": "父 ASIN 维度利润统计。\n限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "父 ASIN 维度利润统计。",
+      "rate_limit_description": "限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "profit",
       "endpoint": "/bd/profit/statistics/open/parent/asin/list",
+      "endpoints": [
+        "/bd/profit/statistics/open/parent/asin/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/bd/profit/statistics/open/parent/asin/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Statistics/statisticsOpenParent.md",
       "required_args": [
         "sid",
@@ -2408,12 +3890,28 @@
       }
     },
     {
-      "index": 65,
+      "index": 66,
       "name": "lingxing_fba_warehouse_detail",
-      "description": "按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。",
+      "description": "按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。\n限流：endpoint /basicOpen/openapi/storage/fbaWarehouseDetail，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。",
+      "rate_limit_description": "限流：endpoint /basicOpen/openapi/storage/fbaWarehouseDetail，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "warehouse",
       "endpoint": "/basicOpen/openapi/storage/fbaWarehouseDetail",
+      "endpoints": [
+        "/basicOpen/openapi/storage/fbaWarehouseDetail"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/basicOpen/openapi/storage/fbaWarehouseDetail",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "conservative",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Warehouse/FBAStock_v2.md",
       "required_args": [
         "sid"
@@ -2486,12 +3984,28 @@
       }
     },
     {
-      "index": 66,
+      "index": 67,
       "name": "lingxing_local_products",
-      "description": "按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。",
+      "description": "按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。\n限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。",
+      "rate_limit_description": "限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "product",
       "endpoint": "/erp/sc/routing/data/local_inventory/productList",
+      "endpoints": [
+        "/erp/sc/routing/data/local_inventory/productList"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/routing/data/local_inventory/productList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "conservative",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Product/ProductLists.md",
       "required_args": [],
       "optional_args": [
@@ -2535,12 +4049,28 @@
       }
     },
     {
-      "index": 67,
+      "index": 68,
       "name": "lingxing_product_performance",
-      "description": "产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。",
+      "description": "产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。\n限流：endpoint /bd/productPerformance/openApi/asinList，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。",
+      "rate_limit_description": "限流：endpoint /bd/productPerformance/openApi/asinList，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "source",
       "endpoint": "/bd/productPerformance/openApi/asinList",
+      "endpoints": [
+        "/bd/productPerformance/openApi/asinList"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/bd/productPerformance/openApi/asinList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Statistics/AsinListNew.md",
       "required_args": [
         "sid",
@@ -2610,12 +4140,28 @@
       }
     },
     {
-      "index": 68,
+      "index": 69,
       "name": "lingxing_source_all_orders",
-      "description": "亚马逊源表所有订单。",
+      "description": "亚马逊源表所有订单。\n限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。",
+      "base_description": "亚马逊源表所有订单。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。",
       "registered_by": "endpoint_spec",
       "category": "source",
       "endpoint": "/erp/sc/data/mws_report/allOrders",
+      "endpoints": [
+        "/erp/sc/data/mws_report/allOrders"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/mws_report/allOrders",
+          "rate_per_second": 10.0,
+          "burst": 10,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。"
+        }
+      ],
       "docs_path": "docs/SourceData/AllOrders.md",
       "required_args": [
         "sid",
@@ -2650,12 +4196,28 @@
       }
     },
     {
-      "index": 69,
+      "index": 70,
       "name": "lingxing_source_manage_inventory",
-      "description": "亚马逊源表 FBA 库存。",
+      "description": "亚马逊源表 FBA 库存。\n限流：endpoint /erp/sc/data/mws_report/manageInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "亚马逊源表 FBA 库存。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/manageInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "source",
       "endpoint": "/erp/sc/data/mws_report/manageInventory",
+      "endpoints": [
+        "/erp/sc/data/mws_report/manageInventory"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/mws_report/manageInventory",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/SourceData/ManageInventory.md",
       "required_args": [
         "sid"
@@ -2675,12 +4237,28 @@
       }
     },
     {
-      "index": 70,
+      "index": 71,
       "name": "lingxing_source_daily_inventory",
-      "description": "亚马逊源表每日库存。",
+      "description": "亚马逊源表每日库存。\n限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "亚马逊源表每日库存。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "source",
       "endpoint": "/erp/sc/data/mws_report/dailyInventory",
+      "endpoints": [
+        "/erp/sc/data/mws_report/dailyInventory"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/mws_report/dailyInventory",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/SourceData/DailyInventory.md",
       "required_args": [
         "sid",
@@ -2705,12 +4283,28 @@
       }
     },
     {
-      "index": 71,
+      "index": 72,
       "name": "lingxing_source_reserved_inventory",
-      "description": "亚马逊源表预留库存。",
+      "description": "亚马逊源表预留库存。\n限流：endpoint /erp/sc/data/mws_report/reservedInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "亚马逊源表预留库存。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/reservedInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "source",
       "endpoint": "/erp/sc/data/mws_report/reservedInventory",
+      "endpoints": [
+        "/erp/sc/data/mws_report/reservedInventory"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/mws_report/reservedInventory",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/SourceData/ReservedInventory.md",
       "required_args": [
         "sid"
@@ -2730,12 +4324,28 @@
       }
     },
     {
-      "index": 72,
+      "index": 73,
       "name": "lingxing_source_transaction",
-      "description": "亚马逊源表交易明细。",
+      "description": "亚马逊源表交易明细。\n限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "亚马逊源表交易明细。",
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "source",
       "endpoint": "/erp/sc/data/mws_report/transaction",
+      "endpoints": [
+        "/erp/sc/data/mws_report/transaction"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/data/mws_report/transaction",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/SourceData/Transaction.md",
       "required_args": [
         "sid",
@@ -2760,12 +4370,28 @@
       }
     },
     {
-      "index": 73,
+      "index": 74,
       "name": "lingxing_fba_stock_aggregate",
-      "description": "FBA 库存新报表汇总。",
+      "description": "FBA 库存新报表汇总。\n限流：endpoint /cost/center/openApi/fba/gather/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "FBA 库存新报表汇总。",
+      "rate_limit_description": "限流：endpoint /cost/center/openApi/fba/gather/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "stock",
       "endpoint": "/cost/center/openApi/fba/gather/query",
+      "endpoints": [
+        "/cost/center/openApi/fba/gather/query"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/cost/center/openApi/fba/gather/query",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Statistics/FbaStockAggregateListNew.md",
       "required_args": [
         "sid",
@@ -2795,12 +4421,28 @@
       }
     },
     {
-      "index": 74,
+      "index": 75,
       "name": "lingxing_fba_stock_detail",
-      "description": "FBA 库存新报表明细。",
+      "description": "FBA 库存新报表明细。\n限流：endpoint /cost/center/openApi/fba/detail/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "FBA 库存新报表明细。",
+      "rate_limit_description": "限流：endpoint /cost/center/openApi/fba/detail/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "stock",
       "endpoint": "/cost/center/openApi/fba/detail/query",
+      "endpoints": [
+        "/cost/center/openApi/fba/detail/query"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/cost/center/openApi/fba/detail/query",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Statistics/FbaStockDetailListNew.md",
       "required_args": [
         "sid",
@@ -2830,12 +4472,28 @@
       }
     },
     {
-      "index": 75,
+      "index": 76,
       "name": "lingxing_replenishment_summary",
-      "description": "补货建议列表。",
+      "description": "补货建议列表。\n限流：endpoint /erp/sc/routing/restocking/analysis/getSummaryList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "补货建议列表。",
+      "rate_limit_description": "限流：endpoint /erp/sc/routing/restocking/analysis/getSummaryList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "replenishment_summary",
       "endpoint": "/erp/sc/routing/restocking/analysis/getSummaryList",
+      "endpoints": [
+        "/erp/sc/routing/restocking/analysis/getSummaryList"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/routing/restocking/analysis/getSummaryList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/FBASug/GetSummaryList.md",
       "required_args": [
         "sid"
@@ -2864,12 +4522,28 @@
       }
     },
     {
-      "index": 76,
+      "index": 77,
       "name": "lingxing_replenishment_asin_info",
-      "description": "补货建议 ASIN 明细。",
+      "description": "补货建议 ASIN 明细。\n限流：endpoint /erp/sc/routing/fbaSug/asin/getInfo，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "补货建议 ASIN 明细。",
+      "rate_limit_description": "限流：endpoint /erp/sc/routing/fbaSug/asin/getInfo，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "replenishment_info",
       "endpoint": "/erp/sc/routing/fbaSug/asin/getInfo",
+      "endpoints": [
+        "/erp/sc/routing/fbaSug/asin/getInfo"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/erp/sc/routing/fbaSug/asin/getInfo",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/FBASug/InfoASIN.md",
       "required_args": [
         "sid",
@@ -2899,12 +4573,28 @@
       }
     },
     {
-      "index": 77,
+      "index": 78,
       "name": "lingxing_exp_ads_sp_placement_report",
-      "description": "实验层：SP 广告位日报。",
+      "description": "实验层：SP 广告位日报。\n限流：endpoint /pb/openapi/newad/campaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SP 广告位日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/campaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/campaignPlacementReports",
+      "endpoints": [
+        "/pb/openapi/newad/campaignPlacementReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/campaignPlacementReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/campaignPlacementReports.md",
       "required_args": [
         "sid",
@@ -2938,12 +4628,28 @@
       }
     },
     {
-      "index": 78,
+      "index": 79,
       "name": "lingxing_exp_ads_sp_ad_group_report",
-      "description": "实验层：SP 广告组日报。",
+      "description": "实验层：SP 广告组日报。\n限流：endpoint /pb/openapi/newad/spAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SP 广告组日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/spAdGroupReports",
+      "endpoints": [
+        "/pb/openapi/newad/spAdGroupReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spAdGroupReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/spAdGroupReports.md",
       "required_args": [
         "sid",
@@ -2977,12 +4683,28 @@
       }
     },
     {
-      "index": 79,
+      "index": 80,
       "name": "lingxing_exp_ads_sp_purchased_asin_report",
-      "description": "实验层：SP 已购买 ASIN 报表。",
+      "description": "实验层：SP 已购买 ASIN 报表。\n限流：endpoint /pb/openapi/newad/asinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SP 已购买 ASIN 报表。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/asinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/asinReports",
+      "endpoints": [
+        "/pb/openapi/newad/asinReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/asinReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/asinReports.md",
       "required_args": [
         "sid",
@@ -3016,12 +4738,28 @@
       }
     },
     {
-      "index": 80,
+      "index": 81,
       "name": "lingxing_exp_ads_sb_campaign_placement_report",
-      "description": "实验层：SB 广告位日报。",
+      "description": "实验层：SB 广告位日报。\n限流：endpoint /pb/openapi/newad/hsaCampaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SB 广告位日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaCampaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/hsaCampaignPlacementReports",
+      "endpoints": [
+        "/pb/openapi/newad/hsaCampaignPlacementReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaCampaignPlacementReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/hsaCampaignPlacementReports.md",
       "required_args": [
         "sid",
@@ -3055,12 +4793,28 @@
       }
     },
     {
-      "index": 81,
+      "index": 82,
       "name": "lingxing_exp_ads_sb_ad_group_report",
-      "description": "实验层：SB 广告组日报。",
+      "description": "实验层：SB 广告组日报。\n限流：endpoint /pb/openapi/newad/hsaAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SB 广告组日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/hsaAdGroupReports",
+      "endpoints": [
+        "/pb/openapi/newad/hsaAdGroupReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaAdGroupReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/hsaAdGroupReports.md",
       "required_args": [
         "sid",
@@ -3094,12 +4848,28 @@
       }
     },
     {
-      "index": 82,
+      "index": 83,
       "name": "lingxing_exp_ads_sb_target_report",
-      "description": "实验层：SB 投放日报。",
+      "description": "实验层：SB 投放日报。\n限流：endpoint /pb/openapi/newad/listHsaTargetingReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SB 投放日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/listHsaTargetingReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/listHsaTargetingReport",
+      "endpoints": [
+        "/pb/openapi/newad/listHsaTargetingReport"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/listHsaTargetingReport",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/listHsaTargetingReport.md",
       "required_args": [
         "sid",
@@ -3133,12 +4903,28 @@
       }
     },
     {
-      "index": 83,
+      "index": 84,
       "name": "lingxing_exp_ads_sb_search_term_report",
-      "description": "实验层：SB 用户搜索词日报。",
+      "description": "实验层：SB 用户搜索词日报。\n限流：endpoint /pb/openapi/newad/hsaQueryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SB 用户搜索词日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaQueryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/hsaQueryWordReports",
+      "endpoints": [
+        "/pb/openapi/newad/hsaQueryWordReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaQueryWordReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/hsaQueryWordReports.md",
       "required_args": [
         "sid",
@@ -3172,12 +4958,28 @@
       }
     },
     {
-      "index": 84,
+      "index": 85,
       "name": "lingxing_exp_ads_sb_keyword_placement_report",
-      "description": "实验层：SB 关键词广告位日报。",
+      "description": "实验层：SB 关键词广告位日报。\n限流：endpoint /pb/openapi/newad/listHsaKeywordPlacementReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SB 关键词广告位日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/listHsaKeywordPlacementReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/listHsaKeywordPlacementReport",
+      "endpoints": [
+        "/pb/openapi/newad/listHsaKeywordPlacementReport"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/listHsaKeywordPlacementReport",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/listHsaKeywordPlacementReport.md",
       "required_args": [
         "sid",
@@ -3211,12 +5013,28 @@
       }
     },
     {
-      "index": 85,
+      "index": 86,
       "name": "lingxing_exp_ads_sd_ad_group_report",
-      "description": "实验层：SD 广告组日报。",
+      "description": "实验层：SD 广告组日报。\n限流：endpoint /pb/openapi/newad/sdAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SD 广告组日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdAdGroupReports",
+      "endpoints": [
+        "/pb/openapi/newad/sdAdGroupReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdAdGroupReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdAdGroupReports.md",
       "required_args": [
         "sid",
@@ -3250,12 +5068,28 @@
       }
     },
     {
-      "index": 86,
+      "index": 87,
       "name": "lingxing_exp_ads_sd_match_target_report",
-      "description": "实验层：SD 匹配目标日报。",
+      "description": "实验层：SD 匹配目标日报。\n限流：endpoint /pb/openapi/newad/sdMatchTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：SD 匹配目标日报。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdMatchTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/sdMatchTargetReports",
+      "endpoints": [
+        "/pb/openapi/newad/sdMatchTargetReports"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdMatchTargetReports",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/report/sdMatchTargetReports.md",
       "required_args": [
         "sid",
@@ -3289,12 +5123,28 @@
       }
     },
     {
-      "index": 87,
+      "index": 88,
       "name": "lingxing_exp_ads_aba_report",
-      "description": "实验层：ABA 搜索词周报下载信息。",
+      "description": "实验层：ABA 搜索词周报下载信息。\n限流：endpoint /pb/openapi/newad/abaReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：ABA 搜索词周报下载信息。",
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/abaReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "ad_report",
       "endpoint": "/pb/openapi/newad/abaReport",
+      "endpoints": [
+        "/pb/openapi/newad/abaReport"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/abaReport",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/newAd/reportDownload/abaReport.md",
       "required_args": [
         "country",
@@ -3319,12 +5169,28 @@
       }
     },
     {
-      "index": 88,
+      "index": 89,
       "name": "lingxing_finance_report_asin",
-      "description": "结算利润报表 ASIN 视角。",
+      "description": "结算利润报表 ASIN 视角。\n限流：endpoint /bd/profit/report/open/report/asin/list，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。",
+      "base_description": "结算利润报表 ASIN 视角。",
+      "rate_limit_description": "限流：endpoint /bd/profit/report/open/report/asin/list，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。",
       "registered_by": "endpoint_spec",
       "category": "profit_report",
       "endpoint": "/bd/profit/report/open/report/asin/list",
+      "endpoints": [
+        "/bd/profit/report/open/report/asin/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/bd/profit/report/open/report/asin/list",
+          "rate_per_second": 10.0,
+          "burst": 10,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。"
+        }
+      ],
       "docs_path": "docs/Finance/bdASIN.md",
       "required_args": [
         "sid",
@@ -3375,12 +5241,28 @@
       }
     },
     {
-      "index": 89,
+      "index": 90,
       "name": "lingxing_exp_finance_report_seller",
-      "description": "实验层：结算利润报表店铺视角。",
+      "description": "实验层：结算利润报表店铺视角。\n限流：endpoint /bd/profit/report/open/report/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "base_description": "实验层：结算利润报表店铺视角。",
+      "rate_limit_description": "限流：endpoint /bd/profit/report/open/report/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "registered_by": "endpoint_spec",
       "category": "profit_report",
       "endpoint": "/bd/profit/report/open/report/seller/list",
+      "endpoints": [
+        "/bd/profit/report/open/report/seller/list"
+      ],
+      "endpoint_policies": [
+        {
+          "endpoint": "/bd/profit/report/open/report/seller/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
       "docs_path": "docs/Finance/bdSeller.md",
       "required_args": [
         "sid",

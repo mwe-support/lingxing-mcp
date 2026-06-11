@@ -12,6 +12,7 @@ from .auth import (
     load_tokens_file,
     revoke_token,
     rotate_token,
+    set_token_role,
     upsert_token,
 )
 from .client import (
@@ -130,6 +131,7 @@ __all__ = [
     "rotate_token",
     "safe_int",
     "serialize_promotion_window",
+    "set_token_role",
     "upsert_token",
     "build_tokens_payload",
 ]

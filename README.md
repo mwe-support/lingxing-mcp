@@ -232,7 +232,7 @@
 
 ## 这个仓库当前支持什么
 
-- 基础能力：`lingxing_health_check`、`lingxing_smoke_check`、`lingxing_seller_lists`、`lingxing_marketplaces`
+- 基础能力：`lingxing_health_check`、`lingxing_smoke_check`、`lingxing_rate_limit_policy`、`lingxing_seller_lists`、`lingxing_marketplaces`
 - 店铺经营：`lingxing_store_sales`、`lingxing_asin_daily_lists`、`lingxing_order_lists`、`lingxing_product_performance`
 - 促销：`lingxing_promotion_*`、`lingxing_resolve_daily_promotions`
 - 广告：`lingxing_ad_accounts`、`lingxing_ads_sp_*`、`lingxing_ads_sd_*`、`lingxing_ads_sb_*`
@@ -304,6 +304,47 @@
 5. 最后给我一个最短的验证步骤，确认这个 MCP 已经能用了
 ```
 
+### HTTP transport and browser clients
+
+The HTTP gateway endpoint `/mcp` is a JSON-RPC HTTP MCP endpoint. It returns `application/json` for normal `GET` and `POST` requests; it is not the legacy SSE endpoint that returns `text/event-stream` on `GET`. Browser or Electron clients that send Cloudflare Access service-token headers must pass CORS preflight with `Authorization`, `Content-Type`, `CF-Access-Client-Id`, and `CF-Access-Client-Secret`.
+
+If a client reports `streamableHttp connect failed: fetch failed` and then `SSE error: Invalid content type, expected "text/event-stream"`, first check the streamable HTTP request and CORS preflight. The SSE message is usually the client's fallback path, not proof that this gateway should be configured as an SSE-only MCP server.
+
+
+### Member token roles
+
+HTTP member tokens support role-based tool visibility. The role allowlist is the visibility boundary; the deprecated global `LINGXING_MCP_ENABLED_TOOLS` allowlist is no longer used. The default role is `minimal`, and existing tokens without a `role` field are treated as `minimal`.
+
+Current built-in roles:
+
+- `minimal`: least-privilege baseline with the prior default business tools plus health check, smoke check, and rate-limit policy discovery.
+- `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, and product performance queries.
+- `finance`: finance-facing sales, profit, settlement, cost, FBA stock, order-detail, warehouse-status, and transaction-trace tools recommended by finance users.
+
+Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`, even when `LINGXING_MCP_ROLE_TOOLS` overrides a role.
+
+Create a member token with a role:
+
+```bash
+python3 mcp-servers/lingxing-openapi/deploy/manage_tokens.py \
+  --tokens-file /etc/lingxing-mcp/tokens.json \
+  add --id yake --description "Yake" --role minimal
+```
+
+Change a role without rotating the token:
+
+```bash
+python3 mcp-servers/lingxing-openapi/deploy/manage_tokens.py \
+  --tokens-file /etc/lingxing-mcp/tokens.json \
+  set-role --id yake --role finance
+```
+
+Validate role visibility offline:
+
+```bash
+python3 mcp-servers/lingxing-openapi/deploy/validate_role_permissions.py
+```
+
 ### OpenAPI rate limiting
 
 The HTTP gateway accepts concurrent MCP clients, but Lingxing OpenAPI calls are queued inside `LingxingOpenAPIClient` before each signed business request. This prevents unrestricted client concurrency from turning into upstream Lingxing rate-limit errors.
@@ -317,6 +358,8 @@ LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST=1
 LINGXING_OPENAPI_RATE_LIMIT_WAIT_TIMEOUT=60
 LINGXING_OPENAPI_RATE_LIMIT_OVERRIDES=/bd/profit/report/open/report/asin/list=10:10
 ```
+
+Every `tools/list` description includes a generated `限流：` line. Clients or agents that plan large jobs should call `lingxing_rate_limit_policy` first and group calls by Lingxing endpoint, not by MCP tool name.
 
 Known capacity-1 endpoints, such as order lists, order details, seller lists, marketplace lists, and product performance, are queued at `1 request/second`. Known capacity-10 endpoints, such as `lingxing_finance_report_asin`, are queued at `10 requests/second`. Unknown endpoints stay conservative until their official token bucket capacity is verified.
 

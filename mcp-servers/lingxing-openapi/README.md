@@ -40,6 +40,8 @@
 保留原有基础工具：
 
 - `lingxing_health_check`
+- `lingxing_smoke_check`
+- `lingxing_rate_limit_policy`
 - `lingxing_seller_lists`
 - `lingxing_marketplaces`
 - `lingxing_store_sales`
@@ -51,7 +53,6 @@
 - `lingxing_promotion_vip_discount`
 - `lingxing_promotion_coupon`
 - `lingxing_resolve_daily_promotions`
-- `lingxing_smoke_check`
 
 新增稳定层只读工具：
 
@@ -120,9 +121,52 @@ python3 mcp-servers/lingxing-openapi/deploy/manage_tokens.py \
 <img src="../../assets/traffic/feishu-feedback-form.png" width="260" alt="飞书问卷反馈二维码" />
 
 
+
+## Member token roles
+
+HTTP member tokens support role-based tool visibility. The role allowlist is the visibility boundary; the deprecated global `LINGXING_MCP_ENABLED_TOOLS` allowlist is no longer used. The default role is `minimal`, and existing tokens without a `role` field are treated as `minimal`.
+
+Current built-in roles:
+
+- `minimal`: least-privilege baseline with the prior default business tools plus health check, smoke check, and rate-limit policy discovery.
+- `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, and product performance queries.
+- `finance`: finance-facing sales, profit, settlement, cost, FBA stock, order-detail, warehouse-status, and transaction-trace tools recommended by finance users.
+
+Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`, even when `LINGXING_MCP_ROLE_TOOLS` overrides a role.
+
+Create a member token with a role:
+
+```bash
+python3 mcp-servers/lingxing-openapi/deploy/manage_tokens.py \
+  --tokens-file /etc/lingxing-mcp/tokens.json \
+  add --id yake --description "Yake" --role minimal
+```
+
+Change a role without rotating the token:
+
+```bash
+python3 mcp-servers/lingxing-openapi/deploy/manage_tokens.py \
+  --tokens-file /etc/lingxing-mcp/tokens.json \
+  set-role --id yake --role finance
+```
+
+Validate role visibility offline:
+
+```bash
+python3 mcp-servers/lingxing-openapi/deploy/validate_role_permissions.py
+```
+
+## HTTP transport and browser clients
+
+The shared `/mcp` endpoint is JSON-RPC over HTTP and normally responds with `application/json`. It is not a legacy SSE endpoint that returns `text/event-stream` from `GET /mcp`.
+
+For browser or Electron clients behind Cloudflare Access, CORS must allow `Authorization`, `Content-Type`, `CF-Access-Client-Id`, and `CF-Access-Client-Secret`. If a client falls back to SSE and reports `Invalid content type`, inspect the failed streamable HTTP request first.
+
 ## OpenAPI rate limiting
 
-The server does not require each MCP client to self-throttle. Business requests are throttled in the shared OpenAPI client by endpoint path before calling Lingxing. The default is enabled and conservative for unknown endpoints.
+The server does not require each MCP client to self-throttle to stay correct. Business requests are throttled in the shared OpenAPI client by endpoint path before calling Lingxing. The default is enabled and conservative for unknown endpoints.
+
+Every `tools/list` description includes a generated `限流：` line. Use `lingxing_rate_limit_policy` for machine-readable endpoint policies before large or parallel jobs. Clients should group calls by Lingxing endpoint, not by MCP tool name.
 
 Useful environment variables:
 
