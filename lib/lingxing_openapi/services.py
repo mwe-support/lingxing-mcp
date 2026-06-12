@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -67,6 +68,8 @@ REGION_CODE_MAP = {
     "AU": "fe",
     "JP": "fe",
 }
+
+ASIN_PRODUCT_SNAPSHOT_MAX_ASINS = 50
 
 
 def _parse_iso_date(value: str) -> datetime.date:
@@ -734,14 +737,90 @@ class LingxingOpenAPIService:
         self,
         *,
         sid: int,
-        asin: str,
+        asin: str | None = None,
+        asins: list[str] | None = None,
         start_date: str | None = None,
         end_date: str | None = None,
     ) -> dict[str, Any]:
-        normalized_asin = str(asin or "").strip().upper()
-        if not normalized_asin:
-            raise LingxingConfigError("asin_product_snapshot requires asin")
+        asin_values, batch_mode = self._normalize_snapshot_asin_input(asin=asin, asins=asins)
+        normalized_start_date, normalized_end_date = self._normalize_snapshot_date_range(start_date, end_date)
+        items, warnings, page_count, endpoints = self._asin_product_snapshot_items(
+            sid=sid,
+            asins=asin_values,
+            start_date=normalized_start_date,
+            end_date=normalized_end_date,
+        )
 
+        if batch_mode:
+            data = {
+                "sid": int(sid),
+                "asins": asin_values,
+                "date_range": {"start_date": normalized_start_date, "end_date": normalized_end_date},
+                "items": items,
+                "warnings": sorted(set(warnings)),
+            }
+            return self._result(
+                data=data,
+                endpoint="asin_product_snapshot",
+                page_count=page_count,
+                sid=int(sid),
+                date_range=f"{normalized_start_date}~{normalized_end_date}",
+                warnings=sorted(set(warnings)),
+                extra_meta={
+                    "endpoints": endpoints,
+                    "input_mode": "batch",
+                    "max_asins": ASIN_PRODUCT_SNAPSHOT_MAX_ASINS,
+                    "inventory_scope": "FBA only; FBM quantity is intentionally excluded.",
+                    "sales_source": "productPerformance.volume",
+                },
+            )
+
+        data = items[0] if items else self._empty_asin_product_snapshot_item(
+            sid=int(sid),
+            asin=asin_values[0],
+            start_date=normalized_start_date,
+            end_date=normalized_end_date,
+        )
+        if not data.get("per_sku"):
+            warnings.append("No SKU rows were available from FBAStock_v2 or productPerformance.")
+        return self._result(
+            data=data,
+            endpoint="asin_product_snapshot",
+            page_count=page_count,
+            sid=int(sid),
+            date_range=f"{normalized_start_date}~{normalized_end_date}",
+            warnings=sorted(set(warnings)),
+            extra_meta={
+                "endpoints": endpoints,
+                "input_mode": "single",
+                "max_asins": ASIN_PRODUCT_SNAPSHOT_MAX_ASINS,
+                "inventory_scope": "FBA only; FBM quantity is intentionally excluded.",
+                "sales_source": "productPerformance.volume",
+            },
+        )
+
+    def _normalize_snapshot_asin_input(self, *, asin: str | None, asins: list[str] | None) -> tuple[list[str], bool]:
+        has_asin = str(asin or "").strip() != ""
+        asin_list = [
+            str(value or "").strip().upper()
+            for value in (asins or [])
+            if str(value or "").strip()
+        ]
+        if has_asin and asin_list:
+            raise LingxingConfigError("asin_product_snapshot accepts either asin or asins, not both")
+        if has_asin:
+            return [str(asin or "").strip().upper()], False
+        if not asin_list:
+            raise LingxingConfigError("asin_product_snapshot requires asin or asins")
+        deduped = list(dict.fromkeys(asin_list))
+        if len(deduped) > ASIN_PRODUCT_SNAPSHOT_MAX_ASINS:
+            raise LingxingConfigError(
+                f"asin_product_snapshot accepts at most {ASIN_PRODUCT_SNAPSHOT_MAX_ASINS} ASINs per call; "
+                "split larger jobs into serial batches of 50 or fewer ASINs"
+            )
+        return deduped, True
+
+    def _normalize_snapshot_date_range(self, start_date: str | None, end_date: str | None) -> tuple[str, str]:
         if end_date in (None, ""):
             end_day = datetime.now().date() - timedelta(days=1)
             normalized_end_date = end_day.isoformat()
@@ -756,32 +835,63 @@ class LingxingOpenAPIService:
             start_day = _parse_iso_date(normalized_start_date)
         if start_day > end_day:
             raise LingxingConfigError("start_date must be on or before end_date")
+        return normalized_start_date, normalized_end_date
 
+    def _asin_product_snapshot_items(
+        self,
+        *,
+        sid: int,
+        asins: list[str],
+        start_date: str,
+        end_date: str,
+    ) -> tuple[list[dict[str, Any]], list[str], int, list[str | None]]:
         warnings: list[str] = []
+        asin_set = set(asins)
 
-        fba_result = self.fba_warehouse_detail(
-            sid=sid,
-            search_field="asin",
-            search_value=normalized_asin,
-            page_size=200,
-            fulfillment_channel_type="FBA",
-            is_hide_zero_stock="0",
-            is_parant_asin_merge="0",
-            is_contain_del_ls="0",
-        )
-        fba_rows = [dict(row) for row in (fba_result.get("data") or [])]
-        fba_rows = [row for row in fba_rows if str(row.get("asin") or "").upper() == normalized_asin]
-        if not fba_rows:
-            warnings.append(f"No FBAStock_v2 rows matched sid={sid}, asin={normalized_asin}.")
+        if len(asins) == 1:
+            fba_result = self.fba_warehouse_detail(
+                sid=sid,
+                search_field="asin",
+                search_value=asins[0],
+                page_size=200,
+                fulfillment_channel_type="FBA",
+                is_hide_zero_stock="0",
+                is_parant_asin_merge="0",
+                is_contain_del_ls="0",
+            )
+        else:
+            fba_result = self.fba_warehouse_detail(
+                sid=sid,
+                search_field="asin",
+                page_size=200,
+                senior_search_list=json.dumps(
+                    [{"name": "ASIN", "search_field": "asin", "search_value": asins}],
+                    ensure_ascii=False,
+                ),
+                fulfillment_channel_type="FBA",
+                is_hide_zero_stock="0",
+                is_parant_asin_merge="0",
+                is_contain_del_ls="0",
+            )
+        fba_rows = [
+            dict(row)
+            for row in (fba_result.get("data") or [])
+            if str(row.get("asin") or "").strip().upper() in asin_set
+        ]
+        fba_rows_by_asin: dict[str, list[dict[str, Any]]] = {value: [] for value in asins}
+        for row in fba_rows:
+            row_asin = str(row.get("asin") or "").strip().upper()
+            if row_asin in fba_rows_by_asin:
+                fba_rows_by_asin[row_asin].append(row)
 
         performance_result = self.run_endpoint_spec(
             "lingxing_product_performance",
             {
                 "sid": sid,
-                "start_date": normalized_start_date,
-                "end_date": normalized_end_date,
+                "start_date": start_date,
+                "end_date": end_date,
                 "search_field": "asin",
-                "search_value": [normalized_asin],
+                "search_value": asins,
                 "summary_field": "sku",
                 "sort_field": "volume",
                 "sort_type": "desc",
@@ -790,12 +900,24 @@ class LingxingOpenAPIService:
             },
         )
         performance_rows = [dict(row) for row in (performance_result.get("data") or [])]
-        if not performance_rows:
-            warnings.append(f"No productPerformance rows matched sid={sid}, asin={normalized_asin}.")
+        performance_rows_by_asin: dict[str, list[dict[str, Any]]] = {value: [] for value in asins}
+        for row in performance_rows:
+            matched_asins = self._snapshot_asins_from_performance_row(row, asin_set)
+            for row_asin in matched_asins:
+                performance_rows_by_asin.setdefault(row_asin, []).append(row)
 
-        local_skus = sorted({str(row.get("sku") or "").strip() for row in fba_rows if str(row.get("sku") or "").strip()})
+        local_skus = sorted(
+            {
+                str(row.get("sku") or row.get("local_sku") or "").strip()
+                for row in [*fba_rows, *performance_rows]
+                if str(row.get("sku") or row.get("local_sku") or "").strip()
+            }
+        )
         local_cost_by_sku: dict[str, dict[str, Any]] = {}
-        if local_skus and any(row.get("cg_price") in (None, "") for row in fba_rows):
+        if local_skus and (
+            any(row.get("cg_price") in (None, "") for row in fba_rows)
+            or any(row.get("cg_price") in (None, "") for row in performance_rows)
+        ):
             try:
                 local_cost_result = self.local_product_costs(
                     sku_list=local_skus,
@@ -808,6 +930,63 @@ class LingxingOpenAPIService:
                         local_cost_by_sku[sku] = dict(item)
             except LingxingClientError as exc:
                 warnings.append(f"local_product_costs fallback failed: {exc.message}")
+
+        items: list[dict[str, Any]] = []
+        for item_asin in asins:
+            item, item_warnings = self._build_asin_product_snapshot_item(
+                sid=int(sid),
+                asin=item_asin,
+                start_date=start_date,
+                end_date=end_date,
+                fba_rows=fba_rows_by_asin.get(item_asin) or [],
+                performance_rows=performance_rows_by_asin.get(item_asin) or [],
+                local_cost_by_sku=local_cost_by_sku,
+            )
+            items.append(item)
+            warnings.extend(item_warnings)
+
+        page_count = (
+            int(fba_result.get("meta", {}).get("page_count") or 0)
+            + int(performance_result.get("meta", {}).get("page_count") or 0)
+        )
+        if local_cost_by_sku:
+            page_count += 1
+        endpoints = [
+            fba_result.get("meta", {}).get("endpoint"),
+            performance_result.get("meta", {}).get("endpoint"),
+        ]
+        if local_cost_by_sku:
+            endpoints.append("/erp/sc/routing/data/local_inventory/productList")
+        return items, sorted(set(warnings)), page_count, endpoints
+
+    def _snapshot_asins_from_performance_row(self, row: dict[str, Any], asin_set: set[str]) -> list[str]:
+        values: set[str] = set()
+        for key in ("asin", "seller_asin"):
+            text = str(row.get(key) or "").strip().upper()
+            if text in asin_set:
+                values.add(text)
+        for asin_item in row.get("asins") or []:
+            text = str((asin_item or {}).get("asin") or "").strip().upper()
+            if text in asin_set:
+                values.add(text)
+        return sorted(values)
+
+    def _build_asin_product_snapshot_item(
+        self,
+        *,
+        sid: int,
+        asin: str,
+        start_date: str,
+        end_date: str,
+        fba_rows: list[dict[str, Any]],
+        performance_rows: list[dict[str, Any]],
+        local_cost_by_sku: dict[str, dict[str, Any]],
+    ) -> tuple[dict[str, Any], list[str]]:
+        warnings: list[str] = []
+        if not fba_rows:
+            warnings.append(f"No FBAStock_v2 rows matched sid={sid}, asin={asin}.")
+        if not performance_rows:
+            warnings.append(f"No productPerformance rows matched sid={sid}, asin={asin}.")
 
         performance_by_local_sku: dict[str, dict[str, Any]] = {}
         performance_by_seller_sku: dict[str, dict[str, Any]] = {}
@@ -849,7 +1028,7 @@ class LingxingOpenAPIService:
             if not perf_row:
                 return None
             for asin_item in perf_row.get("asins") or []:
-                if str(asin_item.get("asin") or "").upper() == normalized_asin and asin_item.get("amazon_url"):
+                if str(asin_item.get("asin") or "").upper() == asin and asin_item.get("amazon_url"):
                     return str(asin_item.get("amazon_url"))
             for asin_item in perf_row.get("asins") or []:
                 if asin_item.get("amazon_url"):
@@ -896,12 +1075,14 @@ class LingxingOpenAPIService:
         if not per_sku:
             for perf_row in performance_rows:
                 price_item = price_for(perf_row)
+                local_sku = str(perf_row.get("sku") or perf_row.get("local_sku") or "").strip()
+                fallback_cost = (local_cost_by_sku.get(local_sku) or {}).get("purchase") or {}
                 per_sku.append(
                     {
-                        "sku": perf_row.get("sku"),
+                        "sku": perf_row.get("sku") or perf_row.get("local_sku"),
                         "seller_sku": (price_item or {}).get("seller_sku"),
                         "fnsku": None,
-                        "asin": normalized_asin,
+                        "asin": asin,
                         "fulfillment_channel": None,
                         "product_name": _first_non_empty(perf_row.get("local_name"), perf_row.get("item_name")),
                         "frontend_price": {
@@ -910,10 +1091,21 @@ class LingxingOpenAPIService:
                             "source": "productPerformance.price_list.price" if price_item else None,
                         },
                         "purchase_cost": {
-                            "amount": perf_row.get("cg_price"),
+                            "amount": _first_non_empty(
+                                perf_row.get("cg_price"),
+                                fallback_cost.get("cg_price"),
+                            ),
                             "currency_icon": perf_row.get("cg_price_currency_icon") or "\N{YEN SIGN}",
-                            "transport_cost": None,
-                            "source": "productPerformance.cg_price" if perf_row.get("cg_price") not in (None, "") else None,
+                            "transport_cost": fallback_cost.get("cg_transport_costs"),
+                            "source": (
+                                "productPerformance.cg_price"
+                                if perf_row.get("cg_price") not in (None, "")
+                                else (
+                                    "local_product_costs.purchase.cg_price"
+                                    if fallback_cost
+                                    else None
+                                )
+                            ),
                         },
                         "inventory": self._empty_snapshot_inventory(),
                         "product_link": amazon_url_from(perf_row),
@@ -923,13 +1115,13 @@ class LingxingOpenAPIService:
         representative = per_sku[0] if per_sku else None
         product_link = (representative or {}).get("product_link")
         if not product_link:
-            product_link = f"https://www.amazon.com/dp/{normalized_asin}"
+            product_link = f"https://www.amazon.com/dp/{asin}"
             warnings.append("No amazon_url found in productPerformance; generated a generic amazon.com dp URL.")
 
         data = {
             "sid": int(sid),
-            "asin": normalized_asin,
-            "date_range": {"start_date": normalized_start_date, "end_date": normalized_end_date},
+            "asin": asin,
+            "date_range": {"start_date": start_date, "end_date": end_date},
             "product_name": (representative or {}).get("product_name"),
             "product_link": product_link,
             "frontend_price": (representative or {}).get("frontend_price") or {"amount": None, "currency_icon": None, "source": None},
@@ -940,25 +1132,28 @@ class LingxingOpenAPIService:
         }
         if not per_sku:
             warnings.append("No SKU rows were available from FBAStock_v2 or productPerformance.")
-        return self._result(
-            data=data,
-            endpoint="asin_product_snapshot",
-            page_count=(
-                int(fba_result.get("meta", {}).get("page_count") or 0)
-                + int(performance_result.get("meta", {}).get("page_count") or 0)
-            ),
-            sid=int(sid),
-            date_range=f"{normalized_start_date}~{normalized_end_date}",
-            warnings=sorted(set(warnings)),
-            extra_meta={
-                "endpoints": [
-                    fba_result.get("meta", {}).get("endpoint"),
-                    performance_result.get("meta", {}).get("endpoint"),
-                ],
-                "inventory_scope": "FBA only; FBM quantity is intentionally excluded.",
-                "sales_source": "productPerformance.volume",
-            },
-        )
+        return data, warnings
+
+    def _empty_asin_product_snapshot_item(
+        self,
+        *,
+        sid: int,
+        asin: str,
+        start_date: str,
+        end_date: str,
+    ) -> dict[str, Any]:
+        return {
+            "sid": int(sid),
+            "asin": asin,
+            "date_range": {"start_date": start_date, "end_date": end_date},
+            "product_name": None,
+            "product_link": f"https://www.amazon.com/dp/{asin}",
+            "frontend_price": {"amount": None, "currency_icon": None, "source": None},
+            "purchase_cost": {"amount": None, "currency_icon": "\N{YEN SIGN}", "transport_cost": None, "source": None},
+            "sales": {"volume": 0, "source": "productPerformance.volume"},
+            "inventory": self._empty_snapshot_inventory(),
+            "per_sku": [],
+        }
 
     def _country_matches(self, requested: str, value: Any) -> bool:
         requested_text = str(requested or "").strip().upper()

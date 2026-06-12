@@ -119,7 +119,7 @@ When adding a new MCP tool backed by a new Lingxing endpoint, check the official
 Minimum input:
 
 ```json
-{"sid": 7806, "asin": "B0DX74Z1MR"}
+{"sid": 7806, "asins": ["B0DX74Z1MR"]}
 ```
 
 Optional input:
@@ -133,6 +133,8 @@ Default date logic:
 - If no date range is provided, `end_date` is the day before the request date.
 - `start_date` is `end_date - 29 days`.
 - Do not require `country`; `sid` already determines the store/site context.
+- The MCP schema exposes only `asins`; single-ASIN queries still pass a one-item array.
+- `asins` is capped at 50 ASINs because `productPerformance.search_value` supports at most 50 values. Client agents must split larger jobs into serial batches of 50 or fewer ASINs and follow the visible `限流：` guidance.
 
 Data source rules:
 
@@ -149,6 +151,7 @@ Data source rules:
 - FBA researching: `afn_researching_quantity`.
 - Total inventory: sum of the four FBA fields above.
 - Sales volume in the snapshot comes from `productPerformance.volume`.
+- For batch snapshots, use one FBAStock_v2 batch request with `senior_search_list`, one productPerformance batch request with `search_field=asin` and `search_value=[...]`, and one local product cost fallback request only when needed.
 - Do not include FBA/FBM order counts in `lingxing_asin_product_snapshot` unless the user explicitly approves a new order-count design.
 - Do not treat bdASIN `fbaSalesQuantity`, `fbmSalesQuantity`, or `totalSalesQuantity` as order counts; those fields are sales quantity metrics.
 - Do not infer FBA/FBM from SKU names, MSKU suffixes, or `productPerformance.price_list`.
@@ -221,12 +224,13 @@ Then run HTTP MCP `tools/list` and at least one real `tools/call` for changed bu
 For `lingxing_asin_product_snapshot`, a known smoke-test case is:
 
 ```json
-{"sid": 7806, "asin": "B0DX74Z1MR"}
+{"sid": 7806, "asins": ["B0DX74Z1MR"]}
 ```
 
 Expected shape:
 
-- Required input schema only contains `sid` and `asin`; `start_date` and `end_date` are optional.
+- Required input schema contains `sid` and `asins`; `start_date` and `end_date` are optional.
+- `asins` accepts 1 to 50 ASINs and always returns a batch shape with `items`.
 - `sales.volume` comes from `productPerformance.volume`.
 - Output should not contain FBA/FBM order counts by default.
 - `inventory` contains FBA-only fields.

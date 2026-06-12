@@ -563,21 +563,31 @@ class LingxingMCPApplication:
             ),
             "lingxing_asin_product_snapshot": ToolDefinition(
                 name="lingxing_asin_product_snapshot",
-                description="按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。",
+                description=(
+                    "按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、"
+                    "FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，"
+                    "例如 [\"B0...\"]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。"
+                ),
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "sid": {"type": "integer"},
-                        "asin": {"type": "string"},
-                        "start_date": {"type": "string"},
-                        "end_date": {"type": "string"},
+                        "sid": {"type": "integer", "description": "领星店铺 sid。"},
+                        "asins": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "ASIN 列表，支持 1 到 50 个；单个 ASIN 也传数组，超过 50 个请客户端按批次串行调用。",
+                            "minItems": 1,
+                            "maxItems": 50,
+                        },
+                        "start_date": {"type": "string", "description": "销量统计开始日期，YYYY-MM-DD；不传时默认近 30 天。"},
+                        "end_date": {"type": "string", "description": "销量统计结束日期，YYYY-MM-DD；不传时默认昨天。"},
                     },
-                    "required": ["sid", "asin"],
+                    "required": ["sid", "asins"],
                     "additionalProperties": False,
                 },
                 handler=lambda args: self.service.asin_product_snapshot(
                     sid=_required_int(args, "sid"),
-                    asin=_required_text(args, "asin"),
+                    asins=_listify_strings(args.get("asins")),
                     start_date=str(args.get("start_date") or "").strip() or None,
                     end_date=str(args.get("end_date") or "").strip() or None,
                 ),

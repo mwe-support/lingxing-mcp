@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-11 15:31:02",
+  "generated_at": "2026-06-12 22:27:09",
   "source": "LingxingMCPApplication tool registry plus built-in role allowlists and rate-limit metadata",
   "tool_count": 90,
   "runtime_rate_limit_settings": {
@@ -816,8 +816,8 @@
     {
       "index": 15,
       "name": "lingxing_asin_product_snapshot",
-      "description": "按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。\n限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
-      "base_description": "按店铺 sid 和 ASIN 查询产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。",
+      "description": "按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，例如 [\"B0...\"]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。\n限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "base_description": "按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，例如 [\"B0...\"]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。",
       "rate_limit_description": "限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "registered_by": "manual",
       "category": "manual",
@@ -859,7 +859,7 @@
       "docs_path": null,
       "required_args": [
         "sid",
-        "asin"
+        "asins"
       ],
       "optional_args": [
         "start_date",
@@ -869,21 +869,30 @@
         "type": "object",
         "properties": {
           "sid": {
-            "type": "integer"
+            "type": "integer",
+            "description": "领星店铺 sid。"
           },
-          "asin": {
-            "type": "string"
+          "asins": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "ASIN 列表，支持 1 到 50 个；单个 ASIN 也传数组，超过 50 个请客户端按批次串行调用。",
+            "minItems": 1,
+            "maxItems": 50
           },
           "start_date": {
-            "type": "string"
+            "type": "string",
+            "description": "销量统计开始日期，YYYY-MM-DD；不传时默认近 30 天。"
           },
           "end_date": {
-            "type": "string"
+            "type": "string",
+            "description": "销量统计结束日期，YYYY-MM-DD；不传时默认昨天。"
           }
         },
         "required": [
           "sid",
-          "asin"
+          "asins"
         ],
         "additionalProperties": false
       }
