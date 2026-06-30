@@ -37,6 +37,7 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_order_lists",
         "lingxing_asin_product_snapshot",
         "lingxing_fba_warehouse_detail",
+        "lingxing_amazon_listing",
         "lingxing_local_product_costs",
         "lingxing_product_performance",
         "lingxing_finance_report_asin",
@@ -51,6 +52,7 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_fba_warehouse_detail",
         "lingxing_local_product_costs",
         "lingxing_product_performance",
+        "lingxing_profit_report_order_list",
     },
     "finance": BASE_ROLE_TOOL_NAMES
     | {

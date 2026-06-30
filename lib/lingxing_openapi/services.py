@@ -1475,6 +1475,72 @@ class LingxingOpenAPIService:
             extra_meta={"docs_path": spec.docs_path, "profile_id": body.get("profile_id")},
         )
 
+    def _run_profit_report_order_spec(self, spec: EndpointSpec, args: dict[str, Any]) -> dict[str, Any]:
+        body: dict[str, Any] = {
+            "offset": 0,
+            "length": spec.page_size,
+            "startDate": str(args.get("start_date") or ""),
+            "endDate": str(args.get("end_date") or ""),
+        }
+        string_mappings = {
+            "search_date_field": "searchDateField",
+            "currency_code": "currencyCode",
+            "search_field": "searchField",
+            "sort_field": "sortField",
+            "sort_type": "sortType",
+            "order_status": "orderStatus",
+            "gmt_modified_start_date": "gmtModifiedStartDate",
+            "gmt_modified_end_date": "gmtModifiedEndDate",
+        }
+        array_string_mappings = {
+            "fee_type": "eventSource",
+            "search_value": "searchValue",
+            "settlement_status": "settlementStatus",
+            "fund_transfer_status": "fundTransferStatus",
+            "account_type": "accountType",
+            "fulfillment": "fulfillment",
+        }
+        array_int_mappings = {
+            "sids": "sids",
+            "mids": "mids",
+            "listing_owner": "principalUids",
+            "product_developer_uids": "productDeveloperUids",
+        }
+        for arg_name, body_name in string_mappings.items():
+            value = str(args.get(arg_name) or "").strip()
+            if value:
+                body[body_name] = value
+        for arg_name, body_name in array_string_mappings.items():
+            values = _listify_strings(args.get(arg_name))
+            if values:
+                body[body_name] = values
+        for arg_name, body_name in array_int_mappings.items():
+            values = _listify_ints(args.get(arg_name))
+            if values:
+                body[body_name] = values
+        page = self.client.paged_post_detailed(
+            spec.endpoint,
+            body,
+            page_size=spec.page_size,
+            data_path=spec.data_path,
+            total_path=spec.total_path,
+        )
+        return self._result(
+            data=page.rows,
+            endpoint=spec.endpoint,
+            page_count=page.page_count,
+            sid=None,
+            date_range=f"{body['startDate']}~{body['endDate']}",
+            extra_meta={
+                "docs_path": spec.docs_path,
+                "field_aliases": {
+                    "fee_type": "eventSource",
+                    "listing_owner": "principalUids",
+                    "search_date_field": "searchDateField",
+                },
+            },
+        )
+
     def _run_profit_like_spec(self, spec: EndpointSpec, args: dict[str, Any]) -> dict[str, Any]:
         sid = int(args.get("sid") or 0)
         body: dict[str, Any] = {
@@ -1624,6 +1690,8 @@ class LingxingOpenAPIService:
             raise LingxingConfigError(f"未知 endpoint spec: {tool_name}")
         if spec.category in {"ad_report", "ad_base"}:
             return self._run_ad_like_spec(spec, args)
+        if spec.category == "profit_report_order":
+            return self._run_profit_report_order_spec(spec, args)
         if spec.category in {"profit", "profit_report"}:
             return self._run_profit_like_spec(spec, args)
         if spec.category in {"source", "product"}:

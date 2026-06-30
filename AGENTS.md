@@ -69,17 +69,19 @@ lingxing_order_details
 lingxing_order_lists
 lingxing_asin_product_snapshot
 lingxing_fba_warehouse_detail
+lingxing_amazon_listing
 lingxing_local_product_costs
 lingxing_product_performance
 lingxing_finance_report_asin
 ```
 
-When adding or renaming MCP tools:
+When adding, removing, or renaming MCP tools:
 
 - Update the tool definition or `EndpointSpec`.
 - Update the built-in role mapping or `LINGXING_MCP_ROLE_TOOLS` if the tool must be visible to a role.
 - Run `tools/list` against the running HTTP MCP endpoint after restart.
 - Update `docs/lingxing-mcp-tool-snapshot-*.md/json` when the visible tool surface changes materially.
+- Update `docs/update-log.md` for every MCP tool-surface change. Each entry must explicitly list added tools, removed tools, built-in role allowlist changes, production `LINGXING_MCP_ROLE_TOOLS` changes when touched, and the validation result.
 
 ## Lingxing API Design Rules
 

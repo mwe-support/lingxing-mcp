@@ -83,6 +83,10 @@ def _as(name: str, *, required: bool = False, default: Any = None) -> ToolArg:
     return ToolArg(name=name, arg_type="array_string", required=required, default=default)
 
 
+def _ai(name: str, *, required: bool = False, default: Any = None) -> ToolArg:
+    return ToolArg(name=name, arg_type="array_integer", required=required, default=default)
+
+
 ADS_HEADERS = (("X-API-VERSION", "2"),)
 AD_REPORT_ARGS = (_i("sid", required=True), _s("report_date", required=True), _i("profile_id"), _i("show_detail"))
 AD_BASE_ARGS = (_i("sid", required=True), _i("profile_id"), _s("state"))
@@ -93,6 +97,28 @@ PROFIT_ARGS = (
     _s("currency_code"),
     _s("search_value"),
 )
+PROFIT_REPORT_ORDER_LIST_ARGS = (
+    _s("start_date", required=True),
+    _s("end_date", required=True),
+    _s("search_date_field"),
+    _ai("sids"),
+    _ai("mids"),
+    _as("fee_type"),
+    _ai("listing_owner"),
+    _s("currency_code"),
+    _s("search_field"),
+    _as("search_value"),
+    _s("sort_field"),
+    _s("sort_type"),
+    _as("settlement_status"),
+    _as("fund_transfer_status"),
+    _as("account_type"),
+    _as("fulfillment"),
+    _ai("product_developer_uids"),
+    _s("order_status"),
+    _s("gmt_modified_start_date"),
+    _s("gmt_modified_end_date"),
+)
 SOURCE_RANGE_ARGS = (
     _i("sid", required=True),
     _s("start_date", required=True),
@@ -100,6 +126,19 @@ SOURCE_RANGE_ARGS = (
     _i("date_type"),
 )
 SOURCE_DATE_ARGS = (_i("sid", required=True), _s("event_date", required=True))
+RETURN_ANALYSIS_ARGS = (
+    _s("startDate", required=True),
+    _s("endDate", required=True),
+    _s("asinType", required=True),
+    _i("dateType", required=True),
+    _ai("mids"),
+    _ai("principalUid"),
+    _s("searchField"),
+    _as("searchValue"),
+    _s("sortField"),
+    _s("sortType"),
+    _ai("storeId"),
+)
 STOCK_ARGS = (_i("sid", required=True), _s("start_month", required=True), _s("end_month", required=True))
 PRODUCT_PERFORMANCE_ARGS = (
     _i("sid", required=True),
@@ -124,6 +163,16 @@ LOCAL_PRODUCT_ARGS = (
     _i("create_time_start"),
     _i("create_time_end"),
 )
+AMAZON_LISTING_ARGS = (
+    _i("sid", required=True),
+    _s("search_field", default="seller_sku"),
+    _as("search_value", required=True),
+    _i("exact_search", default=1),
+    _i("store_type", default=1),
+    _s("listing_update_start_time"),
+    _s("listing_update_end_time"),
+)
+
 FBA_WAREHOUSE_DETAIL_ARGS = (
     _i("sid", required=True),
     _s("search_field"),
@@ -599,6 +648,17 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
         auto_profile=True,
     ),
     EndpointSpec(
+        tool_name="lingxing_profit_report_order_list",
+        description="查询利润报表订单 transaction 视图；fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。",
+        endpoint="/basicOpen/finance/profitReport/order/transcation/list",
+        category="profit_report_order",
+        args=PROFIT_REPORT_ORDER_LIST_ARGS,
+        docs_path="docs/Finance/profitReportOrderTranscationList.md",
+        page_size=1000,
+        data_path="data.records",
+        total_path="data.total",
+    ),
+    EndpointSpec(
         tool_name="lingxing_profit_seller",
         description="店铺维度利润统计。",
         endpoint="/bd/profit/statistics/open/seller/list",
@@ -646,6 +706,18 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
         page_size=200,
     ),
     EndpointSpec(
+        tool_name="lingxing_amazon_listing",
+        description="查询亚马逊 Listing，可按 MSKU、ASIN 或本地 SKU 搜索，返回 fulfillment_channel_type 配送方式以及 FBA/FBM 库存字段。",
+        endpoint="/erp/sc/data/mws/listing",
+        category="source",
+        args=AMAZON_LISTING_ARGS,
+        docs_path="docs/Sale/Listing.md",
+        page_size=200,
+        data_path="data",
+        total_path="total",
+        body_defaults=(("search_field", "seller_sku"), ("exact_search", 1), ("store_type", 1)),
+    ),
+    EndpointSpec(
         tool_name="lingxing_local_products",
         description="按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。",
         endpoint="/erp/sc/routing/data/local_inventory/productList",
@@ -681,6 +753,26 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
         args=SOURCE_RANGE_ARGS,
         docs_path="docs/SourceData/AllOrders.md",
         page_size=1000,
+    ),
+    EndpointSpec(
+        tool_name="lingxing_refund_orders",
+        description="查询 FBA customer returns 报表，返回 FBA 退货订单源表原始数据。",
+        endpoint="/erp/sc/data/mws_report/refundOrders",
+        category="source",
+        args=SOURCE_RANGE_ARGS,
+        docs_path="docs/SourceData/RefundOrders.md",
+        page_size=1000,
+    ),
+    EndpointSpec(
+        tool_name="lingxing_return_analysis",
+        description="查询退货分析，按 MSKU / ASIN / 父 ASIN / SKU / SPU 等维度统计退货数量、退货件数、退货率和退货原因相关指标。",
+        endpoint="/basicOpen/salesAnalysis/returnOrder/analysisLists",
+        category="source",
+        args=RETURN_ANALYSIS_ARGS,
+        docs_path="docs/Statistics/ReturnOrderAnalysisLists.md",
+        page_size=1000,
+        data_path="data.records",
+        total_path="data.total",
     ),
     EndpointSpec(
         tool_name="lingxing_source_manage_inventory",

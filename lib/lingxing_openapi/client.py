@@ -54,6 +54,8 @@ KNOWN_RATE_LIMIT_RULES: dict[str, RateLimitRule] = {
     # Capacity-10 endpoints in the current production allowlist.
     "/bd/profit/report/open/report/asin/list": RateLimitRule(10.0, 10, "openapi_docs"),
     "/erp/sc/data/mws_report/allOrders": RateLimitRule(10.0, 10, "openapi_docs"),
+    "/erp/sc/data/mws_report/refundOrders": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/basicOpen/salesAnalysis/returnOrder/analysisLists": RateLimitRule(1.0, 1, "openapi_docs"),
     # Production endpoints without local capacity docs use a conservative queue.
     "/basicOpen/openapi/storage/fbaWarehouseDetail": RateLimitRule(1.0, 1, "conservative"),
     "/erp/sc/routing/data/local_inventory/productList": RateLimitRule(1.0, 1, "conservative"),
