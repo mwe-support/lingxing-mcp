@@ -12,6 +12,7 @@ from typing import Any
 from .client import DEFAULT_TOKEN_CACHE, LingxingOpenAPIClient, DownloadedFile, extract_path_value
 from .endpoint_specs import ENDPOINT_SPECS_BY_NAME, EndpointSpec
 from .errors import LingxingClientError, LingxingConfigError
+from .multi_channel_orders import MultiChannelOrderQuery, query_multi_channel_orders
 from .promotions import (
     active_promotions_for_target,
     build_promotion_windows,
@@ -459,6 +460,9 @@ class LingxingOpenAPIService:
                 "upstream_max_order_ids_per_request": 200,
             },
         )
+
+    def multi_channel_orders(self, query: MultiChannelOrderQuery) -> dict[str, Any]:
+        return query_multi_channel_orders(self.client, query)
 
     def promotion_listing(
         self,

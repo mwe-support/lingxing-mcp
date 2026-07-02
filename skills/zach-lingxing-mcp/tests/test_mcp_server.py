@@ -64,7 +64,7 @@ class LingxingMCPTests(unittest.TestCase):
             tools = _read_message(process.stdout)
             tool_names = {item["name"] for item in tools["result"]["tools"]}
             self.assertIn("lingxing_health_check", tool_names)
-            self.assertIn("lingxing_resolve_daily_promotions", tool_names)
+            self.assertIn("lingxing_amazon_listing", tool_names)
 
             _write_message(
                 process.stdin,

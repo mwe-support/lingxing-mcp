@@ -23,6 +23,7 @@ EXPECTED_MINIMAL = BASE_TOOLS | {
     "lingxing_order_lists",
     "lingxing_asin_product_snapshot",
     "lingxing_fba_warehouse_detail",
+    "lingxing_amazon_listing",
     "lingxing_local_product_costs",
     "lingxing_product_performance",
     "lingxing_finance_report_asin",
@@ -36,6 +37,8 @@ EXPECTED_OPERATIONS = BASE_TOOLS | {
     "lingxing_fba_warehouse_detail",
     "lingxing_local_product_costs",
     "lingxing_product_performance",
+    "lingxing_profit_report_order_list",
+    "lingxing_multi_channel_orders",
 }
 EXPECTED_FINANCE = BASE_TOOLS | {
     "lingxing_store_sales",

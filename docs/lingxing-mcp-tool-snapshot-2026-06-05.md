@@ -1,16 +1,12 @@
 # Lingxing MCP Tool Snapshot
 
-- Generated at: `2026-06-30 13:05:18`
-- Source: `LingxingMCPApplication` tool registry plus active role allowlists and rate-limit metadata
-- Tool count: `94`
+Generated at: 2026-07-02 17:02:27
 
-## Active Role Tool Sets
+Tool count: 95
 
-Role allowlists are the MCP tool visibility boundary. Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy` unless overridden in runtime configuration.
+## Roles
 
-### `codex_ads_test` role
-
-- Tool count: `31`
+### codex_ads_test (31)
 - `lingxing_ad_accounts`
 - `lingxing_ads_sb_ad_groups`
 - `lingxing_ads_sb_campaign_report`
@@ -43,9 +39,7 @@ Role allowlists are the MCP tool visibility boundary. Every role always includes
 - `lingxing_seller_lists`
 - `lingxing_smoke_check`
 
-### `finance` role
-
-- Tool count: `15`
+### finance (15)
 - `lingxing_exp_finance_report_seller`
 - `lingxing_fba_stock_aggregate`
 - `lingxing_fba_stock_detail`
@@ -62,9 +56,7 @@ Role allowlists are the MCP tool visibility boundary. Every role always includes
 - `lingxing_source_transaction`
 - `lingxing_store_sales`
 
-### `minimal` role
-
-- Tool count: `13`
+### minimal (13)
 - `lingxing_amazon_listing`
 - `lingxing_asin_product_snapshot`
 - `lingxing_fba_warehouse_detail`
@@ -79,9 +71,7 @@ Role allowlists are the MCP tool visibility boundary. Every role always includes
 - `lingxing_seller_lists`
 - `lingxing_smoke_check`
 
-### `operations` role
-
-- Tool count: `25`
+### operations (26)
 - `lingxing_ads_portfolios`
 - `lingxing_ads_sb_campaign_report`
 - `lingxing_ads_sb_campaigns`
@@ -98,6 +88,7 @@ Role allowlists are the MCP tool visibility boundary. Every role always includes
 - `lingxing_health_check`
 - `lingxing_local_product_costs`
 - `lingxing_marketplaces`
+- `lingxing_multi_channel_orders`
 - `lingxing_order_details`
 - `lingxing_order_lists`
 - `lingxing_product_performance`
@@ -108,11 +99,11 @@ Role allowlists are the MCP tool visibility boundary. Every role always includes
 - `lingxing_seller_lists`
 - `lingxing_smoke_check`
 
-## Tool Summary
+## Tool Table
 
 | # | Tool | Origin | Category | Required args | Optional args | Endpoint | Rate limit | Description |
 |---:|---|---|---|---|---|---|---|---|
-| 1 | `lingxing_ad_accounts` | `manual` | `manual` | None | `type`, `sid`, `profile_id`, `country_code`, `status` | Manual | /basicOpen/baseData/account/list: 1 req/s burst 1 (default) | 查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。 |
+| 1 | `lingxing_ad_accounts` | `manual` | `manual` | None | `type`, `sid`, `profile_id`, `country_code`, `status` | `Manual` | /basicOpen/baseData/account/list: 1 req/s burst 1 (default) | 查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。 |
 | 2 | `lingxing_ads_portfolios` | `endpoint_spec` | `ad_base` | `sid` | `profile_id` | `/pb/openapi/newad/portfolios` | /pb/openapi/newad/portfolios: 1 req/s burst 1 (default) | 广告组合列表。 |
 | 3 | `lingxing_ads_sb_ad_group_hourly` | `endpoint_spec` | `ad_report` | `sid`, `report_date` | `profile_id`, `show_detail` | `/pb/openapi/newad/sbAdGroupHourData` | /pb/openapi/newad/sbAdGroupHourData: 1 req/s burst 1 (default) | SB 广告组小时数据。 |
 | 4 | `lingxing_ads_sb_ad_groups` | `endpoint_spec` | `ad_base` | `sid` | `profile_id`, `state` | `/pb/openapi/newad/hsaAdGroups` | /pb/openapi/newad/hsaAdGroups: 1 req/s burst 1 (default) | SB 广告组基础数据。 |
@@ -152,10 +143,10 @@ Role allowlists are the MCP tool visibility boundary. Every role always includes
 | 38 | `lingxing_ads_sp_target_report` | `endpoint_spec` | `ad_report` | `sid`, `report_date` | `profile_id`, `show_detail` | `/pb/openapi/newad/spTargetReports` | /pb/openapi/newad/spTargetReports: 1 req/s burst 1 (default) | SP 商品定位日报。 |
 | 39 | `lingxing_ads_sp_targets` | `endpoint_spec` | `ad_base` | `sid` | `profile_id`, `state` | `/pb/openapi/newad/spTargets` | /pb/openapi/newad/spTargets: 1 req/s burst 1 (default) | SP 商品定位基础数据。 |
 | 40 | `lingxing_amazon_listing` | `endpoint_spec` | `source` | `sid`, `search_value` | `search_field`, `exact_search`, `store_type`, `listing_update_start_time`, `listing_update_end_time` | `/erp/sc/data/mws/listing` | /erp/sc/data/mws/listing: 1 req/s burst 1 (default) | 查询亚马逊 Listing，可按 MSKU、ASIN 或本地 SKU 搜索，返回 fulfillment_channel_type 配送方式以及 FBA/FBM 库存字段。 |
-| 41 | `lingxing_asin_ads_daily_rollup` | `manual` | `manual` | `sid`, `asin`, `start_date`, `end_date` | `attribution_policy` | Manual | /basicOpen/baseData/account/list: 1 req/s burst 1 (default); /pb/openapi/newad/hsaProductAds: 1 req/s burst 1 (default); /pb/openapi/newad/spProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/sdProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/hsaPurchasedAsinReports: 1 req/s burst 1 (default); /pb/openapi/newad/listHsaProductAdReport: 1 req/s burst 1 (default) | 按 ASIN 汇总每日广告指标，采用 balanced 归因。 |
-| 42 | `lingxing_asin_daily_lists` | `manual` | `manual` | `sid`, `event_date`, `metric_type` | `asin_type` | Manual | /erp/sc/data/sales_report/asinDailyLists: 1 req/s burst 1 (default) | 按店铺、日期和指标类型拉取 AsinDailyLists。 |
-| 43 | `lingxing_asin_product_snapshot` | `manual` | `manual` | `sid`, `asins` | `start_date`, `end_date` | Manual | /basicOpen/openapi/storage/fbaWarehouseDetail: 1 req/s burst 1 (conservative); /bd/productPerformance/openApi/asinList: 1 req/s burst 1 (openapi_docs); /erp/sc/routing/data/local_inventory/productList: 1 req/s burst 1 (conservative) | 按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，例如 ["B0..."]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。 |
-| 44 | `lingxing_asin_weekly_rollup` | `manual` | `manual` | `sid`, `asin`, `start_date`, `end_date` | None | Manual | /erp/sc/data/sales_report/sales: 1 req/s burst 1 (default); /basicOpen/baseData/account/list: 1 req/s burst 1 (default); /pb/openapi/newad/hsaProductAds: 1 req/s burst 1 (default); /pb/openapi/newad/spProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/sdProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/hsaPurchasedAsinReports: 1 req/s burst 1 (default); /pb/openapi/newad/listHsaProductAdReport: 1 req/s burst 1 (default); /basicOpen/promotion/listingList: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/secKill/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/manage/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/vipDiscount/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/coupon/list: 1 req/s burst 1 (default) | 按周汇总 ASIN 的总销量、广告指标和促销标签。 |
+| 41 | `lingxing_asin_ads_daily_rollup` | `manual` | `manual` | `sid`, `asin`, `start_date`, `end_date` | `attribution_policy` | `Manual` | /basicOpen/baseData/account/list: 1 req/s burst 1 (default); /pb/openapi/newad/hsaProductAds: 1 req/s burst 1 (default); /pb/openapi/newad/spProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/sdProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/hsaPurchasedAsinReports: 1 req/s burst 1 (default); /pb/openapi/newad/listHsaProductAdReport: 1 req/s burst 1 (default) | 按 ASIN 汇总每日广告指标，采用 balanced 归因。 |
+| 42 | `lingxing_asin_daily_lists` | `manual` | `manual` | `sid`, `event_date`, `metric_type` | `asin_type` | `Manual` | /erp/sc/data/sales_report/asinDailyLists: 1 req/s burst 1 (default) | 按店铺、日期和指标类型拉取 AsinDailyLists。 |
+| 43 | `lingxing_asin_product_snapshot` | `manual` | `manual` | `sid`, `asins` | `start_date`, `end_date` | `Manual` | /basicOpen/openapi/storage/fbaWarehouseDetail: 1 req/s burst 1 (conservative); /bd/productPerformance/openApi/asinList: 1 req/s burst 1 (openapi_docs); /erp/sc/routing/data/local_inventory/productList: 1 req/s burst 1 (conservative) | 按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，例如 ["B0..."]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。 |
+| 44 | `lingxing_asin_weekly_rollup` | `manual` | `manual` | `sid`, `asin`, `start_date`, `end_date` | None | `Manual` | /erp/sc/data/sales_report/sales: 1 req/s burst 1 (default); /basicOpen/baseData/account/list: 1 req/s burst 1 (default); /pb/openapi/newad/hsaProductAds: 1 req/s burst 1 (default); /pb/openapi/newad/spProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/sdProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/hsaPurchasedAsinReports: 1 req/s burst 1 (default); /pb/openapi/newad/listHsaProductAdReport: 1 req/s burst 1 (default); /basicOpen/promotion/listingList: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/secKill/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/manage/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/vipDiscount/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/coupon/list: 1 req/s burst 1 (default) | 按周汇总 ASIN 的总销量、广告指标和促销标签。 |
 | 45 | `lingxing_exp_ads_aba_report` | `endpoint_spec` | `ad_report` | `country`, `data_start_time` | None | `/pb/openapi/newad/abaReport` | /pb/openapi/newad/abaReport: 1 req/s burst 1 (default) | 实验层：ABA 搜索词周报下载信息。 |
 | 46 | `lingxing_exp_ads_sb_ad_group_report` | `endpoint_spec` | `ad_report` | `sid`, `report_date` | `profile_id`, `show_detail` | `/pb/openapi/newad/hsaAdGroupReports` | /pb/openapi/newad/hsaAdGroupReports: 1 req/s burst 1 (default) | 实验层：SB 广告组日报。 |
 | 47 | `lingxing_exp_ads_sb_campaign_placement_report` | `endpoint_spec` | `ad_report` | `sid`, `report_date` | `profile_id`, `show_detail` | `/pb/openapi/newad/hsaCampaignPlacementReports` | /pb/openapi/newad/hsaCampaignPlacementReports: 1 req/s burst 1 (default) | 实验层：SB 广告位日报。 |
@@ -172,40 +163,41 @@ Role allowlists are the MCP tool visibility boundary. Every role always includes
 | 58 | `lingxing_fba_stock_detail` | `endpoint_spec` | `stock` | `sid`, `start_month`, `end_month` | None | `/cost/center/openApi/fba/detail/query` | /cost/center/openApi/fba/detail/query: 1 req/s burst 1 (default) | FBA 库存新报表明细。 |
 | 59 | `lingxing_fba_warehouse_detail` | `endpoint_spec` | `warehouse` | `sid` | `search_field`, `search_value`, `cid`, `bid`, `attribute`, `asin_principal`, `status`, `senior_search_list`, `fulfillment_channel_type`, `is_hide_zero_stock`, `is_parant_asin_merge`, `is_contain_del_ls`, `query_fba_storage_quantity_list` | `/basicOpen/openapi/storage/fbaWarehouseDetail` | /basicOpen/openapi/storage/fbaWarehouseDetail: 1 req/s burst 1 (conservative) | 按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。 |
 | 60 | `lingxing_finance_report_asin` | `endpoint_spec` | `profit_report` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value`, `monthly_query`, `summary_enabled`, `order_status` | `/bd/profit/report/open/report/asin/list` | /bd/profit/report/open/report/asin/list: 10 req/s burst 10 (openapi_docs) | 结算利润报表 ASIN 视角。 |
-| 61 | `lingxing_health_check` | `manual` | `manual` | None | None | Manual | /api/auth-server/oauth/access-token: 1 req/s burst 1 (default) | 检查领星环境变量、token 状态和基础连通性，不拉业务数据。 |
-| 62 | `lingxing_local_product_costs` | `manual` | `manual` | None | `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end`, `page_size`, `include_supplier_quotes`, `include_raw` | Manual | /erp/sc/routing/data/local_inventory/productList: 1 req/s burst 1 (conservative) | 按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。 |
+| 61 | `lingxing_health_check` | `manual` | `manual` | None | None | `Manual` | /api/auth-server/oauth/access-token: 1 req/s burst 1 (default) | 检查领星环境变量、token 状态和基础连通性，不拉业务数据。 |
+| 62 | `lingxing_local_product_costs` | `manual` | `manual` | None | `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end`, `page_size`, `include_supplier_quotes`, `include_raw` | `Manual` | /erp/sc/routing/data/local_inventory/productList: 1 req/s burst 1 (conservative) | 按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。 |
 | 63 | `lingxing_local_products` | `endpoint_spec` | `product` | None | `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end` | `/erp/sc/routing/data/local_inventory/productList` | /erp/sc/routing/data/local_inventory/productList: 1 req/s burst 1 (conservative) | 按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。 |
-| 64 | `lingxing_marketplaces` | `manual` | `manual` | None | None | Manual | /erp/sc/data/seller/allMarketplace: 1 req/s burst 1 (openapi_docs) | 返回领星市场列表，并补充站点时区映射。 |
-| 65 | `lingxing_order_details` | `manual` | `manual` | None | `order_id`, `order_ids` | Manual | /erp/sc/data/mws/orderDetail: 1 req/s burst 1 (openapi_docs); /erp/sc/data/seller/lists: 1 req/s burst 1 (openapi_docs); /erp/sc/data/seller/allMarketplace: 1 req/s burst 1 (openapi_docs) | 按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。 |
-| 66 | `lingxing_order_lists` | `manual` | `manual` | `sid`, `start_date`, `end_date` | `date_type` | Manual | /erp/sc/data/mws/orders: 1 req/s burst 1 (openapi_docs) | 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。 |
-| 67 | `lingxing_product_performance` | `endpoint_spec` | `source` | `sid`, `start_date`, `end_date` | `search_field`, `search_value`, `summary_field`, `mid`, `currency_code`, `is_recently_enum`, `purchase_status`, `sort_field`, `sort_type` | `/bd/productPerformance/openApi/asinList` | /bd/productPerformance/openApi/asinList: 1 req/s burst 1 (openapi_docs) | 产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。 |
-| 68 | `lingxing_profit_asin` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value` | `/bd/profit/statistics/open/asin/list` | /bd/profit/statistics/open/asin/list: 1 req/s burst 1 (default) | ASIN 维度利润统计。 |
-| 69 | `lingxing_profit_parent_asin` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value` | `/bd/profit/statistics/open/parent/asin/list` | /bd/profit/statistics/open/parent/asin/list: 1 req/s burst 1 (default) | 父 ASIN 维度利润统计。 |
-| 70 | `lingxing_profit_report_order_list` | `endpoint_spec` | `profit_report_order` | `start_date`, `end_date` | `search_date_field`, `sids`, `mids`, `fee_type`, `listing_owner`, `currency_code`, `search_field`, `search_value`, `sort_field`, `sort_type`, `settlement_status`, `fund_transfer_status`, `account_type`, `fulfillment`, `product_developer_uids`, `order_status`, `gmt_modified_start_date`, `gmt_modified_end_date` | `/basicOpen/finance/profitReport/order/transcation/list` | /basicOpen/finance/profitReport/order/transcation/list: 1 req/s burst 1 (openapi_docs) | 查询利润报表订单 transaction 视图；fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。 |
-| 71 | `lingxing_profit_seller` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value`, `monthly_query` | `/bd/profit/statistics/open/seller/list` | /bd/profit/statistics/open/seller/list: 1 req/s burst 1 (default) | 店铺维度利润统计。 |
-| 72 | `lingxing_promotion_coupon` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | Manual | /basicOpen/promotionalActivities/coupon/list: 1 req/s burst 1 (default) | 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。 |
-| 73 | `lingxing_promotion_listing` | `manual` | `manual` | `sid`, `site_date`, `start_time`, `end_time` | `status`, `product_status`, `promotion_category` | Manual | /basicOpen/promotion/listingList: 1 req/s burst 1 (default) | 拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。 |
-| 74 | `lingxing_promotion_manage` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | Manual | /basicOpen/promotionalActivities/manage/list: 1 req/s burst 1 (default) | 拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。 |
-| 75 | `lingxing_promotion_sec_kill` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | Manual | /basicOpen/promotionalActivities/secKill/list: 1 req/s burst 1 (default) | 拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。 |
-| 76 | `lingxing_promotion_vip_discount` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | Manual | /basicOpen/promotionalActivities/vipDiscount/list: 1 req/s burst 1 (default) | 拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。 |
-| 77 | `lingxing_rate_limit_policy` | `manual` | `manual` | None | `tool_name` | Manual | Local/manual | 返回当前 MCP 工具到领星 OpenAPI endpoint 的限流政策，供客户端 agent 在调用前按 endpoint 自主排队。 |
-| 78 | `lingxing_refund_orders` | `endpoint_spec` | `source` | `sid`, `start_date`, `end_date` | `date_type` | `/erp/sc/data/mws_report/refundOrders` | /erp/sc/data/mws_report/refundOrders: 1 req/s burst 1 (openapi_docs) | 查询 FBA customer returns 报表，返回 FBA 退货订单源表原始数据。 |
-| 79 | `lingxing_replenishment_asin_info` | `endpoint_spec` | `replenishment_info` | `sid`, `asin` | `mode` | `/erp/sc/routing/fbaSug/asin/getInfo` | /erp/sc/routing/fbaSug/asin/getInfo: 1 req/s burst 1 (default) | 补货建议 ASIN 明细。 |
-| 80 | `lingxing_replenishment_summary` | `endpoint_spec` | `replenishment_summary` | `sid` | `asin`, `mode` | `/erp/sc/routing/restocking/analysis/getSummaryList` | /erp/sc/routing/restocking/analysis/getSummaryList: 1 req/s burst 1 (default) | 补货建议列表。 |
-| 81 | `lingxing_report_export_create` | `manual` | `manual` | `sid`, `report_type` | `data_start_time`, `data_end_time`, `marketplace_ids`, `region`, `seller_id` | Manual | /basicOpen/report/create/reportExportTask: 1 req/s burst 1 (default) | 创建亚马逊报告导出任务。 |
-| 82 | `lingxing_report_export_download` | `manual` | `manual` | None | `url`, `sid`, `task_id`, `report_document_id`, `region`, `seller_id` | Manual | /basicOpen/report/query/reportExportTask: 1 req/s burst 1 (default); /basicOpen/report/amazonReportExportTask: 1 req/s burst 1 (default) | 下载并解析亚马逊报告导出文件。 |
-| 83 | `lingxing_report_export_query` | `manual` | `manual` | `task_id` | `sid`, `region`, `seller_id` | Manual | /basicOpen/report/query/reportExportTask: 1 req/s burst 1 (default) | 查询亚马逊报告导出任务结果。 |
-| 84 | `lingxing_report_export_refresh_url` | `manual` | `manual` | `report_document_id` | `sid`, `region`, `seller_id` | Manual | /basicOpen/report/amazonReportExportTask: 1 req/s burst 1 (default) | 续期亚马逊报告下载链接。 |
-| 85 | `lingxing_resolve_daily_promotions` | `manual` | `manual` | `sid`, `target_date` | `lookback_days` | Manual | /basicOpen/promotion/listingList: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/secKill/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/manage/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/vipDiscount/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/coupon/list: 1 req/s burst 1 (default) | 输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。 |
-| 86 | `lingxing_return_analysis` | `endpoint_spec` | `source` | `startDate`, `endDate`, `asinType`, `dateType` | `mids`, `principalUid`, `searchField`, `searchValue`, `sortField`, `sortType`, `storeId` | `/basicOpen/salesAnalysis/returnOrder/analysisLists` | /basicOpen/salesAnalysis/returnOrder/analysisLists: 1 req/s burst 1 (openapi_docs) | 查询退货分析，按 MSKU / ASIN / 父 ASIN / SKU / SPU 等维度统计退货数量、退货件数、退货率和退货原因相关指标。 |
-| 87 | `lingxing_seller_lists` | `manual` | `manual` | None | `status`, `marketplace` | Manual | /erp/sc/data/seller/lists: 1 req/s burst 1 (openapi_docs); /erp/sc/data/seller/allMarketplace: 1 req/s burst 1 (openapi_docs) | 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。 |
-| 88 | `lingxing_smoke_check` | `manual` | `manual` | None | `sid`, `date` | Manual | /erp/sc/data/seller/lists: 1 req/s burst 1 (openapi_docs); /erp/sc/data/seller/allMarketplace: 1 req/s burst 1 (openapi_docs); /erp/sc/data/sales_report/sales: 1 req/s burst 1 (default); /erp/sc/data/mws/orders: 1 req/s burst 1 (openapi_docs); /basicOpen/promotion/listingList: 1 req/s burst 1 (default); /basicOpen/baseData/account/list: 1 req/s burst 1 (default); /pb/openapi/newad/spProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/sdProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/hsaPurchasedAsinReports: 1 req/s burst 1 (default); /bd/profit/statistics/open/seller/list: 1 req/s burst 1 (default); /erp/sc/data/mws_report/allOrders: 10 req/s burst 10 (openapi_docs); /erp/sc/data/mws_report/manageInventory: 1 req/s burst 1 (default) | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
-| 89 | `lingxing_source_all_orders` | `endpoint_spec` | `source` | `sid`, `start_date`, `end_date` | `date_type` | `/erp/sc/data/mws_report/allOrders` | /erp/sc/data/mws_report/allOrders: 10 req/s burst 10 (openapi_docs) | 亚马逊源表所有订单。 |
-| 90 | `lingxing_source_daily_inventory` | `endpoint_spec` | `source` | `sid`, `event_date` | None | `/erp/sc/data/mws_report/dailyInventory` | /erp/sc/data/mws_report/dailyInventory: 1 req/s burst 1 (default) | 亚马逊源表每日库存。 |
-| 91 | `lingxing_source_manage_inventory` | `endpoint_spec` | `source` | `sid` | None | `/erp/sc/data/mws_report/manageInventory` | /erp/sc/data/mws_report/manageInventory: 1 req/s burst 1 (default) | 亚马逊源表 FBA 库存。 |
-| 92 | `lingxing_source_reserved_inventory` | `endpoint_spec` | `source` | `sid` | None | `/erp/sc/data/mws_report/reservedInventory` | /erp/sc/data/mws_report/reservedInventory: 1 req/s burst 1 (default) | 亚马逊源表预留库存。 |
-| 93 | `lingxing_source_transaction` | `endpoint_spec` | `source` | `sid`, `event_date` | None | `/erp/sc/data/mws_report/transaction` | /erp/sc/data/mws_report/transaction: 1 req/s burst 1 (default) | 亚马逊源表交易明细。 |
-| 94 | `lingxing_store_sales` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | Manual | /erp/sc/data/sales_report/sales: 1 req/s burst 1 (default) | 按店铺和日期范围拉取 StoreSales，并自动合并分页。 |
+| 64 | `lingxing_marketplaces` | `manual` | `manual` | None | None | `Manual` | /erp/sc/data/seller/allMarketplace: 1 req/s burst 1 (openapi_docs) | 返回领星市场列表，并补充站点时区映射。 |
+| 65 | `lingxing_multi_channel_orders` | `manual` | `manual` | `sids`, `start_date`, `end_date` | `date_type`, `order_status`, `amazon_order_id`, `seller_fulfillment_order_id`, `include_product_detail`, `include_logistics_detail`, `include_transaction_detail`, `include_return_detail`, `page_size`, `max_records` | `Manual` | /order/amzod/api/orderList: 1 req/s burst 1 (openapi_docs); /order/amzod/api/orderDetails/productInformation: 1 req/s burst 1 (openapi_docs); /order/amzod/api/orderDetails/logisticsInformation: 1 req/s burst 1 (openapi_docs); /order/amzod/api/orderDetails/returnInformation: 1 req/s burst 1 (openapi_docs); /basicOpen/openapi/salesOrder/multi-channel/list/transaction: 1 req/s burst 1 (openapi_docs) | 查询亚马逊多渠道订单列表，按店铺 sid、日期范围和订单状态过滤；可选补充商品、物流、交易明细、退换货详情。为避免领星默认拉取最近 6 个月，本工具强制要求 start_date/end_date。 |
+| 66 | `lingxing_order_details` | `manual` | `manual` | None | `order_id`, `order_ids` | `Manual` | /erp/sc/data/mws/orderDetail: 1 req/s burst 1 (openapi_docs); /erp/sc/data/seller/lists: 1 req/s burst 1 (openapi_docs); /erp/sc/data/seller/allMarketplace: 1 req/s burst 1 (openapi_docs) | 按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。 |
+| 67 | `lingxing_order_lists` | `manual` | `manual` | `sid`, `start_date`, `end_date` | `date_type` | `Manual` | /erp/sc/data/mws/orders: 1 req/s burst 1 (openapi_docs) | 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。 |
+| 68 | `lingxing_product_performance` | `endpoint_spec` | `source` | `sid`, `start_date`, `end_date` | `search_field`, `search_value`, `summary_field`, `mid`, `currency_code`, `is_recently_enum`, `purchase_status`, `sort_field`, `sort_type` | `/bd/productPerformance/openApi/asinList` | /bd/productPerformance/openApi/asinList: 1 req/s burst 1 (openapi_docs) | 产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。 |
+| 69 | `lingxing_profit_asin` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value` | `/bd/profit/statistics/open/asin/list` | /bd/profit/statistics/open/asin/list: 1 req/s burst 1 (default) | ASIN 维度利润统计。 |
+| 70 | `lingxing_profit_parent_asin` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value` | `/bd/profit/statistics/open/parent/asin/list` | /bd/profit/statistics/open/parent/asin/list: 1 req/s burst 1 (default) | 父 ASIN 维度利润统计。 |
+| 71 | `lingxing_profit_report_order_list` | `endpoint_spec` | `profit_report_order` | `start_date`, `end_date` | `search_date_field`, `sids`, `mids`, `fee_type`, `listing_owner`, `currency_code`, `search_field`, `search_value`, `sort_field`, `sort_type`, `settlement_status`, `fund_transfer_status`, `account_type`, `fulfillment`, `product_developer_uids`, `order_status`, `gmt_modified_start_date`, `gmt_modified_end_date` | `/basicOpen/finance/profitReport/order/transcation/list` | /basicOpen/finance/profitReport/order/transcation/list: 1 req/s burst 1 (openapi_docs) | 查询利润报表订单 transaction 视图；fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。 |
+| 72 | `lingxing_profit_seller` | `endpoint_spec` | `profit` | `sid`, `start_date`, `end_date` | `currency_code`, `search_value`, `monthly_query` | `/bd/profit/statistics/open/seller/list` | /bd/profit/statistics/open/seller/list: 1 req/s burst 1 (default) | 店铺维度利润统计。 |
+| 73 | `lingxing_promotion_coupon` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | `Manual` | /basicOpen/promotionalActivities/coupon/list: 1 req/s burst 1 (default) | 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。 |
+| 74 | `lingxing_promotion_listing` | `manual` | `manual` | `sid`, `site_date`, `start_time`, `end_time` | `status`, `product_status`, `promotion_category` | `Manual` | /basicOpen/promotion/listingList: 1 req/s burst 1 (default) | 拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。 |
+| 75 | `lingxing_promotion_manage` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | `Manual` | /basicOpen/promotionalActivities/manage/list: 1 req/s burst 1 (default) | 拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。 |
+| 76 | `lingxing_promotion_sec_kill` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | `Manual` | /basicOpen/promotionalActivities/secKill/list: 1 req/s burst 1 (default) | 拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。 |
+| 77 | `lingxing_promotion_vip_discount` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | `Manual` | /basicOpen/promotionalActivities/vipDiscount/list: 1 req/s burst 1 (default) | 拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。 |
+| 78 | `lingxing_rate_limit_policy` | `manual` | `manual` | None | `tool_name` | `Manual` | Local | 返回当前 MCP 工具到领星 OpenAPI endpoint 的限流政策，供客户端 agent 在调用前按 endpoint 自主排队。 |
+| 79 | `lingxing_refund_orders` | `endpoint_spec` | `source` | `sid`, `start_date`, `end_date` | `date_type` | `/erp/sc/data/mws_report/refundOrders` | /erp/sc/data/mws_report/refundOrders: 1 req/s burst 1 (openapi_docs) | 查询 FBA customer returns 报表，返回 FBA 退货订单源表原始数据。 |
+| 80 | `lingxing_replenishment_asin_info` | `endpoint_spec` | `replenishment_info` | `sid`, `asin` | `mode` | `/erp/sc/routing/fbaSug/asin/getInfo` | /erp/sc/routing/fbaSug/asin/getInfo: 1 req/s burst 1 (default) | 补货建议 ASIN 明细。 |
+| 81 | `lingxing_replenishment_summary` | `endpoint_spec` | `replenishment_summary` | `sid` | `asin`, `mode` | `/erp/sc/routing/restocking/analysis/getSummaryList` | /erp/sc/routing/restocking/analysis/getSummaryList: 1 req/s burst 1 (default) | 补货建议列表。 |
+| 82 | `lingxing_report_export_create` | `manual` | `manual` | `sid`, `report_type` | `data_start_time`, `data_end_time`, `marketplace_ids`, `region`, `seller_id` | `Manual` | /basicOpen/report/create/reportExportTask: 1 req/s burst 1 (default) | 创建亚马逊报告导出任务。 |
+| 83 | `lingxing_report_export_download` | `manual` | `manual` | None | `url`, `sid`, `task_id`, `report_document_id`, `region`, `seller_id` | `Manual` | /basicOpen/report/query/reportExportTask: 1 req/s burst 1 (default); /basicOpen/report/amazonReportExportTask: 1 req/s burst 1 (default) | 下载并解析亚马逊报告导出文件。 |
+| 84 | `lingxing_report_export_query` | `manual` | `manual` | `task_id` | `sid`, `region`, `seller_id` | `Manual` | /basicOpen/report/query/reportExportTask: 1 req/s burst 1 (default) | 查询亚马逊报告导出任务结果。 |
+| 85 | `lingxing_report_export_refresh_url` | `manual` | `manual` | `report_document_id` | `sid`, `region`, `seller_id` | `Manual` | /basicOpen/report/amazonReportExportTask: 1 req/s burst 1 (default) | 续期亚马逊报告下载链接。 |
+| 86 | `lingxing_resolve_daily_promotions` | `manual` | `manual` | `sid`, `target_date` | `lookback_days` | `Manual` | /basicOpen/promotion/listingList: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/secKill/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/manage/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/vipDiscount/list: 1 req/s burst 1 (default); /basicOpen/promotionalActivities/coupon/list: 1 req/s burst 1 (default) | 输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。 |
+| 87 | `lingxing_return_analysis` | `endpoint_spec` | `source` | `startDate`, `endDate`, `asinType`, `dateType` | `mids`, `principalUid`, `searchField`, `searchValue`, `sortField`, `sortType`, `storeId` | `/basicOpen/salesAnalysis/returnOrder/analysisLists` | /basicOpen/salesAnalysis/returnOrder/analysisLists: 1 req/s burst 1 (openapi_docs) | 查询退货分析，按 MSKU / ASIN / 父 ASIN / SKU / SPU 等维度统计退货数量、退货件数、退货率和退货原因相关指标。 |
+| 88 | `lingxing_seller_lists` | `manual` | `manual` | None | `status`, `marketplace` | `Manual` | /erp/sc/data/seller/lists: 1 req/s burst 1 (openapi_docs); /erp/sc/data/seller/allMarketplace: 1 req/s burst 1 (openapi_docs) | 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。 |
+| 89 | `lingxing_smoke_check` | `manual` | `manual` | None | `sid`, `date` | `Manual` | /erp/sc/data/seller/lists: 1 req/s burst 1 (openapi_docs); /erp/sc/data/seller/allMarketplace: 1 req/s burst 1 (openapi_docs); /erp/sc/data/sales_report/sales: 1 req/s burst 1 (default); /erp/sc/data/mws/orders: 1 req/s burst 1 (openapi_docs); /basicOpen/promotion/listingList: 1 req/s burst 1 (default); /basicOpen/baseData/account/list: 1 req/s burst 1 (default); /pb/openapi/newad/spProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/sdProductAdReports: 1 req/s burst 1 (default); /pb/openapi/newad/hsaPurchasedAsinReports: 1 req/s burst 1 (default); /bd/profit/statistics/open/seller/list: 1 req/s burst 1 (default); /erp/sc/data/mws_report/allOrders: 10 req/s burst 10 (openapi_docs); /erp/sc/data/mws_report/manageInventory: 1 req/s burst 1 (default) | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
+| 90 | `lingxing_source_all_orders` | `endpoint_spec` | `source` | `sid`, `start_date`, `end_date` | `date_type` | `/erp/sc/data/mws_report/allOrders` | /erp/sc/data/mws_report/allOrders: 10 req/s burst 10 (openapi_docs) | 亚马逊源表所有订单。 |
+| 91 | `lingxing_source_daily_inventory` | `endpoint_spec` | `source` | `sid`, `event_date` | None | `/erp/sc/data/mws_report/dailyInventory` | /erp/sc/data/mws_report/dailyInventory: 1 req/s burst 1 (default) | 亚马逊源表每日库存。 |
+| 92 | `lingxing_source_manage_inventory` | `endpoint_spec` | `source` | `sid` | None | `/erp/sc/data/mws_report/manageInventory` | /erp/sc/data/mws_report/manageInventory: 1 req/s burst 1 (default) | 亚马逊源表 FBA 库存。 |
+| 93 | `lingxing_source_reserved_inventory` | `endpoint_spec` | `source` | `sid` | None | `/erp/sc/data/mws_report/reservedInventory` | /erp/sc/data/mws_report/reservedInventory: 1 req/s burst 1 (default) | 亚马逊源表预留库存。 |
+| 94 | `lingxing_source_transaction` | `endpoint_spec` | `source` | `sid`, `event_date` | None | `/erp/sc/data/mws_report/transaction` | /erp/sc/data/mws_report/transaction: 1 req/s burst 1 (default) | 亚马逊源表交易明细。 |
+| 95 | `lingxing_store_sales` | `manual` | `manual` | `sid`, `start_date`, `end_date` | None | `Manual` | /erp/sc/data/sales_report/sales: 1 req/s burst 1 (default) | 按店铺和日期范围拉取 StoreSales，并自动合并分页。 |
 
 ## Tool Details
 
@@ -214,13 +206,11 @@ Role allowlists are the MCP tool visibility boundary. Every role always includes
 - Origin: `manual`
 - Category: `manual`
 - Description: 查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: `type`, `sid`, `profile_id`, `country_code`, `status`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -254,9 +244,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/portfolios.md`
 - Required args: `sid`
 - Optional args: `profile_id`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -284,9 +272,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sbAdGroupHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -321,9 +307,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/hsaAdGroups.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -354,9 +338,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sbCampaignHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -391,9 +373,7 @@ Input schema:
 - Docs path: `docs/newAd/report/hsaCampaignReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -428,9 +408,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/hsaCampaigns.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -461,9 +439,7 @@ Input schema:
 - Docs path: `docs/newAd/report/listHsaProductAdReport.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -498,9 +474,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/sbAdHasProductAds.md`
 - Required args: `sid`
 - Optional args: `profile_id`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -528,9 +502,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sbAdPlacementHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -565,9 +537,7 @@ Input schema:
 - Docs path: `docs/newAd/report/hsaPurchasedAsinReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -599,9 +569,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sbTargetHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -636,9 +604,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/sbTargeting.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -669,9 +635,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdAdGroupHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -706,9 +670,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/sdAdGroups.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -739,9 +701,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdAdvertiseHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -776,9 +736,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdCampaignHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -813,9 +771,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdCampaignReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -850,9 +806,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/sdCampaigns.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -883,9 +837,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdProductAdReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -920,9 +872,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/sdProductAds.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -953,9 +903,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdTargetHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -990,9 +938,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdTargetReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1027,9 +973,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/sdTargets.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1060,9 +1004,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spAdGroupHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1097,9 +1039,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/spAdGroups.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1130,9 +1070,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spAdvertiseHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1167,9 +1105,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spCampaignHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1204,9 +1140,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spCampaignReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1241,9 +1175,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/spCampaigns.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1274,9 +1206,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spKeywordReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1311,9 +1241,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/spKeywords.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1344,9 +1272,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spAdPlacementHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1381,9 +1307,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spProductAdReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1418,9 +1342,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/spProductAds.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1451,9 +1373,7 @@ Input schema:
 - Docs path: `docs/newAd/report/queryWordReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`, `target_type`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1491,9 +1411,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spTargetHourData.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1528,9 +1446,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spTargetReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1565,9 +1481,7 @@ Input schema:
 - Docs path: `docs/newAd/baseData/spTargets.md`
 - Required args: `sid`
 - Optional args: `profile_id`, `state`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1598,9 +1512,7 @@ Input schema:
 - Docs path: `docs/Sale/Listing.md`
 - Required args: `sid`, `search_value`
 - Optional args: `search_field`, `exact_search`, `store_type`, `listing_update_start_time`, `listing_update_end_time`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1643,13 +1555,11 @@ Input schema:
 - Origin: `manual`
 - Category: `manual`
 - Description: 按 ASIN 汇总每日广告指标，采用 balanced 归因。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `asin`, `start_date`, `end_date`
 - Optional args: `attribution_policy`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1685,13 +1595,11 @@ Input schema:
 - Origin: `manual`
 - Category: `manual`
 - Description: 按店铺、日期和指标类型拉取 AsinDailyLists。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `event_date`, `metric_type`
 - Optional args: `asin_type`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1723,13 +1631,11 @@ Input schema:
 - Origin: `manual`
 - Category: `manual`
 - Description: 按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，例如 ["B0..."]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `asins`
 - Optional args: `start_date`, `end_date`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1769,13 +1675,11 @@ Input schema:
 - Origin: `manual`
 - Category: `manual`
 - Description: 按周汇总 ASIN 的总销量、广告指标和促销标签。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `asin`, `start_date`, `end_date`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1812,9 +1716,7 @@ Input schema:
 - Docs path: `docs/newAd/reportDownload/abaReport.md`
 - Required args: `country`, `data_start_time`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1843,9 +1745,7 @@ Input schema:
 - Docs path: `docs/newAd/report/hsaAdGroupReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1880,9 +1780,7 @@ Input schema:
 - Docs path: `docs/newAd/report/hsaCampaignPlacementReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1917,9 +1815,7 @@ Input schema:
 - Docs path: `docs/newAd/report/listHsaKeywordPlacementReport.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1954,9 +1850,7 @@ Input schema:
 - Docs path: `docs/newAd/report/hsaQueryWordReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -1991,9 +1885,7 @@ Input schema:
 - Docs path: `docs/newAd/report/listHsaTargetingReport.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2028,9 +1920,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdAdGroupReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2065,9 +1955,7 @@ Input schema:
 - Docs path: `docs/newAd/report/sdMatchTargetReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2102,9 +1990,7 @@ Input schema:
 - Docs path: `docs/newAd/report/spAdGroupReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2139,9 +2025,7 @@ Input schema:
 - Docs path: `docs/newAd/report/campaignPlacementReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2176,9 +2060,7 @@ Input schema:
 - Docs path: `docs/newAd/report/asinReports.md`
 - Required args: `sid`, `report_date`
 - Optional args: `profile_id`, `show_detail`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2213,9 +2095,7 @@ Input schema:
 - Docs path: `docs/Finance/bdSeller.md`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `currency_code`, `monthly_query`, `order_status`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2257,9 +2137,7 @@ Input schema:
 - Docs path: `docs/Statistics/FbaStockAggregateListNew.md`
 - Required args: `sid`, `start_month`, `end_month`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2292,9 +2170,7 @@ Input schema:
 - Docs path: `docs/Statistics/FbaStockDetailListNew.md`
 - Required args: `sid`, `start_month`, `end_month`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2327,9 +2203,7 @@ Input schema:
 - Docs path: `docs/Warehouse/FBAStock_v2.md`
 - Required args: `sid`
 - Optional args: `search_field`, `search_value`, `cid`, `bid`, `attribute`, `asin_principal`, `status`, `senior_search_list`, `fulfillment_channel_type`, `is_hide_zero_stock`, `is_parant_asin_merge`, `is_contain_del_ls`, `query_fba_storage_quantity_list`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2393,9 +2267,7 @@ Input schema:
 - Docs path: `docs/Finance/bdASIN.md`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `currency_code`, `search_value`, `monthly_query`, `summary_enabled`, `order_status`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2439,13 +2311,11 @@ Input schema:
 - Origin: `manual`
 - Category: `manual`
 - Description: 检查领星环境变量、token 状态和基础连通性，不拉业务数据。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2459,13 +2329,11 @@ Input schema:
 - Origin: `manual`
 - Category: `manual`
 - Description: 按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end`, `page_size`, `include_supplier_quotes`, `include_raw`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2517,9 +2385,7 @@ Input schema:
 - Docs path: `docs/Product/ProductLists.md`
 - Required args: None
 - Optional args: `sku_list`, `sku_identifier_list`, `update_time_start`, `update_time_end`, `create_time_start`, `create_time_end`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2559,13 +2425,11 @@ Input schema:
 - Origin: `manual`
 - Category: `manual`
 - Description: 返回领星市场列表，并补充站点时区映射。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2574,18 +2438,99 @@ Input schema:
 }
 ```
 
-### 65. `lingxing_order_details`
+### 65. `lingxing_multi_channel_orders`
+
+- Origin: `manual`
+- Category: `manual`
+- Description: 查询亚马逊多渠道订单列表，按店铺 sid、日期范围和订单状态过滤；可选补充商品、物流、交易明细、退换货详情。为避免领星默认拉取最近 6 个月，本工具强制要求 start_date/end_date。
+- Endpoint: `Manual`
+- Docs path: `None`
+- Required args: `sids`, `start_date`, `end_date`
+- Optional args: `date_type`, `order_status`, `amazon_order_id`, `seller_fulfillment_order_id`, `include_product_detail`, `include_logistics_detail`, `include_transaction_detail`, `include_return_detail`, `page_size`, `max_records`
+- Input schema:
+```json
+{
+  "type": "object",
+  "properties": {
+    "sids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "领星店铺 sid 列表，至少 1 个。",
+      "minItems": 1
+    },
+    "start_date": {
+      "type": "string",
+      "description": "订购时间或修改时间开始日期，YYYY-MM-DD。"
+    },
+    "end_date": {
+      "type": "string",
+      "description": "订购时间或修改时间结束日期，YYYY-MM-DD。"
+    },
+    "date_type": {
+      "type": "integer",
+      "description": "查询日期类型：1 订购时间，2 订单修改时间；默认 1。"
+    },
+    "order_status": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "订单状态枚举，需使用官方大写值，例如 NEW、PROCESSING、COMPLETE、CANCELLED。"
+    },
+    "amazon_order_id": {
+      "type": "string",
+      "description": "可选；在列表结果返回后按亚马逊订单号精确过滤。"
+    },
+    "seller_fulfillment_order_id": {
+      "type": "string",
+      "description": "可选；在列表结果返回后按卖家订单号精确过滤。"
+    },
+    "include_product_detail": {
+      "type": "boolean",
+      "description": "是否补充商品详情，默认 false。"
+    },
+    "include_logistics_detail": {
+      "type": "boolean",
+      "description": "是否补充物流详情，默认 false。"
+    },
+    "include_transaction_detail": {
+      "type": "boolean",
+      "description": "是否逐单补充交易明细，默认 false；该接口 1 req/s，订单多时会较慢。"
+    },
+    "include_return_detail": {
+      "type": "boolean",
+      "description": "是否补充退换货详情，默认 false。"
+    },
+    "page_size": {
+      "type": "integer",
+      "description": "分页大小，1 到 1000，默认 200。"
+    },
+    "max_records": {
+      "type": "integer",
+      "description": "最多拉取记录数，1 到 5000，默认 1000。"
+    }
+  },
+  "required": [
+    "sids",
+    "start_date",
+    "end_date"
+  ],
+  "additionalProperties": false
+}
+```
+
+### 66. `lingxing_order_details`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: `order_id`, `order_ids`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2606,18 +2551,16 @@ Input schema:
 }
 ```
 
-### 66. `lingxing_order_lists`
+### 67. `lingxing_order_lists`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `date_type`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2644,7 +2587,7 @@ Input schema:
 }
 ```
 
-### 67. `lingxing_product_performance`
+### 68. `lingxing_product_performance`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -2653,9 +2596,7 @@ Input schema:
 - Docs path: `docs/Statistics/AsinListNew.md`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `search_field`, `search_value`, `summary_field`, `mid`, `currency_code`, `is_recently_enum`, `purchase_status`, `sort_field`, `sort_type`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2709,7 +2650,7 @@ Input schema:
 }
 ```
 
-### 68. `lingxing_profit_asin`
+### 69. `lingxing_profit_asin`
 
 - Origin: `endpoint_spec`
 - Category: `profit`
@@ -2718,9 +2659,7 @@ Input schema:
 - Docs path: `docs/Statistics/statisticsOpenASIN.md`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `currency_code`, `search_value`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2750,7 +2689,7 @@ Input schema:
 }
 ```
 
-### 69. `lingxing_profit_parent_asin`
+### 70. `lingxing_profit_parent_asin`
 
 - Origin: `endpoint_spec`
 - Category: `profit`
@@ -2759,9 +2698,7 @@ Input schema:
 - Docs path: `docs/Statistics/statisticsOpenParent.md`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `currency_code`, `search_value`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2791,7 +2728,7 @@ Input schema:
 }
 ```
 
-### 70. `lingxing_profit_report_order_list`
+### 71. `lingxing_profit_report_order_list`
 
 - Origin: `endpoint_spec`
 - Category: `profit_report_order`
@@ -2800,9 +2737,7 @@ Input schema:
 - Docs path: `docs/Finance/profitReportOrderTranscationList.md`
 - Required args: `start_date`, `end_date`
 - Optional args: `search_date_field`, `sids`, `mids`, `fee_type`, `listing_owner`, `currency_code`, `search_field`, `search_value`, `sort_field`, `sort_type`, `settlement_status`, `fund_transfer_status`, `account_type`, `fulfillment`, `product_developer_uids`, `order_status`, `gmt_modified_start_date`, `gmt_modified_end_date`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2906,7 +2841,7 @@ Input schema:
 }
 ```
 
-### 71. `lingxing_profit_seller`
+### 72. `lingxing_profit_seller`
 
 - Origin: `endpoint_spec`
 - Category: `profit`
@@ -2915,9 +2850,7 @@ Input schema:
 - Docs path: `docs/Statistics/statisticsOpenSeller.md`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `currency_code`, `search_value`, `monthly_query`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2950,18 +2883,16 @@ Input schema:
 }
 ```
 
-### 72. `lingxing_promotion_coupon`
+### 73. `lingxing_promotion_coupon`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -2985,18 +2916,16 @@ Input schema:
 }
 ```
 
-### 73. `lingxing_promotion_listing`
+### 74. `lingxing_promotion_listing`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `site_date`, `start_time`, `end_time`
 - Optional args: `status`, `product_status`, `promotion_category`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3042,18 +2971,16 @@ Input schema:
 }
 ```
 
-### 74. `lingxing_promotion_manage`
+### 75. `lingxing_promotion_manage`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3077,18 +3004,16 @@ Input schema:
 }
 ```
 
-### 75. `lingxing_promotion_sec_kill`
+### 76. `lingxing_promotion_sec_kill`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3112,18 +3037,16 @@ Input schema:
 }
 ```
 
-### 76. `lingxing_promotion_vip_discount`
+### 77. `lingxing_promotion_vip_discount`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3147,18 +3070,16 @@ Input schema:
 }
 ```
 
-### 77. `lingxing_rate_limit_policy`
+### 78. `lingxing_rate_limit_policy`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 返回当前 MCP 工具到领星 OpenAPI endpoint 的限流政策，供客户端 agent 在调用前按 endpoint 自主排队。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: `tool_name`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3172,7 +3093,7 @@ Input schema:
 }
 ```
 
-### 78. `lingxing_refund_orders`
+### 79. `lingxing_refund_orders`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -3181,9 +3102,7 @@ Input schema:
 - Docs path: `docs/SourceData/RefundOrders.md`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `date_type`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3210,7 +3129,7 @@ Input schema:
 }
 ```
 
-### 79. `lingxing_replenishment_asin_info`
+### 80. `lingxing_replenishment_asin_info`
 
 - Origin: `endpoint_spec`
 - Category: `replenishment_info`
@@ -3219,9 +3138,7 @@ Input schema:
 - Docs path: `docs/FBASug/InfoASIN.md`
 - Required args: `sid`, `asin`
 - Optional args: `mode`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3244,7 +3161,7 @@ Input schema:
 }
 ```
 
-### 80. `lingxing_replenishment_summary`
+### 81. `lingxing_replenishment_summary`
 
 - Origin: `endpoint_spec`
 - Category: `replenishment_summary`
@@ -3253,9 +3170,7 @@ Input schema:
 - Docs path: `docs/FBASug/GetSummaryList.md`
 - Required args: `sid`
 - Optional args: `asin`, `mode`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3277,18 +3192,16 @@ Input schema:
 }
 ```
 
-### 81. `lingxing_report_export_create`
+### 82. `lingxing_report_export_create`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 创建亚马逊报告导出任务。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `report_type`
 - Optional args: `data_start_time`, `data_end_time`, `marketplace_ids`, `region`, `seller_id`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3326,18 +3239,16 @@ Input schema:
 }
 ```
 
-### 82. `lingxing_report_export_download`
+### 83. `lingxing_report_export_download`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 下载并解析亚马逊报告导出文件。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: `url`, `sid`, `task_id`, `report_document_id`, `region`, `seller_id`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3365,18 +3276,16 @@ Input schema:
 }
 ```
 
-### 83. `lingxing_report_export_query`
+### 84. `lingxing_report_export_query`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 查询亚马逊报告导出任务结果。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `task_id`
 - Optional args: `sid`, `region`, `seller_id`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3401,18 +3310,16 @@ Input schema:
 }
 ```
 
-### 84. `lingxing_report_export_refresh_url`
+### 85. `lingxing_report_export_refresh_url`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 续期亚马逊报告下载链接。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `report_document_id`
 - Optional args: `sid`, `region`, `seller_id`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3437,18 +3344,16 @@ Input schema:
 }
 ```
 
-### 85. `lingxing_resolve_daily_promotions`
+### 86. `lingxing_resolve_daily_promotions`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `target_date`
 - Optional args: `lookback_days`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3471,7 +3376,7 @@ Input schema:
 }
 ```
 
-### 86. `lingxing_return_analysis`
+### 87. `lingxing_return_analysis`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -3480,9 +3385,7 @@ Input schema:
 - Docs path: `docs/Statistics/ReturnOrderAnalysisLists.md`
 - Required args: `startDate`, `endDate`, `asinType`, `dateType`
 - Optional args: `mids`, `principalUid`, `searchField`, `searchValue`, `sortField`, `sortType`, `storeId`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3543,18 +3446,16 @@ Input schema:
 }
 ```
 
-### 87. `lingxing_seller_lists`
+### 88. `lingxing_seller_lists`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: `status`, `marketplace`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3572,18 +3473,16 @@ Input schema:
 }
 ```
 
-### 88. `lingxing_smoke_check`
+### 89. `lingxing_smoke_check`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: `sid`, `date`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3599,7 +3498,7 @@ Input schema:
 }
 ```
 
-### 89. `lingxing_source_all_orders`
+### 90. `lingxing_source_all_orders`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -3608,9 +3507,7 @@ Input schema:
 - Docs path: `docs/SourceData/AllOrders.md`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: `date_type`
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3637,7 +3534,7 @@ Input schema:
 }
 ```
 
-### 90. `lingxing_source_daily_inventory`
+### 91. `lingxing_source_daily_inventory`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -3646,9 +3543,7 @@ Input schema:
 - Docs path: `docs/SourceData/DailyInventory.md`
 - Required args: `sid`, `event_date`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3668,7 +3563,7 @@ Input schema:
 }
 ```
 
-### 91. `lingxing_source_manage_inventory`
+### 92. `lingxing_source_manage_inventory`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -3677,9 +3572,7 @@ Input schema:
 - Docs path: `docs/SourceData/ManageInventory.md`
 - Required args: `sid`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3695,7 +3588,7 @@ Input schema:
 }
 ```
 
-### 92. `lingxing_source_reserved_inventory`
+### 93. `lingxing_source_reserved_inventory`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -3704,9 +3597,7 @@ Input schema:
 - Docs path: `docs/SourceData/ReservedInventory.md`
 - Required args: `sid`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3722,7 +3613,7 @@ Input schema:
 }
 ```
 
-### 93. `lingxing_source_transaction`
+### 94. `lingxing_source_transaction`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -3731,9 +3622,7 @@ Input schema:
 - Docs path: `docs/SourceData/Transaction.md`
 - Required args: `sid`, `event_date`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",
@@ -3753,18 +3642,16 @@ Input schema:
 }
 ```
 
-### 94. `lingxing_store_sales`
+### 95. `lingxing_store_sales`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 按店铺和日期范围拉取 StoreSales，并自动合并分页。
-- Endpoint: manual/composite
-- Docs path: n/a
+- Endpoint: `Manual`
+- Docs path: `None`
 - Required args: `sid`, `start_date`, `end_date`
 - Optional args: None
-
-Input schema:
-
+- Input schema:
 ```json
 {
   "type": "object",

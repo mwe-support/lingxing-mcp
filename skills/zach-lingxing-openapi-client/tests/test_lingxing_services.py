@@ -59,6 +59,8 @@ class FakeClient:
             )
         if path == "/erp/sc/data/mws/orders":
             return PagedRows(rows=[{"amazon_order_id": "ORDER-1"}], page_count=1, total=1)
+        if path == "/order/amzod/api/orderList":
+            return PagedRows(rows=[], page_count=1, total=0)
         if path == "/basicOpen/promotion/listingList":
             return PagedRows(
                 rows=[
@@ -140,6 +142,57 @@ class FakeClient:
             return {"code": 0, "data": {"url": "https://example.com/report.csv"}}
         if path == "/basicOpen/report/amazonReportExportTask":
             return {"code": 0, "data": {"url": "https://example.com/report.csv"}}
+        if path == "/order/amzod/api/orderList":
+            return {
+                "code": 0,
+                "data": {
+                    "total": 1,
+                    "records": [
+                        {
+                            "sid": 101,
+                            "store_name": "US Store",
+                            "country": "美国",
+                            "amazon_order_id": "S01-TEST",
+                            "seller_fulfillment_order_id": "SELLER-ORDER-1",
+                            "order_status": "COMPLETE",
+                            "purchase_date_local": "2026-06-20 10:00:00",
+                            "listing_info": [{"asin": "B0TARGET", "msku": "MSKU-1", "quantity": 2}],
+                        }
+                    ],
+                },
+            }
+        if path == "/order/amzod/api/orderDetails/productInformation":
+            return {
+                "code": 0,
+                "data": [
+                    {
+                        "sid": 101,
+                        "amazon_order_id": "S01-TEST",
+                        "seller_fulfillment_order_id": "SELLER-ORDER-1",
+                        "listing_detail_info": [{"asin": "B0TARGET", "fba_fee": "-3.20"}],
+                    }
+                ],
+            }
+        if path == "/order/amzod/api/orderDetails/logisticsInformation":
+            return {
+                "code": 0,
+                "data": [
+                    {
+                        "sid": 101,
+                        "amazon_order_id": "S01-TEST",
+                        "seller_fulfillment_order_id": "SELLER-ORDER-1",
+                        "shipment_info": [{"amazon_shipment_id": "SHIP-1"}],
+                    }
+                ],
+            }
+        if path == "/basicOpen/openapi/salesOrder/multi-channel/list/transaction":
+            return {
+                "code": 0,
+                "data": {
+                    "list": [{"sellerSku": "MSKU-1", "totalCurrencyAmount": "$-3.20"}],
+                    "totalCurrencyAmounts": "$-3.20",
+                },
+            }
         raise AssertionError(f"unexpected post_json path: {path}")
 
 
@@ -179,6 +232,28 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(result["data"][0]["profit"], 12.5)
         self.assertEqual(result["meta"]["page_count"], 2)
+
+    def test_multi_channel_orders_enriches_optional_details(self) -> None:
+        from lib.lingxing_openapi.multi_channel_orders import MultiChannelOrderQuery
+
+        result = self.service.multi_channel_orders(
+            MultiChannelOrderQuery(
+                sids=[101],
+                start_date="2026-06-20",
+                end_date="2026-06-20",
+                include_product_detail=True,
+                include_logistics_detail=True,
+                include_transaction_detail=True,
+            )
+        )
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["count"], 1)
+        row = result["data"]["records"][0]
+        self.assertEqual(row["items"][0]["asin"], "B0TARGET")
+        self.assertEqual(row["product_detail"]["listing_detail_info"][0]["fba_fee"], "-3.20")
+        self.assertEqual(row["logistics_detail"]["shipment_info"][0]["amazon_shipment_id"], "SHIP-1")
+        self.assertEqual(row["transaction_detail"]["totalCurrencyAmounts"], "$-3.20")
+        self.assertIn("/order/amzod/api/orderList", result["meta"]["endpoints"])
 
     def test_asin_ads_daily_rollup_balanced_combines_sp_sd_and_sb(self) -> None:
         result = self.service.asin_ads_daily_rollup(101, "B0TARGET", "2026-03-20", "2026-03-20")

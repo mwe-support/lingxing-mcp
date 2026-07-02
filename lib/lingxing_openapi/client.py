@@ -49,8 +49,13 @@ KNOWN_RATE_LIMIT_RULES: dict[str, RateLimitRule] = {
     "/erp/sc/data/seller/allMarketplace": RateLimitRule(1.0, 1, "openapi_docs"),
     "/erp/sc/data/mws/orders": RateLimitRule(1.0, 1, "openapi_docs"),
     "/erp/sc/data/mws/orderDetail": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/order/amzod/api/orderList": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/order/amzod/api/orderDetails/productInformation": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/order/amzod/api/orderDetails/logisticsInformation": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/order/amzod/api/orderDetails/returnInformation": RateLimitRule(1.0, 1, "openapi_docs"),
     "/bd/productPerformance/openApi/asinList": RateLimitRule(1.0, 1, "openapi_docs"),
     "/basicOpen/finance/profitReport/order/transcation/list": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/basicOpen/openapi/salesOrder/multi-channel/list/transaction": RateLimitRule(1.0, 1, "openapi_docs"),
     # Capacity-10 endpoints in the current production allowlist.
     "/bd/profit/report/open/report/asin/list": RateLimitRule(10.0, 10, "openapi_docs"),
     "/erp/sc/data/mws_report/allOrders": RateLimitRule(10.0, 10, "openapi_docs"),

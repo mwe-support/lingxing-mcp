@@ -16,6 +16,7 @@ from .auth import AuthMatch, BearerAuthConfig, load_bearer_auth_config
 from .client import rate_limit_policy_for_endpoint, rate_limit_runtime_settings
 from .endpoint_specs import ALL_ENDPOINT_SPECS
 from .errors import LingxingClientError, LingxingConfigError
+from .multi_channel_orders import MultiChannelOrderQuery
 from .services import LingxingOpenAPIService
 
 
@@ -53,6 +54,7 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_local_product_costs",
         "lingxing_product_performance",
         "lingxing_profit_report_order_list",
+        "lingxing_multi_channel_orders",
     },
     "finance": BASE_ROLE_TOOL_NAMES
     | {
@@ -102,6 +104,13 @@ MANUAL_TOOL_RATE_LIMIT_ENDPOINTS: dict[str, tuple[str, ...]] = {
     "lingxing_asin_daily_lists": ("/erp/sc/data/sales_report/asinDailyLists",),
     "lingxing_order_lists": ("/erp/sc/data/mws/orders",),
     "lingxing_order_details": ("/erp/sc/data/mws/orderDetail", "/erp/sc/data/seller/lists", "/erp/sc/data/seller/allMarketplace"),
+    "lingxing_multi_channel_orders": (
+        "/order/amzod/api/orderList",
+        "/order/amzod/api/orderDetails/productInformation",
+        "/order/amzod/api/orderDetails/logisticsInformation",
+        "/order/amzod/api/orderDetails/returnInformation",
+        "/basicOpen/openapi/salesOrder/multi-channel/list/transaction",
+    ),
     "lingxing_promotion_listing": ("/basicOpen/promotion/listingList",),
     "lingxing_promotion_sec_kill": ("/basicOpen/promotionalActivities/secKill/list",),
     "lingxing_promotion_manage": ("/basicOpen/promotionalActivities/manage/list",),
@@ -439,6 +448,59 @@ class LingxingMCPApplication:
                 handler=lambda args: self.service.order_details(
                     order_id=str(args.get("order_id") or "").strip() or None,
                     order_ids=_listify_strings(args.get("order_ids")),
+                ),
+            ),
+            "lingxing_multi_channel_orders": ToolDefinition(
+                name="lingxing_multi_channel_orders",
+                description=(
+                    "查询亚马逊多渠道订单列表，按店铺 sid、日期范围和订单状态过滤；可选补充商品、物流、交易明细、退换货详情。"
+                    "为避免领星默认拉取最近 6 个月，本工具强制要求 start_date/end_date。"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "sids": {
+                            "type": "array",
+                            "items": {"type": "integer"},
+                            "description": "领星店铺 sid 列表，至少 1 个。",
+                            "minItems": 1,
+                        },
+                        "start_date": {"type": "string", "description": "订购时间或修改时间开始日期，YYYY-MM-DD。"},
+                        "end_date": {"type": "string", "description": "订购时间或修改时间结束日期，YYYY-MM-DD。"},
+                        "date_type": {"type": "integer", "description": "查询日期类型：1 订购时间，2 订单修改时间；默认 1。"},
+                        "order_status": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "订单状态枚举，需使用官方大写值，例如 NEW、PROCESSING、COMPLETE、CANCELLED。",
+                        },
+                        "amazon_order_id": {"type": "string", "description": "可选；在列表结果返回后按亚马逊订单号精确过滤。"},
+                        "seller_fulfillment_order_id": {"type": "string", "description": "可选；在列表结果返回后按卖家订单号精确过滤。"},
+                        "include_product_detail": {"type": "boolean", "description": "是否补充商品详情，默认 false。"},
+                        "include_logistics_detail": {"type": "boolean", "description": "是否补充物流详情，默认 false。"},
+                        "include_transaction_detail": {"type": "boolean", "description": "是否逐单补充交易明细，默认 false；该接口 1 req/s，订单多时会较慢。"},
+                        "include_return_detail": {"type": "boolean", "description": "是否补充退换货详情，默认 false。"},
+                        "page_size": {"type": "integer", "description": "分页大小，1 到 1000，默认 200。"},
+                        "max_records": {"type": "integer", "description": "最多拉取记录数，1 到 5000，默认 1000。"},
+                    },
+                    "required": ["sids", "start_date", "end_date"],
+                    "additionalProperties": False,
+                },
+                handler=lambda args: self.service.multi_channel_orders(
+                    MultiChannelOrderQuery(
+                        sids=_list_of_ints(args, "sids") or [],
+                        start_date=_required_text(args, "start_date"),
+                        end_date=_required_text(args, "end_date"),
+                        date_type=_optional_int(args, "date_type") or 1,
+                        order_status=_listify_strings(args.get("order_status")) or None,
+                        amazon_order_id=str(args.get("amazon_order_id") or "").strip() or None,
+                        seller_fulfillment_order_id=str(args.get("seller_fulfillment_order_id") or "").strip() or None,
+                        include_product_detail=_optional_bool(args, "include_product_detail", False),
+                        include_logistics_detail=_optional_bool(args, "include_logistics_detail", False),
+                        include_transaction_detail=_optional_bool(args, "include_transaction_detail", False),
+                        include_return_detail=_optional_bool(args, "include_return_detail", False),
+                        page_size=_optional_int(args, "page_size") or 200,
+                        max_records=_optional_int(args, "max_records") or 1000,
+                    )
                 ),
             ),
             "lingxing_promotion_listing": ToolDefinition(

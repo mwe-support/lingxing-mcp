@@ -1,112 +1,101 @@
 {
-  "generated_at": "2026-06-30 13:05:18",
-  "source": "LingxingMCPApplication tool registry plus active role allowlists and rate-limit metadata",
-  "tool_count": 94,
+  "generated_at": "2026-07-02 17:02:27",
+  "source": "LingxingMCPApplication with production role override plus lingxing_multi_channel_orders",
+  "tool_count": 95,
   "roles": {
-    "codex_ads_test": {
-      "tool_count": 31,
-      "tools": [
-        "lingxing_ad_accounts",
-        "lingxing_ads_sb_ad_groups",
-        "lingxing_ads_sb_campaign_report",
-        "lingxing_ads_sb_creative_report",
-        "lingxing_ads_sb_creatives",
-        "lingxing_ads_sb_purchased_asin_report",
-        "lingxing_ads_sd_ad_groups",
-        "lingxing_ads_sd_campaign_report",
-        "lingxing_ads_sd_product_ad_report",
-        "lingxing_ads_sd_product_ads",
-        "lingxing_ads_sp_ad_groups",
-        "lingxing_ads_sp_campaign_report",
-        "lingxing_ads_sp_product_ad_report",
-        "lingxing_ads_sp_product_ads",
-        "lingxing_amazon_listing",
-        "lingxing_asin_ads_daily_rollup",
-        "lingxing_asin_product_snapshot",
-        "lingxing_asin_weekly_rollup",
-        "lingxing_exp_ads_sb_ad_group_report",
-        "lingxing_exp_ads_sd_ad_group_report",
-        "lingxing_exp_ads_sp_ad_group_report",
-        "lingxing_fba_warehouse_detail",
-        "lingxing_health_check",
-        "lingxing_local_product_costs",
-        "lingxing_marketplaces",
-        "lingxing_order_details",
-        "lingxing_order_lists",
-        "lingxing_product_performance",
-        "lingxing_rate_limit_policy",
-        "lingxing_seller_lists",
-        "lingxing_smoke_check"
-      ]
-    },
-    "finance": {
-      "tool_count": 15,
-      "tools": [
-        "lingxing_exp_finance_report_seller",
-        "lingxing_fba_stock_aggregate",
-        "lingxing_fba_stock_detail",
-        "lingxing_fba_warehouse_detail",
-        "lingxing_finance_report_asin",
-        "lingxing_health_check",
-        "lingxing_local_product_costs",
-        "lingxing_order_details",
-        "lingxing_profit_asin",
-        "lingxing_profit_seller",
-        "lingxing_rate_limit_policy",
-        "lingxing_seller_lists",
-        "lingxing_smoke_check",
-        "lingxing_source_transaction",
-        "lingxing_store_sales"
-      ]
-    },
-    "minimal": {
-      "tool_count": 13,
-      "tools": [
-        "lingxing_amazon_listing",
-        "lingxing_asin_product_snapshot",
-        "lingxing_fba_warehouse_detail",
-        "lingxing_finance_report_asin",
-        "lingxing_health_check",
-        "lingxing_local_product_costs",
-        "lingxing_marketplaces",
-        "lingxing_order_details",
-        "lingxing_order_lists",
-        "lingxing_product_performance",
-        "lingxing_rate_limit_policy",
-        "lingxing_seller_lists",
-        "lingxing_smoke_check"
-      ]
-    },
-    "operations": {
-      "tool_count": 25,
-      "tools": [
-        "lingxing_ads_portfolios",
-        "lingxing_ads_sb_campaign_report",
-        "lingxing_ads_sb_campaigns",
-        "lingxing_ads_sd_campaign_report",
-        "lingxing_ads_sd_campaigns",
-        "lingxing_ads_sp_ad_groups",
-        "lingxing_ads_sp_campaign_report",
-        "lingxing_ads_sp_campaigns",
-        "lingxing_ads_sp_product_ad_report",
-        "lingxing_amazon_listing",
-        "lingxing_asin_product_snapshot",
-        "lingxing_exp_ads_sp_ad_group_report",
-        "lingxing_fba_warehouse_detail",
-        "lingxing_health_check",
-        "lingxing_local_product_costs",
-        "lingxing_marketplaces",
-        "lingxing_order_details",
-        "lingxing_order_lists",
-        "lingxing_product_performance",
-        "lingxing_profit_report_order_list",
-        "lingxing_rate_limit_policy",
-        "lingxing_refund_orders",
-        "lingxing_return_analysis",
-        "lingxing_seller_lists",
-        "lingxing_smoke_check"
-      ]
-    }
+    "codex_ads_test": [
+      "lingxing_ad_accounts",
+      "lingxing_ads_sb_ad_groups",
+      "lingxing_ads_sb_campaign_report",
+      "lingxing_ads_sb_creative_report",
+      "lingxing_ads_sb_creatives",
+      "lingxing_ads_sb_purchased_asin_report",
+      "lingxing_ads_sd_ad_groups",
+      "lingxing_ads_sd_campaign_report",
+      "lingxing_ads_sd_product_ad_report",
+      "lingxing_ads_sd_product_ads",
+      "lingxing_ads_sp_ad_groups",
+      "lingxing_ads_sp_campaign_report",
+      "lingxing_ads_sp_product_ad_report",
+      "lingxing_ads_sp_product_ads",
+      "lingxing_amazon_listing",
+      "lingxing_asin_ads_daily_rollup",
+      "lingxing_asin_product_snapshot",
+      "lingxing_asin_weekly_rollup",
+      "lingxing_exp_ads_sb_ad_group_report",
+      "lingxing_exp_ads_sd_ad_group_report",
+      "lingxing_exp_ads_sp_ad_group_report",
+      "lingxing_fba_warehouse_detail",
+      "lingxing_health_check",
+      "lingxing_local_product_costs",
+      "lingxing_marketplaces",
+      "lingxing_order_details",
+      "lingxing_order_lists",
+      "lingxing_product_performance",
+      "lingxing_rate_limit_policy",
+      "lingxing_seller_lists",
+      "lingxing_smoke_check"
+    ],
+    "finance": [
+      "lingxing_exp_finance_report_seller",
+      "lingxing_fba_stock_aggregate",
+      "lingxing_fba_stock_detail",
+      "lingxing_fba_warehouse_detail",
+      "lingxing_finance_report_asin",
+      "lingxing_health_check",
+      "lingxing_local_product_costs",
+      "lingxing_order_details",
+      "lingxing_profit_asin",
+      "lingxing_profit_seller",
+      "lingxing_rate_limit_policy",
+      "lingxing_seller_lists",
+      "lingxing_smoke_check",
+      "lingxing_source_transaction",
+      "lingxing_store_sales"
+    ],
+    "minimal": [
+      "lingxing_amazon_listing",
+      "lingxing_asin_product_snapshot",
+      "lingxing_fba_warehouse_detail",
+      "lingxing_finance_report_asin",
+      "lingxing_health_check",
+      "lingxing_local_product_costs",
+      "lingxing_marketplaces",
+      "lingxing_order_details",
+      "lingxing_order_lists",
+      "lingxing_product_performance",
+      "lingxing_rate_limit_policy",
+      "lingxing_seller_lists",
+      "lingxing_smoke_check"
+    ],
+    "operations": [
+      "lingxing_ads_portfolios",
+      "lingxing_ads_sb_campaign_report",
+      "lingxing_ads_sb_campaigns",
+      "lingxing_ads_sd_campaign_report",
+      "lingxing_ads_sd_campaigns",
+      "lingxing_ads_sp_ad_groups",
+      "lingxing_ads_sp_campaign_report",
+      "lingxing_ads_sp_campaigns",
+      "lingxing_ads_sp_product_ad_report",
+      "lingxing_amazon_listing",
+      "lingxing_asin_product_snapshot",
+      "lingxing_exp_ads_sp_ad_group_report",
+      "lingxing_fba_warehouse_detail",
+      "lingxing_health_check",
+      "lingxing_local_product_costs",
+      "lingxing_marketplaces",
+      "lingxing_multi_channel_orders",
+      "lingxing_order_details",
+      "lingxing_order_lists",
+      "lingxing_product_performance",
+      "lingxing_profit_report_order_list",
+      "lingxing_rate_limit_policy",
+      "lingxing_refund_orders",
+      "lingxing_return_analysis",
+      "lingxing_seller_lists",
+      "lingxing_smoke_check"
+    ]
   },
   "rate_limit_runtime_settings": {
     "enabled": true,
@@ -3607,6 +3596,155 @@
       "input_schema": {
         "type": "object",
         "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_multi_channel_orders",
+      "origin": "manual",
+      "category": "manual",
+      "description": "查询亚马逊多渠道订单列表，按店铺 sid、日期范围和订单状态过滤；可选补充商品、物流、交易明细、退换货详情。为避免领星默认拉取最近 6 个月，本工具强制要求 start_date/end_date。",
+      "required_args": [
+        "sids",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "date_type",
+        "order_status",
+        "amazon_order_id",
+        "seller_fulfillment_order_id",
+        "include_product_detail",
+        "include_logistics_detail",
+        "include_transaction_detail",
+        "include_return_detail",
+        "page_size",
+        "max_records"
+      ],
+      "endpoint": null,
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/order/amzod/api/orderList",
+        "/order/amzod/api/orderDetails/productInformation",
+        "/order/amzod/api/orderDetails/logisticsInformation",
+        "/order/amzod/api/orderDetails/returnInformation",
+        "/basicOpen/openapi/salesOrder/multi-channel/list/transaction"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/order/amzod/api/orderList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/order/amzod/api/orderDetails/productInformation",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/order/amzod/api/orderDetails/logisticsInformation",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/order/amzod/api/orderDetails/returnInformation",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/basicOpen/openapi/salesOrder/multi-channel/list/transaction",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "领星店铺 sid 列表，至少 1 个。",
+            "minItems": 1
+          },
+          "start_date": {
+            "type": "string",
+            "description": "订购时间或修改时间开始日期，YYYY-MM-DD。"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "订购时间或修改时间结束日期，YYYY-MM-DD。"
+          },
+          "date_type": {
+            "type": "integer",
+            "description": "查询日期类型：1 订购时间，2 订单修改时间；默认 1。"
+          },
+          "order_status": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "订单状态枚举，需使用官方大写值，例如 NEW、PROCESSING、COMPLETE、CANCELLED。"
+          },
+          "amazon_order_id": {
+            "type": "string",
+            "description": "可选；在列表结果返回后按亚马逊订单号精确过滤。"
+          },
+          "seller_fulfillment_order_id": {
+            "type": "string",
+            "description": "可选；在列表结果返回后按卖家订单号精确过滤。"
+          },
+          "include_product_detail": {
+            "type": "boolean",
+            "description": "是否补充商品详情，默认 false。"
+          },
+          "include_logistics_detail": {
+            "type": "boolean",
+            "description": "是否补充物流详情，默认 false。"
+          },
+          "include_transaction_detail": {
+            "type": "boolean",
+            "description": "是否逐单补充交易明细，默认 false；该接口 1 req/s，订单多时会较慢。"
+          },
+          "include_return_detail": {
+            "type": "boolean",
+            "description": "是否补充退换货详情，默认 false。"
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "分页大小，1 到 1000，默认 200。"
+          },
+          "max_records": {
+            "type": "integer",
+            "description": "最多拉取记录数，1 到 5000，默认 1000。"
+          }
+        },
+        "required": [
+          "sids",
+          "start_date",
+          "end_date"
+        ],
         "additionalProperties": false
       }
     },
