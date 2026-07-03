@@ -1,6 +1,59 @@
 # Lingxing MCP Update Log
 
-This log records MCP tool-surface changes. Each entry must list added tools, removed tools, and role allowlist changes.
+This log records MCP tool-surface changes. Each entry must list added tools, removed tools, built-in role allowlist changes, production `LINGXING_MCP_ROLE_TOOLS` changes when touched, and validation results.
+
+## 2026-07-03
+
+### Added Tools
+- `lingxing_ads_sp_negative_targets_or_keywords`
+- `lingxing_ads_sd_negative_targets`
+- `lingxing_ads_sb_negative_keywords`
+- `lingxing_ads_sb_negative_targets`
+- `lingxing_ads_operation_logs`
+- `lingxing_ads_update_sp_campaign`
+- `lingxing_ads_update_sp_ad_group`
+- `lingxing_ads_update_sp_keyword`
+- `lingxing_ads_update_sp_target`
+- `lingxing_ads_update_sp_product_ads`
+- `lingxing_ads_add_sp_keywords`
+- `lingxing_ads_add_sp_negative_keywords`
+- `lingxing_ads_add_sp_negative_targets`
+- `lingxing_ads_archive_sp_negatives`
+
+### Removed Tools
+- None
+
+### Built-In Role Allowlist Changes
+- `operations`: 13 -> 67
+  - Added: approved advertising read tools, negative targeting read tools, `lingxing_asin_ads_daily_rollup`, selected non-hourly `lingxing_exp_ads_*` daily reports, `lingxing_ads_operation_logs`, and gated SP advertising management tools.
+  - Excluded by design: hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report`.
+- `minimal`: no change
+- `finance`: no change
+
+### Active Production Role Snapshot
+- `codex_ads_test`: 28 tools
+- `operations`: 67 tools
+
+Notable production role exposure:
+- `operations` includes the approved advertising read tools and gated SP advertising management tools through the active `LINGXING_MCP_ROLE_TOOLS` override.
+- `operations` intentionally excludes hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report`.
+
+### Safety Notes
+- SP advertising management tools default to `dry_run=true`.
+- A Lingxing write endpoint is called only when a request includes `confirm=true` and `dry_run=false`.
+- Dry-run responses return the prepared request body and an execution warning without calling Lingxing.
+
+### Validation
+- `python -m unittest skills.zach-lingxing-openapi-client.tests.test_lingxing_services` passed.
+- `python -m unittest skills.zach-lingxing-mcp.tests.test_mcp_server` passed.
+- `python mcp-servers/lingxing-openapi/deploy/validate_role_permissions.py` passed with `operations_count=67`.
+- Local operations `tools/list` returned 67 tools and excluded hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report`.
+- Tool snapshot regenerated from `LingxingMCPApplication`.
+- Release audit template `../_templates/scripts/release_audit.py` was not available in the remote deployment directory, so release audit could not be run.
+- Production `LINGXING_MCP_ROLE_TOOLS` was updated and backed up at `/etc/lingxing-mcp/lingxing-mcp.env.backup-20260703104448`.
+- `lingxing-mcp.service` was restarted; service was `active/running`.
+- Remote loopback operations `tools/list` returned 67 tools, included the new advertising management tools, had visible `req/s` rate-limit guidance, and excluded hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report`.
+- Live dry-run call to `lingxing_ads_update_sp_keyword` returned `executed=false` and warning `dry_run=true 或 confirm 未开启，未调用领星广告写接口。`
 
 ## 2026-07-02
 

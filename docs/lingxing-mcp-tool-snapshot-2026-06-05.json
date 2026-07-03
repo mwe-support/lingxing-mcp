@@ -1,41 +1,8 @@
 {
-  "generated_at": "2026-07-02 17:02:27",
-  "source": "LingxingMCPApplication with production role override plus lingxing_multi_channel_orders",
-  "tool_count": 95,
+  "generated_at": "2026-07-03 10:39:53",
+  "source": "LingxingMCPApplication built-in role defaults",
+  "tool_count": 109,
   "roles": {
-    "codex_ads_test": [
-      "lingxing_ad_accounts",
-      "lingxing_ads_sb_ad_groups",
-      "lingxing_ads_sb_campaign_report",
-      "lingxing_ads_sb_creative_report",
-      "lingxing_ads_sb_creatives",
-      "lingxing_ads_sb_purchased_asin_report",
-      "lingxing_ads_sd_ad_groups",
-      "lingxing_ads_sd_campaign_report",
-      "lingxing_ads_sd_product_ad_report",
-      "lingxing_ads_sd_product_ads",
-      "lingxing_ads_sp_ad_groups",
-      "lingxing_ads_sp_campaign_report",
-      "lingxing_ads_sp_product_ad_report",
-      "lingxing_ads_sp_product_ads",
-      "lingxing_amazon_listing",
-      "lingxing_asin_ads_daily_rollup",
-      "lingxing_asin_product_snapshot",
-      "lingxing_asin_weekly_rollup",
-      "lingxing_exp_ads_sb_ad_group_report",
-      "lingxing_exp_ads_sd_ad_group_report",
-      "lingxing_exp_ads_sp_ad_group_report",
-      "lingxing_fba_warehouse_detail",
-      "lingxing_health_check",
-      "lingxing_local_product_costs",
-      "lingxing_marketplaces",
-      "lingxing_order_details",
-      "lingxing_order_lists",
-      "lingxing_product_performance",
-      "lingxing_rate_limit_policy",
-      "lingxing_seller_lists",
-      "lingxing_smoke_check"
-    ],
     "finance": [
       "lingxing_exp_finance_report_seller",
       "lingxing_fba_stock_aggregate",
@@ -69,18 +36,59 @@
       "lingxing_smoke_check"
     ],
     "operations": [
+      "lingxing_ad_accounts",
+      "lingxing_ads_add_sp_keywords",
+      "lingxing_ads_add_sp_negative_keywords",
+      "lingxing_ads_add_sp_negative_targets",
+      "lingxing_ads_archive_sp_negatives",
+      "lingxing_ads_operation_logs",
       "lingxing_ads_portfolios",
+      "lingxing_ads_sb_ad_groups",
       "lingxing_ads_sb_campaign_report",
       "lingxing_ads_sb_campaigns",
+      "lingxing_ads_sb_creative_report",
+      "lingxing_ads_sb_creatives",
+      "lingxing_ads_sb_negative_keywords",
+      "lingxing_ads_sb_negative_targets",
+      "lingxing_ads_sb_purchased_asin_report",
+      "lingxing_ads_sb_targets",
+      "lingxing_ads_sd_ad_groups",
       "lingxing_ads_sd_campaign_report",
       "lingxing_ads_sd_campaigns",
+      "lingxing_ads_sd_negative_targets",
+      "lingxing_ads_sd_product_ad_report",
+      "lingxing_ads_sd_product_ads",
+      "lingxing_ads_sd_target_report",
+      "lingxing_ads_sd_targets",
       "lingxing_ads_sp_ad_groups",
       "lingxing_ads_sp_campaign_report",
       "lingxing_ads_sp_campaigns",
+      "lingxing_ads_sp_keyword_report",
+      "lingxing_ads_sp_keywords",
+      "lingxing_ads_sp_negative_targets_or_keywords",
       "lingxing_ads_sp_product_ad_report",
+      "lingxing_ads_sp_product_ads",
+      "lingxing_ads_sp_search_term_report",
+      "lingxing_ads_sp_target_report",
+      "lingxing_ads_sp_targets",
+      "lingxing_ads_update_sp_ad_group",
+      "lingxing_ads_update_sp_campaign",
+      "lingxing_ads_update_sp_keyword",
+      "lingxing_ads_update_sp_product_ads",
+      "lingxing_ads_update_sp_target",
       "lingxing_amazon_listing",
+      "lingxing_asin_ads_daily_rollup",
       "lingxing_asin_product_snapshot",
+      "lingxing_exp_ads_sb_ad_group_report",
+      "lingxing_exp_ads_sb_campaign_placement_report",
+      "lingxing_exp_ads_sb_keyword_placement_report",
+      "lingxing_exp_ads_sb_search_term_report",
+      "lingxing_exp_ads_sb_target_report",
+      "lingxing_exp_ads_sd_ad_group_report",
+      "lingxing_exp_ads_sd_match_target_report",
       "lingxing_exp_ads_sp_ad_group_report",
+      "lingxing_exp_ads_sp_placement_report",
+      "lingxing_exp_ads_sp_purchased_asin_report",
       "lingxing_fba_warehouse_detail",
       "lingxing_health_check",
       "lingxing_local_product_costs",
@@ -153,6 +161,336 @@
             "type": "integer"
           }
         },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_add_sp_keywords",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "添加 SP 关键词，单次最多 1000 个；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "keywords"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/spTarget/addKeywords",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/spTarget/addKeywords"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/spTarget/addKeywords",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "官方 keywords 对象数组，字段按领星 API 文档传入。"
+          }
+        },
+        "required": [
+          "keywords"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_add_sp_negative_keywords",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "添加 SP 否定关键词，支持活动层级和广告组层级；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "negative_keywords"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/spTarget/addNegativeKeywords",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/spTarget/addNegativeKeywords"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/spTarget/addNegativeKeywords",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "negative_keywords": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "官方 negativeKeywords 对象数组，字段按领星 API 文档传入。"
+          }
+        },
+        "required": [
+          "negative_keywords"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_add_sp_negative_targets",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "添加 SP 否定 ASIN，支持活动层级和广告组层级；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "asins"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/spTarget/addNegativeTargets",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/spTarget/addNegativeTargets"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/spTarget/addNegativeTargets",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "asins": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "官方 asins 对象数组，字段按领星 API 文档传入。"
+          }
+        },
+        "required": [
+          "asins"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_archive_sp_negatives",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "归档 SP 否定关键词或否定 ASIN，需传官方 target_id；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "targetIds"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/spTarget/archiveNegatives",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/spTarget/archiveNegatives"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/spTarget/archiveNegatives",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "targetIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "官方必填数组字段，字段名保持领星 API 文档命名。"
+          }
+        },
+        "required": [
+          "targetIds"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_operation_logs",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "查询广告操作日志，支持 SP/SB/SD、ERP/亚马逊后台来源和广告对象类型过滤。",
+      "required_args": [
+        "sid",
+        "log_source",
+        "sponsored_type",
+        "operate_type",
+        "start_date",
+        "end_date"
+      ],
+      "optional_args": [
+        "offset",
+        "length"
+      ],
+      "endpoint": "/pb/openapi/newad/apiLogStandard",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/pb/openapi/newad/apiLogStandard"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/apiLogStandard",
+          "rate_per_second": 10.0,
+          "burst": 10,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "log_source": {
+            "type": "string",
+            "description": "all / erp / amazon。"
+          },
+          "sponsored_type": {
+            "type": "string",
+            "description": "sp / sb / sd。"
+          },
+          "operate_type": {
+            "type": "string",
+            "description": "campaigns / adGroups / productAds / keywords / negativeKeywords / targets / negativeTargets / profiles。"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "length": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sid",
+          "log_source",
+          "sponsored_type",
+          "operate_type",
+          "start_date",
+          "end_date"
+        ],
         "additionalProperties": false
       }
     },
@@ -536,6 +874,100 @@
           },
           "profile_id": {
             "type": "integer"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_sb_negative_keywords",
+      "origin": "endpoint_spec",
+      "category": "ad_base",
+      "description": "SB 否定关键词基础数据，用于查看 SB 否定关键词。",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "endpoint": "/pb/openapi/newad/hsaNegativeKeywords",
+      "docs_path": "docs/newAd/baseData/hsaNegativeKeywords.md",
+      "rate_limit_endpoints": [
+        "/pb/openapi/newad/hsaNegativeKeywords"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaNegativeKeywords",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_sb_negative_targets",
+      "origin": "endpoint_spec",
+      "category": "ad_base",
+      "description": "SB 否定商品投放基础数据，用于查看 SB 否定商品投放。",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "endpoint": "/pb/openapi/newad/hsaNegativeTargets",
+      "docs_path": "docs/newAd/baseData/hsaNegativeTargets.md",
+      "rate_limit_endpoints": [
+        "/pb/openapi/newad/hsaNegativeTargets"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/hsaNegativeTargets",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
           }
         },
         "required": [
@@ -1021,6 +1453,53 @@
           "rate_per_second": 1.0,
           "burst": 1,
           "source": "default",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_sd_negative_targets",
+      "origin": "endpoint_spec",
+      "category": "ad_base",
+      "description": "SD 否定商品定位基础数据，用于查看 SD 否定投放对象。",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "endpoint": "/pb/openapi/newad/sdNegativeTargets",
+      "docs_path": "docs/newAd/baseData/sdNegativeTargets.md",
+      "rate_limit_endpoints": [
+        "/pb/openapi/newad/sdNegativeTargets"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/sdNegativeTargets",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
           "enabled": true,
           "wait_timeout_seconds": 60.0,
           "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
@@ -1697,6 +2176,53 @@
       }
     },
     {
+      "name": "lingxing_ads_sp_negative_targets_or_keywords",
+      "origin": "endpoint_spec",
+      "category": "ad_base",
+      "description": "SP 否定投放基础数据，返回否定关键词和否定商品投放，用于归档前查找 target_id。",
+      "required_args": [
+        "sid"
+      ],
+      "optional_args": [
+        "profile_id",
+        "state"
+      ],
+      "endpoint": "/pb/openapi/newad/spNegativeTargetsOrKeywords",
+      "docs_path": "docs/newAd/baseData/spNegativeTargetsOrKeywords.md",
+      "rate_limit_endpoints": [
+        "/pb/openapi/newad/spNegativeTargetsOrKeywords"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/pb/openapi/newad/spNegativeTargetsOrKeywords",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer"
+          },
+          "profile_id": {
+            "type": "integer"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
       "name": "lingxing_ads_sp_placement_hourly",
       "origin": "endpoint_spec",
       "category": "ad_report",
@@ -2050,6 +2576,326 @@
         },
         "required": [
           "sid"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_update_sp_ad_group",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "修改 SP 广告组，支持启停和默认竞价；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "ad_groups"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/manage/putSpAdGroup",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/manage/putSpAdGroup"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/manage/putSpAdGroup",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "ad_groups": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "官方 adGroups 对象数组，字段按领星 API 文档传入。"
+          }
+        },
+        "required": [
+          "ad_groups"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_update_sp_campaign",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "修改 SP 广告活动和广告位，支持启停、预算、竞价策略和广告位比例；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "campaigns"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/manage/putSpCampaign",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/manage/putSpCampaign"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/manage/putSpCampaign",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "官方 campaigns 对象数组，字段按领星 API 文档传入。"
+          }
+        },
+        "required": [
+          "campaigns"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_update_sp_keyword",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "修改 SP 关键词，支持启停和竞价；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "keywords"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/manage/putSpKeyword",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/manage/putSpKeyword"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/manage/putSpKeyword",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "官方 keywords 对象数组，字段按领星 API 文档传入。"
+          }
+        },
+        "required": [
+          "keywords"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_update_sp_product_ads",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "修改 SP 广告商品启用/暂停状态，单次最多 1000 个；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "product_ads"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/manage/putSpProductAds",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/manage/putSpProductAds"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/manage/putSpProductAds",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "product_ads": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "官方 productAds 对象数组，字段按领星 API 文档传入。"
+          }
+        },
+        "required": [
+          "product_ads"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_ads_update_sp_target",
+      "origin": "manual",
+      "category": "ad_management",
+      "description": "修改 SP 商品投放，支持启停和竞价；默认 dry_run，不确认不执行。",
+      "required_args": [
+        "targeting_clauses"
+      ],
+      "optional_args": [
+        "sid",
+        "profile_id",
+        "dry_run",
+        "confirm"
+      ],
+      "endpoint": "/basicOpen/adReport/manage/putSpTarget",
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/basicOpen/adReport/manage/putSpTarget"
+      ],
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/adReport/manage/putSpTarget",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "sid": {
+            "type": "integer",
+            "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"
+          },
+          "profile_id": {
+            "type": "integer",
+            "description": "广告 Profile ID；传入时优先使用。"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
+          },
+          "confirm": {
+            "type": "boolean",
+            "description": "执行写入必须显式传 true；否则只返回计划。"
+          },
+          "targeting_clauses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "官方 targetingClauses 对象数组，字段按领星 API 文档传入。"
+          }
+        },
+        "required": [
+          "targeting_clauses"
         ],
         "additionalProperties": false
       }

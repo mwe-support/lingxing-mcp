@@ -2,7 +2,7 @@
 
 > **作者**：Zach ｜ 公众号「Zach的进化笔记」
 >
-> 把领星 ERP 的读取能力整理成可复用、可共享、可被 Claude Code / Codex / Cursor 直接调用的只读 MCP 基础设施，重点服务技术型卖家和 AI 协作用户。
+> 把领星 ERP 的读取能力和少量受控管理动作整理成可复用、可共享、可被 Claude Code / Codex / Cursor 直接调用的 MCP 基础设施，重点服务技术型卖家和 AI 协作用户。
 
 ---
 
@@ -65,7 +65,7 @@
 
 ### 1. 它能查什么
 
-当前公开版聚焦只读能力，主要覆盖：
+当前公开版以只读能力为主，主要覆盖：
 
 - 店铺列表
 - 站点与时区信息
@@ -74,6 +74,7 @@
 - 产品表现汇总（浏览、会话、广告、销量）
 - 广告账号、广告基础数据和 SP / SD / SB 报表
 - 小时级广告报表
+- SP 广告管理写工具：活动、广告组、关键词、投放、商品广告、否定关键词 / 否定投放新增与归档；默认 `dry_run=true`，只有显式 `confirm=true` 且 `dry_run=false` 才会调用领星写接口
 - 订单列表
 - 促销列表与促销类型归一化
 - 利润统计
@@ -118,7 +119,7 @@
 - 把主凭证只放在服务器，不放在每个人电脑里
 - 让 HTTP gateway 成为团队统一入口
 
-### 4. 为什么当前先做只读
+### 4. 为什么当前先做只读优先
 
 因为大多数团队的第一道门槛不是“写接口不够多”，而是：
 
@@ -127,8 +128,8 @@
 - 固定出口没搭好
 - IDE / MCP 没接起来
 
-所以这个仓库当前优先把“读取链路先跑通”。  
-先把访问、鉴权、白名单、网关、共享和 AI 调用打通，再讨论更高风险的写操作，会稳很多。
+所以这个仓库仍然优先把“读取链路先跑通”。
+写操作只在用户明确提出并完成接口核对后逐步加入；当前广告管理工具默认不会执行写入，必须显式关闭 `dry_run` 并确认风险。
 
 ---
 
@@ -140,7 +141,7 @@
 | 更适合谁 | 多店铺经营管理、团队共享、ERP 视角 | 单账号/单系统直连、官方数据链路 |
 | 数据视角 | 更贴近店铺运营、销量、订单、促销、管理动作 | 更贴近 Amazon 平台原始能力 |
 | 团队共享 | 更适合通过固定出口网关统一接入 | 一般更偏系统对系统接入 |
-| 当前仓库重点 | 先把只读访问链路跑通 | 不在本仓库范围内 |
+| 当前仓库重点 | 先把只读访问链路跑通，并提供少量受控广告管理动作 | 不在本仓库范围内 |
 
 如果你的目标是：
 
@@ -193,11 +194,11 @@
 
 如果你是 Claude Code、Codex、Cursor 里的 Agent，可以这样理解这个仓库：
 
-- 这是 **领星 ERP 的只读 MCP 接入层**
+- 这是 **领星 ERP 的读为主 MCP 接入层**，少量广告管理写工具有显式安全门
 - 它不是 Amazon API 的替代品
 - 团队共享模式下优先推荐 **固定出口云服务器 + HTTP gateway**
 - 本地 `stdio` 更适合个人验证，不适合多人长期共享
-- 当前仓库优先解决“访问链路跑通”，而不是扩写高风险写接口
+- 当前仓库优先解决“访问链路跑通”；写接口只在明确场景下按工具级安全门逐步加入
 
 更完整的 Agent 上下文见：
 
@@ -235,14 +236,15 @@
 - 基础能力：`lingxing_health_check`、`lingxing_smoke_check`、`lingxing_rate_limit_policy`、`lingxing_seller_lists`、`lingxing_marketplaces`
 - 店铺经营：`lingxing_store_sales`、`lingxing_asin_daily_lists`、`lingxing_order_lists`、`lingxing_product_performance`
 - 促销：`lingxing_promotion_*`、`lingxing_resolve_daily_promotions`
-- 广告：`lingxing_ad_accounts`、`lingxing_ads_sp_*`、`lingxing_ads_sd_*`、`lingxing_ads_sb_*`
+- 广告只读：`lingxing_ad_accounts`、`lingxing_ads_sp_*`、`lingxing_ads_sd_*`、`lingxing_ads_sb_*`
+- 广告管理：`lingxing_ads_update_sp_*`、`lingxing_ads_add_sp_*`、`lingxing_ads_archive_sp_negatives`、`lingxing_ads_operation_logs`
 - 利润：`lingxing_profit_seller`、`lingxing_profit_asin`、`lingxing_profit_parent_asin`
 - 源表 / 库存 / 补货：`lingxing_source_*`、`lingxing_fba_*`、`lingxing_replenishment_*`
 - 报告导出：`lingxing_report_export_create`、`lingxing_report_export_query`、`lingxing_report_export_refresh_url`、`lingxing_report_export_download`
 - 高层聚合：`lingxing_asin_ads_daily_rollup`、`lingxing_asin_weekly_rollup`
 - 实验层：`lingxing_exp_*`
 
-这些工具当前全部是 **只读** 的，适合做：
+除明确标注的广告管理工具外，当前工具以 **只读** 为主，适合做：
 
 - 数据查看
 - 日常巡检
@@ -250,6 +252,8 @@
 - 广告和流量周报补数
 - Amazon 报告下载解析
 - 团队共享查询
+
+广告管理工具适合在已经确认店铺、广告活动、广告组、关键词或投放 ID 后做受控修改。调用前应先用 `dry_run=true` 查看即将提交的请求体；只有传入 `confirm=true` 且 `dry_run=false` 时才会真正调用领星写接口。
 
 ---
 
@@ -285,7 +289,7 @@
 下面这段可以直接复制：
 
 ```text
-这是一个把领星 ERP 接成 MCP 的只读基础设施方案，适合多店铺团队共享给 Claude Code、Codex、Cursor 直接查数据。它重点解决领星白名单、固定出口、团队共享和 AI 接入问题。当前先做只读，是为了先把访问链路稳定跑通，再逐步扩展。
+这是一个把领星 ERP 接成 MCP 的读为主基础设施方案，适合多店铺团队共享给 Claude Code、Codex、Cursor 直接查数据。它重点解决领星白名单、固定出口、团队共享和 AI 接入问题；少量广告管理工具带 `dry_run` 和确认门，用于明确场景下的受控操作。
 ```
 
 ---
@@ -318,7 +322,7 @@ HTTP member tokens support role-based tool visibility. The role allowlist is the
 Current built-in roles:
 
 - `minimal`: least-privilege baseline with the prior default business tools plus health check, smoke check, and rate-limit policy discovery.
-- `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, and product performance queries.
+- `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, product performance, daily advertising reports, advertising base data, and gated SP advertising management.
 - `finance`: finance-facing sales, profit, settlement, cost, FBA stock, order-detail, warehouse-status, and transaction-trace tools recommended by finance users.
 
 Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`, even when `LINGXING_MCP_ROLE_TOOLS` overrides a role.

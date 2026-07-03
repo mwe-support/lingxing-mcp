@@ -12,6 +12,7 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 
+from .ad_management import AD_MANAGEMENT_TOOL_SPECS, AD_OPERATION_LOGS_ENDPOINT, AdManagementRequest, AdManagementToolSpec
 from .auth import AuthMatch, BearerAuthConfig, load_bearer_auth_config
 from .client import rate_limit_policy_for_endpoint, rate_limit_runtime_settings
 from .endpoint_specs import ALL_ENDPOINT_SPECS
@@ -29,6 +30,49 @@ BASE_ROLE_TOOL_NAMES = {
     "lingxing_smoke_check",
     "lingxing_rate_limit_policy",
 }
+OPERATIONS_AD_TOOL_NAMES = {
+    "lingxing_ad_accounts",
+    "lingxing_ads_portfolios",
+    "lingxing_ads_sb_ad_groups",
+    "lingxing_ads_sb_campaign_report",
+    "lingxing_ads_sb_campaigns",
+    "lingxing_ads_sb_creative_report",
+    "lingxing_ads_sb_creatives",
+    "lingxing_ads_sb_negative_keywords",
+    "lingxing_ads_sb_negative_targets",
+    "lingxing_ads_sb_purchased_asin_report",
+    "lingxing_ads_sb_targets",
+    "lingxing_ads_sd_ad_groups",
+    "lingxing_ads_sd_campaign_report",
+    "lingxing_ads_sd_campaigns",
+    "lingxing_ads_sd_negative_targets",
+    "lingxing_ads_sd_product_ad_report",
+    "lingxing_ads_sd_product_ads",
+    "lingxing_ads_sd_target_report",
+    "lingxing_ads_sd_targets",
+    "lingxing_ads_sp_ad_groups",
+    "lingxing_ads_sp_campaign_report",
+    "lingxing_ads_sp_campaigns",
+    "lingxing_ads_sp_keyword_report",
+    "lingxing_ads_sp_keywords",
+    "lingxing_ads_sp_negative_targets_or_keywords",
+    "lingxing_ads_sp_product_ad_report",
+    "lingxing_ads_sp_product_ads",
+    "lingxing_ads_sp_search_term_report",
+    "lingxing_ads_sp_target_report",
+    "lingxing_ads_sp_targets",
+    "lingxing_asin_ads_daily_rollup",
+    "lingxing_exp_ads_sb_ad_group_report",
+    "lingxing_exp_ads_sb_campaign_placement_report",
+    "lingxing_exp_ads_sb_keyword_placement_report",
+    "lingxing_exp_ads_sb_search_term_report",
+    "lingxing_exp_ads_sb_target_report",
+    "lingxing_exp_ads_sd_ad_group_report",
+    "lingxing_exp_ads_sd_match_target_report",
+    "lingxing_exp_ads_sp_ad_group_report",
+    "lingxing_exp_ads_sp_placement_report",
+    "lingxing_exp_ads_sp_purchased_asin_report",
+} | {spec.tool_name for spec in AD_MANAGEMENT_TOOL_SPECS} | {"lingxing_ads_operation_logs"}
 DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
     "minimal": BASE_ROLE_TOOL_NAMES
     | {
@@ -51,11 +95,15 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_order_lists",
         "lingxing_asin_product_snapshot",
         "lingxing_fba_warehouse_detail",
+        "lingxing_amazon_listing",
         "lingxing_local_product_costs",
         "lingxing_product_performance",
         "lingxing_profit_report_order_list",
         "lingxing_multi_channel_orders",
-    },
+        "lingxing_refund_orders",
+        "lingxing_return_analysis",
+    }
+    | OPERATIONS_AD_TOOL_NAMES,
     "finance": BASE_ROLE_TOOL_NAMES
     | {
         "lingxing_store_sales",
@@ -173,7 +221,10 @@ MANUAL_TOOL_RATE_LIMIT_ENDPOINTS: dict[str, tuple[str, ...]] = {
         "/basicOpen/promotionalActivities/vipDiscount/list",
         "/basicOpen/promotionalActivities/coupon/list",
     ),
+    "lingxing_ads_operation_logs": (AD_OPERATION_LOGS_ENDPOINT,),
 }
+for _ad_management_spec in AD_MANAGEMENT_TOOL_SPECS:
+    MANUAL_TOOL_RATE_LIMIT_ENDPOINTS[_ad_management_spec.tool_name] = (_ad_management_spec.endpoint,)
 
 
 def _normalize_role(role: str | None) -> str:
@@ -272,6 +323,64 @@ def _listify_strings(value: Any) -> list[str]:
     return [str(value)]
 
 
+def _listify_objects(args: dict[str, Any], key: str) -> list[dict[str, Any]]:
+    value = args.get(key)
+    if not isinstance(value, list) or not value:
+        raise LingxingConfigError(f"缺少必要数组参数: {key}")
+    rows: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, dict):
+            raise LingxingConfigError(f"{key} 必须是对象数组")
+        rows.append(dict(item))
+    return rows
+
+
+def _ad_management_schema(spec: AdManagementToolSpec) -> dict[str, Any]:
+    properties: dict[str, Any] = {
+        "sid": {"type": "integer", "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"},
+        "profile_id": {"type": "integer", "description": "广告 Profile ID；传入时优先使用。"},
+        "dry_run": {"type": "boolean", "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"},
+        "confirm": {"type": "boolean", "description": "执行写入必须显式传 true；否则只返回计划。"},
+    }
+    required: list[str] = []
+    if spec.item_arg:
+        properties[spec.item_arg] = {
+            "type": "array",
+            "items": {"type": "object", "additionalProperties": True},
+            "description": f"官方 {spec.body_key} 对象数组，字段按领星 API 文档传入。",
+        }
+        required.append(spec.item_arg)
+    for arg_name in spec.required_args:
+        properties[arg_name] = {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "官方必填数组字段，字段名保持领星 API 文档命名。",
+        }
+        required.append(arg_name)
+    return {"type": "object", "properties": properties, "required": required, "additionalProperties": False}
+
+
+def _operation_logs_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "properties": {
+            "sid": {"type": "integer"},
+            "log_source": {"type": "string", "description": "all / erp / amazon。"},
+            "sponsored_type": {"type": "string", "description": "sp / sb / sd。"},
+            "operate_type": {
+                "type": "string",
+                "description": "campaigns / adGroups / productAds / keywords / negativeKeywords / targets / negativeTargets / profiles。",
+            },
+            "start_date": {"type": "string"},
+            "end_date": {"type": "string"},
+            "offset": {"type": "integer"},
+            "length": {"type": "integer"},
+        },
+        "required": ["sid", "log_source", "sponsored_type", "operate_type", "start_date", "end_date"],
+        "additionalProperties": False,
+    }
+
+
 def _unique_endpoints(endpoints: tuple[str, ...] | list[str]) -> tuple[str, ...]:
     seen: set[str] = set()
     values: list[str] = []
@@ -328,6 +437,34 @@ class LingxingMCPApplication:
         self.service = service or LingxingOpenAPIService()
         self.tools = self._build_tools()
         self.role_tool_names = _role_tool_names_from_env()
+
+    def _run_ad_management_tool(self, spec: AdManagementToolSpec, args: dict[str, Any]) -> dict[str, Any]:
+        body: dict[str, Any] = {}
+        sid = _optional_int(args, "sid")
+        profile_id = _optional_int(args, "profile_id")
+        if sid is None and profile_id is None:
+            raise LingxingConfigError("广告管理工具必须传 sid 或 profile_id")
+        if sid is not None:
+            body["sid"] = sid
+        if profile_id is not None:
+            body["profileId"] = profile_id
+        if spec.item_arg and spec.body_key:
+            body[spec.body_key] = _listify_objects(args, spec.item_arg)
+        for arg_name in spec.required_args:
+            values = _listify_strings(args.get(arg_name))
+            if not values:
+                raise LingxingConfigError(f"缺少必要数组参数: {arg_name}")
+            body[arg_name] = values
+        return self.service.ads_management_apply(
+            AdManagementRequest(
+                tool_name=spec.tool_name,
+                endpoint=spec.endpoint,
+                docs_path=spec.docs_path,
+                body=body,
+                dry_run=_optional_bool(args, "dry_run", True),
+                confirm=_optional_bool(args, "confirm", False),
+            )
+        )
 
     def _build_tools(self) -> dict[str, ToolDefinition]:
         tools = {
@@ -861,7 +998,29 @@ class LingxingMCPApplication:
                     _required_text(args, "end_date"),
                 ),
             ),
+            "lingxing_ads_operation_logs": ToolDefinition(
+                name="lingxing_ads_operation_logs",
+                description="查询广告操作日志，支持 SP/SB/SD、ERP/亚马逊后台来源和广告对象类型过滤。",
+                input_schema=_operation_logs_schema(),
+                handler=lambda args: self.service.ads_operation_logs(
+                    sid=_required_int(args, "sid"),
+                    log_source=_required_text(args, "log_source"),
+                    sponsored_type=_required_text(args, "sponsored_type"),
+                    operate_type=_required_text(args, "operate_type"),
+                    start_date=_required_text(args, "start_date"),
+                    end_date=_required_text(args, "end_date"),
+                    offset=_optional_int(args, "offset") or 0,
+                    length=_optional_int(args, "length") or 100,
+                ),
+            ),
         }
+        for spec in AD_MANAGEMENT_TOOL_SPECS:
+            tools[spec.tool_name] = ToolDefinition(
+                name=spec.tool_name,
+                description=spec.description,
+                input_schema=_ad_management_schema(spec),
+                handler=lambda args, tool_spec=spec: self._run_ad_management_tool(tool_spec, args),
+            )
         for spec in ALL_ENDPOINT_SPECS:
             tools[spec.tool_name] = ToolDefinition(
                 name=spec.tool_name,

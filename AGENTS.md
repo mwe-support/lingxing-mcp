@@ -4,7 +4,7 @@ This file is the operating guide for Codex and other coding agents working in th
 
 ## Project Scope
 
-This repository provides a read-only Lingxing ERP OpenAPI client and MCP service.
+This repository provides a Lingxing ERP OpenAPI client and MCP service that is read-oriented by default, with a small, explicitly gated set of advertising management write tools.
 
 Core goals:
 
@@ -16,7 +16,7 @@ Important positioning from repository docs:
 - Personal validation can use local `stdio`; team sharing should use a fixed-egress HTTP gateway.
 
 - Provide a reusable Lingxing OpenAPI client for authentication, signing, pagination, document metadata, and business requests.
-- Expose selected Lingxing read-only data as MCP tools over stdio and HTTP.
+- Expose selected Lingxing data and approved management actions as MCP tools over stdio and HTTP.
 - Support a fixed-egress gateway deployment because Lingxing OpenAPI access is constrained by IP allowlists.
 - Keep team HTTP access protected by Bearer token or tokens file.
 - Prefer small, business-oriented MCP tools over exposing every low-level API by default.
@@ -25,7 +25,8 @@ Important positioning from repository docs:
 
 - `lib/lingxing_openapi/client.py`: OpenAPI token, signing, request, pagination, and download parsing.
 - `lib/lingxing_openapi/services.py`: business service layer and high-level aggregation tools.
-- `lib/lingxing_openapi/endpoint_specs.py`: declarative MCP endpoint specs for read-only APIs.
+- `lib/lingxing_openapi/endpoint_specs.py`: declarative MCP endpoint specs for simple read APIs.
+- `lib/lingxing_openapi/ad_management.py`: advertising management write-tool metadata and safety-oriented request specs.
 - `lib/lingxing_openapi/mcp.py`: MCP tool registry, allowlist filtering, stdio/HTTP JSON-RPC handling.
 - `mcp-servers/lingxing-openapi/server.py`: stdio MCP entrypoint.
 - `mcp-servers/lingxing-openapi/http_server.py`: HTTP MCP entrypoint.
@@ -46,6 +47,7 @@ Deployment paths used by the current gateway:
 - Never print or commit real `LINGXING_APP_ID`, `LINGXING_APP_SECRET`, Bearer tokens, member tokens, document keys, Cloudflare Access credentials, or Authorization headers.
 - When showing service files, env files, logs, or MCP config, redact secrets before returning output.
 - Keep business APIs read-only unless the user explicitly asks for a write-capable endpoint and confirms the risk.
+- Write-capable MCP tools must default to `dry_run=true`, require `confirm=true` plus `dry_run=false` before calling Lingxing, and return the request body without execution when not confirmed.
 - Treat Lingxing `403` as likely authorization, API permission, authorization expiry, or IP allowlist issue before changing code.
 - Treat HTTP `missing_or_invalid_bearer` as MCP gateway authentication failure, not Lingxing API failure.
 - Do not expose all MCP tools by default. Use role-based allowlists in `LINGXING_MCP_ROLE_TOOLS` or the built-in role defaults; `LINGXING_MCP_ENABLED_TOOLS` is deprecated and should not be reintroduced.
@@ -74,6 +76,8 @@ lingxing_local_product_costs
 lingxing_product_performance
 lingxing_finance_report_asin
 ```
+
+The built-in `operations` role includes operational query tools plus the approved advertising read and SP management surface. It intentionally includes daily SP/SD/SB advertising reports, base advertising objects, negative targeting reads, ASIN advertising daily rollup, and SP advertising management tools. It intentionally excludes hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report` unless a production override explicitly adds them.
 
 When adding, removing, or renaming MCP tools:
 
@@ -286,8 +290,8 @@ For rate-limit errors such as Lingxing `code=103` or local `local_rate_limit_tim
 
 - Keep changes scoped to the relevant module.
 - Follow existing dataclass and service-layer patterns.
-- Prefer adding an `EndpointSpec` for simple read-only endpoints.
-- Use a handwritten service method for multi-step aggregation, normalization, or business-specific output.
+- Prefer adding an `EndpointSpec` for simple read endpoints.
+- Use a handwritten service method for multi-step aggregation, normalization, business-specific output, or write-capable tools that need a safety gate.
 - Keep MCP outputs compact and business-readable.
 - Write MCP tool `description` text in Chinese so `tools/list` is readable for Chinese operators.
 - Add warnings for fallback behavior, missing matches, generated URLs, or source mismatch.

@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lib.lingxing_openapi.auth import AuthMatch  # noqa: E402
-from lib.lingxing_openapi.mcp import LingxingMCPApplication  # noqa: E402
+from lib.lingxing_openapi.mcp import LingxingMCPApplication, OPERATIONS_AD_TOOL_NAMES  # noqa: E402
 
 BASE_TOOLS = {"lingxing_health_check", "lingxing_smoke_check", "lingxing_rate_limit_policy"}
 EXPECTED_MINIMAL = BASE_TOOLS | {
@@ -35,11 +35,14 @@ EXPECTED_OPERATIONS = BASE_TOOLS | {
     "lingxing_order_lists",
     "lingxing_asin_product_snapshot",
     "lingxing_fba_warehouse_detail",
+    "lingxing_amazon_listing",
     "lingxing_local_product_costs",
     "lingxing_product_performance",
     "lingxing_profit_report_order_list",
     "lingxing_multi_channel_orders",
-}
+    "lingxing_refund_orders",
+    "lingxing_return_analysis",
+} | OPERATIONS_AD_TOOL_NAMES
 EXPECTED_FINANCE = BASE_TOOLS | {
     "lingxing_store_sales",
     "lingxing_profit_seller",

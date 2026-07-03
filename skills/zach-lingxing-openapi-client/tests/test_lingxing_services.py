@@ -10,6 +10,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lib.lingxing_openapi.client import PagedRows  # noqa: E402
+from lib.lingxing_openapi.ad_management import AdManagementRequest  # noqa: E402
 from lib.lingxing_openapi.services import LingxingOpenAPIService  # noqa: E402
 
 
@@ -193,6 +194,10 @@ class FakeClient:
                     "totalCurrencyAmounts": "$-3.20",
                 },
             }
+        if path == "/basicOpen/adReport/manage/putSpKeyword":
+            return {"code": 1, "success": True, "data": {"apiResult": [{"code": "SUCCESS", "keywordId": "K-1"}]}}
+        if path == "/pb/openapi/newad/apiLogStandard":
+            return {"code": 0, "data": {"list": [{"operate_type": "keywords"}], "total": 1}}
         raise AssertionError(f"unexpected post_json path: {path}")
 
 
@@ -223,6 +228,52 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(len(result["data"]), 1)
         self.assertEqual(result["data"][0]["profile_id"], 321)
+
+    def test_ads_management_apply_dry_run_does_not_call_write_endpoint(self) -> None:
+        result = self.service.ads_management_apply(
+            AdManagementRequest(
+                tool_name="lingxing_ads_update_sp_keyword",
+                endpoint="/basicOpen/adReport/manage/putSpKeyword",
+                docs_path="docs/newAd/adReportManagePutSpKeyword",
+                body={"sid": 101, "keywords": [{"keywordId": 1, "state": "paused", "isBaseValue": 0}]},
+                dry_run=True,
+                confirm=False,
+            )
+        )
+        self.assertTrue(result["ok"])
+        self.assertFalse(result["data"]["executed"])
+        self.assertNotIn("/basicOpen/adReport/manage/putSpKeyword", [call[0] for call in self.service.client.post_json_calls])
+
+    def test_ads_management_apply_calls_write_endpoint_when_confirmed(self) -> None:
+        result = self.service.ads_management_apply(
+            AdManagementRequest(
+                tool_name="lingxing_ads_update_sp_keyword",
+                endpoint="/basicOpen/adReport/manage/putSpKeyword",
+                docs_path="docs/newAd/adReportManagePutSpKeyword",
+                body={"sid": 101, "keywords": [{"keywordId": 1, "state": "paused", "isBaseValue": 0}]},
+                dry_run=False,
+                confirm=True,
+            )
+        )
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["data"]["executed"])
+        self.assertEqual(self.service.client.post_json_calls[-1][0], "/basicOpen/adReport/manage/putSpKeyword")
+
+    def test_ads_operation_logs_uses_official_endpoint_and_version_header(self) -> None:
+        result = self.service.ads_operation_logs(
+            sid=101,
+            log_source="erp",
+            sponsored_type="sp",
+            operate_type="keywords",
+            start_date="2026-06-01",
+            end_date="2026-06-30",
+        )
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["total"], 1)
+        path, body, headers = self.service.client.post_json_calls[-1]
+        self.assertEqual(path, "/pb/openapi/newad/apiLogStandard")
+        self.assertEqual(body["sid"], 101)
+        self.assertEqual(headers, {"X-API-VERSION": "2"})
 
     def test_run_endpoint_spec_supports_profit_catalog(self) -> None:
         result = self.service.run_endpoint_spec(

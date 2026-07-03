@@ -12,7 +12,7 @@
 - 已支持固定出口网关
 - 已支持本地 `stdio` 和团队 `HTTP` 两种接入
 - 已支持多人令牌模式
-- 当前 MCP 工具保持只读，不提供写接口
+- 当前 MCP 工具以只读为主；SP 广告管理写工具默认 `dry_run=true`，只有显式 `confirm=true` 且 `dry_run=false` 才会调用领星写接口
 
 ## 推荐阅读顺序
 
@@ -54,7 +54,7 @@
 - `lingxing_promotion_coupon`
 - `lingxing_resolve_daily_promotions`
 
-新增稳定层只读工具：
+新增稳定层读工具：
 
 - 广告账号与基础数据：`lingxing_ad_accounts`、`lingxing_ads_portfolios`、`lingxing_ads_sp_*`、`lingxing_ads_sd_*`、`lingxing_ads_sb_*`
 - 广告报表与小时报表：SP/SD/SB 的 campaign、product ad、keyword、target、search term、hourly 工具
@@ -63,6 +63,12 @@
 - FBA / 补货：`lingxing_fba_stock_aggregate`、`lingxing_fba_stock_detail`、`lingxing_replenishment_summary`、`lingxing_replenishment_asin_info`
 - 报告导出：`lingxing_report_export_create`、`lingxing_report_export_query`、`lingxing_report_export_refresh_url`、`lingxing_report_export_download`
 - 高层聚合：`lingxing_asin_ads_daily_rollup`、`lingxing_asin_weekly_rollup`
+
+新增广告管理工具：
+
+- 查询广告操作日志：`lingxing_ads_operation_logs`
+- 更新 SP 活动 / 广告组 / 关键词 / 投放 / 商品广告：`lingxing_ads_update_sp_campaign`、`lingxing_ads_update_sp_ad_group`、`lingxing_ads_update_sp_keyword`、`lingxing_ads_update_sp_target`、`lingxing_ads_update_sp_product_ads`
+- 新增 SP 关键词、否定关键词、否定投放，归档否定关键词 / 否定投放：`lingxing_ads_add_sp_keywords`、`lingxing_ads_add_sp_negative_keywords`、`lingxing_ads_add_sp_negative_targets`、`lingxing_ads_archive_sp_negatives`
 
 新增实验层只读工具：
 
@@ -129,7 +135,7 @@ HTTP member tokens support role-based tool visibility. The role allowlist is the
 Current built-in roles:
 
 - `minimal`: least-privilege baseline with the prior default business tools plus health check, smoke check, and rate-limit policy discovery.
-- `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, and product performance queries.
+- `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, product performance, daily advertising reports, advertising base data, and gated SP advertising management. Hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report` are not included by default.
 - `finance`: finance-facing sales, profit, settlement, cost, FBA stock, order-detail, warehouse-status, and transaction-trace tools recommended by finance users.
 
 Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`, even when `LINGXING_MCP_ROLE_TOOLS` overrides a role.

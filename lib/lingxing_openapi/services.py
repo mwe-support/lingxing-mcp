@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from .ad_management import AD_OPERATION_LOGS_ENDPOINT, AdManagementRequest
 from .client import DEFAULT_TOKEN_CACHE, LingxingOpenAPIClient, DownloadedFile, extract_path_value
 from .endpoint_specs import ENDPOINT_SPECS_BY_NAME, EndpointSpec
 from .errors import LingxingClientError, LingxingConfigError
@@ -1415,6 +1416,64 @@ class LingxingOpenAPIService:
             endpoint=endpoint,
             page_count=page.page_count,
             extra_meta={"account_type": account_type},
+        )
+
+    def ads_management_apply(self, request: AdManagementRequest) -> dict[str, Any]:
+        warnings: list[str] = []
+        if request.dry_run or not request.confirm:
+            warnings.append("dry_run=true 或 confirm 未开启，未调用领星广告写接口。")
+            return self._result(
+                data={
+                    "executed": False,
+                    "tool_name": request.tool_name,
+                    "request_body": request.body,
+                },
+                endpoint=request.endpoint,
+                sid=int(request.body.get("sid") or 0) or None,
+                warnings=warnings,
+                extra_meta={"docs_path": request.docs_path, "dry_run": request.dry_run, "confirm": request.confirm},
+            )
+
+        payload = self.client.post_json(request.endpoint, request.body)
+        return self._result(
+            data={"executed": True, "response": payload},
+            endpoint=request.endpoint,
+            sid=int(request.body.get("sid") or 0) or None,
+            extra_meta={"docs_path": request.docs_path, "dry_run": False, "confirm": True},
+        )
+
+    def ads_operation_logs(
+        self,
+        *,
+        sid: int,
+        log_source: str,
+        sponsored_type: str,
+        operate_type: str,
+        start_date: str,
+        end_date: str,
+        offset: int = 0,
+        length: int = 100,
+    ) -> dict[str, Any]:
+        body = {
+            "sid": int(sid),
+            "log_source": log_source,
+            "sponsored_type": sponsored_type,
+            "operate_type": operate_type,
+            "start_date": start_date,
+            "end_date": end_date,
+            "offset": max(0, int(offset)),
+            "length": max(1, min(int(length), 200)),
+        }
+        payload = self.client.post_json(AD_OPERATION_LOGS_ENDPOINT, body, extra_headers={"X-API-VERSION": "2"})
+        return self._result(
+            data=payload.get("data"),
+            endpoint=AD_OPERATION_LOGS_ENDPOINT,
+            sid=int(sid),
+            date_range=f"{start_date}~{end_date}",
+            extra_meta={
+                "docs_path": "https://apidoc.lingxing.com/#/docs/newAd/apiLogStandard",
+                "filters": body,
+            },
         )
 
     def _resolve_profile_id(self, sid: int, *, profile_id: int | None = None, account_type: str = "seller") -> int:
