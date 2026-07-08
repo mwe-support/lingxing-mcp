@@ -73,6 +73,13 @@ OPERATIONS_AD_TOOL_NAMES = {
     "lingxing_exp_ads_sp_placement_report",
     "lingxing_exp_ads_sp_purchased_asin_report",
 } | {spec.tool_name for spec in AD_MANAGEMENT_TOOL_SPECS} | {"lingxing_ads_operation_logs"}
+REPORT_ACCESS_TOOL_NAMES = {
+    "lingxing_source_transaction",
+    "lingxing_report_export_create",
+    "lingxing_report_export_query",
+    "lingxing_report_export_download",
+    "lingxing_report_export_refresh_url",
+}
 DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
     "minimal": BASE_ROLE_TOOL_NAMES
     | {
@@ -103,7 +110,8 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_refund_orders",
         "lingxing_return_analysis",
     }
-    | OPERATIONS_AD_TOOL_NAMES,
+    | OPERATIONS_AD_TOOL_NAMES
+    | REPORT_ACCESS_TOOL_NAMES,
     "finance": BASE_ROLE_TOOL_NAMES
     | {
         "lingxing_store_sales",
@@ -117,8 +125,8 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_order_details",
         "lingxing_fba_warehouse_detail",
         "lingxing_fba_stock_detail",
-        "lingxing_source_transaction",
-    },
+    }
+    | REPORT_ACCESS_TOOL_NAMES,
 }
 ROLE_ALIASES = {
     "legacy": "minimal",

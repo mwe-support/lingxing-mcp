@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-03 10:39:53",
+  "generated_at": "2026-07-08 15:25:44",
   "source": "LingxingMCPApplication built-in role defaults",
   "tool_count": 109,
   "roles": {
@@ -15,6 +15,10 @@
       "lingxing_profit_asin",
       "lingxing_profit_seller",
       "lingxing_rate_limit_policy",
+      "lingxing_report_export_create",
+      "lingxing_report_export_download",
+      "lingxing_report_export_query",
+      "lingxing_report_export_refresh_url",
       "lingxing_seller_lists",
       "lingxing_smoke_check",
       "lingxing_source_transaction",
@@ -100,9 +104,14 @@
       "lingxing_profit_report_order_list",
       "lingxing_rate_limit_policy",
       "lingxing_refund_orders",
+      "lingxing_report_export_create",
+      "lingxing_report_export_download",
+      "lingxing_report_export_query",
+      "lingxing_report_export_refresh_url",
       "lingxing_return_analysis",
       "lingxing_seller_lists",
-      "lingxing_smoke_check"
+      "lingxing_smoke_check",
+      "lingxing_source_transaction"
     ]
   },
   "rate_limit_runtime_settings": {

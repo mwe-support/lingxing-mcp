@@ -2,6 +2,43 @@
 
 This log records MCP tool-surface changes. Each entry must list added tools, removed tools, built-in role allowlist changes, production `LINGXING_MCP_ROLE_TOOLS` changes when touched, and validation results.
 
+## 2026-07-08
+
+### Added Tools
+- None; this change exposes existing registered tools to additional roles.
+
+### Removed Tools
+- None
+
+### Built-In Role Allowlist Changes
+- `operations`: 67 -> 72
+  - Added: `lingxing_source_transaction`, `lingxing_report_export_create`, `lingxing_report_export_query`, `lingxing_report_export_download`, `lingxing_report_export_refresh_url`
+  - Removed: None
+- `finance`: 15 -> 19
+  - Added: `lingxing_report_export_create`, `lingxing_report_export_query`, `lingxing_report_export_download`, `lingxing_report_export_refresh_url`
+  - Already present: `lingxing_source_transaction`
+  - Removed: None
+- `minimal`: no change
+
+### Active Production Role Snapshot
+- `codex_ads_test`: 28 tools
+- `operations`: 72 tools
+- `finance`: 19 tools through built-in role defaults.
+
+Notable production role exposure:
+- `operations` includes `lingxing_source_transaction`, `lingxing_report_export_create`, `lingxing_report_export_query`, `lingxing_report_export_download`, and `lingxing_report_export_refresh_url` through the active `LINGXING_MCP_ROLE_TOOLS` override.
+- `finance` includes the same five tools through the built-in role defaults.
+
+### Validation
+- `python -m compileall -q lib mcp-servers` passed locally and remotely.
+- `python -m unittest discover -s skills/zach-lingxing-openapi-client/tests -v` passed locally and remotely.
+- `python -m unittest discover -s skills/zach-lingxing-mcp/tests -v` passed locally and remotely.
+- `python mcp-servers/lingxing-openapi/deploy/validate_role_permissions.py` passed with `operations_count=72` and `finance_count=19`.
+- Tool snapshot regenerated from `LingxingMCPApplication`.
+- Production `LINGXING_MCP_ROLE_TOOLS` was updated and backed up at `/etc/lingxing-mcp/lingxing-mcp.env.backup-20260708152803`.
+- `lingxing-mcp.service` was restarted; service was `active/running`.
+- Remote loopback `tools/list` returned 72 tools for `operations` and 19 tools for `finance`; both roles included all five requested tools with visible `req/s` rate-limit guidance on report export tools.
+
 ## 2026-07-03
 
 ### Added Tools

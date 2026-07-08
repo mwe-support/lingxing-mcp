@@ -1,6 +1,6 @@
 # Lingxing MCP Tool Snapshot
 
-Generated at: 2026-07-03 10:39:53
+Generated at: 2026-07-08 15:25:44
 
 Source: LingxingMCPApplication built-in role defaults
 
@@ -8,7 +8,7 @@ Tool count: 109
 
 ## Roles
 
-### finance (15)
+### finance (19)
 - `lingxing_exp_finance_report_seller`
 - `lingxing_fba_stock_aggregate`
 - `lingxing_fba_stock_detail`
@@ -20,6 +20,10 @@ Tool count: 109
 - `lingxing_profit_asin`
 - `lingxing_profit_seller`
 - `lingxing_rate_limit_policy`
+- `lingxing_report_export_create`
+- `lingxing_report_export_download`
+- `lingxing_report_export_query`
+- `lingxing_report_export_refresh_url`
 - `lingxing_seller_lists`
 - `lingxing_smoke_check`
 - `lingxing_source_transaction`
@@ -40,7 +44,7 @@ Tool count: 109
 - `lingxing_seller_lists`
 - `lingxing_smoke_check`
 
-### operations (67)
+### operations (72)
 - `lingxing_ad_accounts`
 - `lingxing_ads_add_sp_keywords`
 - `lingxing_ads_add_sp_negative_keywords`
@@ -105,9 +109,14 @@ Tool count: 109
 - `lingxing_profit_report_order_list`
 - `lingxing_rate_limit_policy`
 - `lingxing_refund_orders`
+- `lingxing_report_export_create`
+- `lingxing_report_export_download`
+- `lingxing_report_export_query`
+- `lingxing_report_export_refresh_url`
 - `lingxing_return_analysis`
 - `lingxing_seller_lists`
 - `lingxing_smoke_check`
+- `lingxing_source_transaction`
 
 ## Tool Table
 
