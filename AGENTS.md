@@ -77,7 +77,7 @@ lingxing_product_performance
 lingxing_finance_report_asin
 ```
 
-The built-in `operations` role includes operational query tools plus the approved advertising read and SP management surface. It intentionally includes daily SP/SD/SB advertising reports, base advertising objects, negative targeting reads, ASIN advertising daily rollup, and SP advertising management tools. It intentionally excludes hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report` unless a production override explicitly adds them.
+The built-in `operations` role includes operational query tools plus the approved advertising read and SP management surface. It intentionally includes buyer voice, daily SP/SD/SB advertising reports, base advertising objects, negative targeting reads, ASIN advertising daily rollup, and SP advertising management tools. It intentionally excludes hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report` unless a production override explicitly adds them.
 
 When adding, removing, or renaming MCP tools:
 

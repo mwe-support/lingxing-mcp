@@ -139,6 +139,14 @@ RETURN_ANALYSIS_ARGS = (
     _s("sortType"),
     _ai("storeId"),
 )
+VOICE_OF_BUYER_ARGS = (
+    _s("fulfillment_channel"),
+    _ai("sids"),
+    _as("pxc_health"),
+    _s("search_field"),
+    _as("search_value"),
+    _as("return_badge"),
+)
 STOCK_ARGS = (_i("sid", required=True), _s("start_month", required=True), _s("end_month", required=True))
 PRODUCT_PERFORMANCE_ARGS = (
     _i("sid", required=True),
@@ -821,6 +829,17 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
         page_size=1000,
         data_path="data.records",
         total_path="data.total",
+    ),
+    EndpointSpec(
+        tool_name="lingxing_voice_of_buyer",
+        description="查询买家之声列表，返回 ASIN/MSKU/SKU 的满意度状况、不满意率、不满意订单数、订单总数、主要退货原因和退货标记。",
+        endpoint="/basicOpen/customerService/voiceOfBuyer/list",
+        category="source",
+        args=VOICE_OF_BUYER_ARGS,
+        docs_path="docs/Service/voiceOfBuyerList.md",
+        page_size=200,
+        data_path="data",
+        total_path="total",
     ),
     EndpointSpec(
         tool_name="lingxing_source_manage_inventory",

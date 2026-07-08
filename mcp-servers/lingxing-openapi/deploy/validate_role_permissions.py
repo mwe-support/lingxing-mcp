@@ -42,6 +42,7 @@ EXPECTED_OPERATIONS = BASE_TOOLS | {
     "lingxing_multi_channel_orders",
     "lingxing_refund_orders",
     "lingxing_return_analysis",
+    "lingxing_voice_of_buyer",
 } | OPERATIONS_AD_TOOL_NAMES | REPORT_ACCESS_TOOL_NAMES
 EXPECTED_FINANCE = BASE_TOOLS | {
     "lingxing_store_sales",

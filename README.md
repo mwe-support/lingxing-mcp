@@ -322,7 +322,7 @@ HTTP member tokens support role-based tool visibility. The role allowlist is the
 Current built-in roles:
 
 - `minimal`: least-privilege baseline with the prior default business tools plus health check, smoke check, and rate-limit policy discovery.
-- `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, product performance, daily advertising reports, advertising base data, Amazon source transaction, report export, and gated SP advertising management.
+- `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, product performance, buyer voice, daily advertising reports, advertising base data, Amazon source transaction, report export, and gated SP advertising management.
 - `finance`: finance-facing sales, profit, settlement, cost, FBA stock, order-detail, warehouse-status, transaction-trace, and Amazon report-export tools recommended by finance users.
 
 Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`, even when `LINGXING_MCP_ROLE_TOOLS` overrides a role.

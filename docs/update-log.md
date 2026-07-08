@@ -5,6 +5,42 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 ## 2026-07-08
 
 ### Added Tools
+- `lingxing_voice_of_buyer`
+  - Official API: `POST /basicOpen/customerService/voiceOfBuyer/list`
+  - Purpose: dedicated buyer voice list query for ASIN/MSKU/SKU health, NCX metrics, satisfaction status, return reason, and return badge.
+
+### Removed Tools
+- None
+
+### Built-In Role Allowlist Changes
+- `operations`: 72 -> 73
+  - Added: `lingxing_voice_of_buyer`
+  - Removed: None
+- `minimal`: no change
+- `finance`: no change
+
+### Active Production Role Snapshot
+- `codex_ads_test`: unchanged in production override.
+- `operations`: 73 tools through the active `LINGXING_MCP_ROLE_TOOLS` override.
+
+Notable production role exposure:
+- `operations` includes `lingxing_voice_of_buyer` through the active `LINGXING_MCP_ROLE_TOOLS` override.
+
+### Validation
+- `python -m compileall -q lib mcp-servers skills` passed locally.
+- `python -m unittest discover -s skills/zach-lingxing-openapi-client/tests -v` passed locally.
+- `python -m unittest discover -s skills/zach-lingxing-mcp/tests -v` passed locally.
+- `python mcp-servers/lingxing-openapi/deploy/validate_role_permissions.py` passed locally with `operations_count=73` and `finance_count=19`.
+- The same compile, role validation, OpenAPI client tests, and MCP server tests passed remotely.
+- Tool snapshot regenerated from `LingxingMCPApplication`.
+- Production `LINGXING_MCP_ROLE_TOOLS` was updated and backed up at `/etc/lingxing-mcp/lingxing-mcp.env.backup-20260708162518`.
+- `lingxing-mcp.service` was restarted; service was `active`.
+- Remote loopback `tools/list` returned 73 tools for `operations`, included `lingxing_voice_of_buyer`, and showed visible `限流：` guidance.
+- Remote loopback `tools/call` for `lingxing_voice_of_buyer` reached `/basicOpen/customerService/voiceOfBuyer/list` with `ok=true`, `page_count=1`, and zero rows for the narrow sid 7806 + ASIN `B0DX74Z1MR` smoke filter.
+
+## 2026-07-08
+
+### Added Tools
 - None; this change exposes existing registered tools to additional roles.
 
 ### Removed Tools

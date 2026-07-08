@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-08 15:25:44",
+  "generated_at": "2026-07-08 16:20:06",
   "source": "LingxingMCPApplication built-in role defaults",
-  "tool_count": 109,
+  "tool_count": 110,
   "roles": {
     "finance": [
       "lingxing_exp_finance_report_seller",
@@ -111,7 +111,8 @@
       "lingxing_return_analysis",
       "lingxing_seller_lists",
       "lingxing_smoke_check",
-      "lingxing_source_transaction"
+      "lingxing_source_transaction",
+      "lingxing_voice_of_buyer"
     ]
   },
   "rate_limit_runtime_settings": {
@@ -140,6 +141,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/baseData/account/list"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/baseData/account/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/baseData/account/list",
@@ -176,7 +178,7 @@
     {
       "name": "lingxing_ads_add_sp_keywords",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "添加 SP 关键词，单次最多 1000 个；默认 dry_run，不确认不执行。",
       "required_args": [
         "keywords"
@@ -187,11 +189,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/spTarget/addKeywords",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/spTarget/addKeywords"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/spTarget/addKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/spTarget/addKeywords",
@@ -240,7 +243,7 @@
     {
       "name": "lingxing_ads_add_sp_negative_keywords",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "添加 SP 否定关键词，支持活动层级和广告组层级；默认 dry_run，不确认不执行。",
       "required_args": [
         "negative_keywords"
@@ -251,11 +254,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/spTarget/addNegativeKeywords",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/spTarget/addNegativeKeywords"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/spTarget/addNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/spTarget/addNegativeKeywords",
@@ -304,7 +308,7 @@
     {
       "name": "lingxing_ads_add_sp_negative_targets",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "添加 SP 否定 ASIN，支持活动层级和广告组层级；默认 dry_run，不确认不执行。",
       "required_args": [
         "asins"
@@ -315,11 +319,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/spTarget/addNegativeTargets",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/spTarget/addNegativeTargets"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/spTarget/addNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/spTarget/addNegativeTargets",
@@ -368,7 +373,7 @@
     {
       "name": "lingxing_ads_archive_sp_negatives",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "归档 SP 否定关键词或否定 ASIN，需传官方 target_id；默认 dry_run，不确认不执行。",
       "required_args": [
         "targetIds"
@@ -379,11 +384,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/spTarget/archiveNegatives",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/spTarget/archiveNegatives"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/spTarget/archiveNegatives，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/spTarget/archiveNegatives",
@@ -431,7 +437,7 @@
     {
       "name": "lingxing_ads_operation_logs",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "查询广告操作日志，支持 SP/SB/SD、ERP/亚马逊后台来源和广告对象类型过滤。",
       "required_args": [
         "sid",
@@ -445,11 +451,12 @@
         "offset",
         "length"
       ],
-      "endpoint": "/pb/openapi/newad/apiLogStandard",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/pb/openapi/newad/apiLogStandard"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/apiLogStandard，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/apiLogStandard",
@@ -519,6 +526,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/portfolios"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/portfolios，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/portfolios",
@@ -564,6 +572,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sbAdGroupHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sbAdGroupHourData",
@@ -615,6 +624,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaAdGroups"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaAdGroups",
@@ -663,6 +673,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sbCampaignHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sbCampaignHourData",
@@ -715,6 +726,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaCampaignReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaCampaignReports",
@@ -766,6 +778,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaCampaigns"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaCampaigns",
@@ -814,6 +827,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/listHsaProductAdReport"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/listHsaProductAdReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/listHsaProductAdReport",
@@ -864,6 +878,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaProductAds"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaProductAds",
@@ -908,6 +923,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaNegativeKeywords"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaNegativeKeywords",
@@ -955,6 +971,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaNegativeTargets"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaNegativeTargets",
@@ -1003,6 +1020,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sbAdPlacementHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sbAdPlacementHourData",
@@ -1054,6 +1072,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaPurchasedAsinReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaPurchasedAsinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaPurchasedAsinReports",
@@ -1103,6 +1122,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sbTargetHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sbTargetHourData",
@@ -1154,6 +1174,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sbTargeting"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sbTargeting，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sbTargeting",
@@ -1202,6 +1223,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdAdGroupHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdAdGroupHourData",
@@ -1253,6 +1275,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdAdGroups"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdAdGroups",
@@ -1301,6 +1324,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdAdvertiseHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdAdvertiseHourData",
@@ -1353,6 +1377,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdCampaignHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdCampaignHourData",
@@ -1405,6 +1430,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdCampaignReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdCampaignReports",
@@ -1456,6 +1482,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdCampaigns"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdCampaigns",
@@ -1503,6 +1530,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdNegativeTargets"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdNegativeTargets",
@@ -1551,6 +1579,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdProductAdReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdProductAdReports",
@@ -1602,6 +1631,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdProductAds"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdProductAds",
@@ -1650,6 +1680,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdTargetHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdTargetHourData",
@@ -1702,6 +1733,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdTargetReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdTargetReports",
@@ -1753,6 +1785,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdTargets"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdTargets",
@@ -1801,6 +1834,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spAdGroupHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spAdGroupHourData",
@@ -1852,6 +1886,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spAdGroups"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spAdGroups",
@@ -1900,6 +1935,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spAdvertiseHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spAdvertiseHourData",
@@ -1952,6 +1988,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spCampaignHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spCampaignHourData",
@@ -2004,6 +2041,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spCampaignReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spCampaignReports",
@@ -2055,6 +2093,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spCampaigns"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spCampaigns",
@@ -2103,6 +2142,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spKeywordReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spKeywordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spKeywordReports",
@@ -2154,6 +2194,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spKeywords"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spKeywords，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spKeywords",
@@ -2201,6 +2242,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spNegativeTargetsOrKeywords"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spNegativeTargetsOrKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spNegativeTargetsOrKeywords",
@@ -2249,6 +2291,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spAdPlacementHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spAdPlacementHourData",
@@ -2301,6 +2344,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spProductAdReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spProductAdReports",
@@ -2352,6 +2396,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spProductAds"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spProductAds",
@@ -2401,6 +2446,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/queryWordReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/queryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/queryWordReports",
@@ -2456,6 +2502,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spTargetHourData"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spTargetHourData",
@@ -2508,6 +2555,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spTargetReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spTargetReports",
@@ -2559,6 +2607,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spTargets"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spTargets",
@@ -2592,7 +2641,7 @@
     {
       "name": "lingxing_ads_update_sp_ad_group",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "修改 SP 广告组，支持启停和默认竞价；默认 dry_run，不确认不执行。",
       "required_args": [
         "ad_groups"
@@ -2603,11 +2652,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/manage/putSpAdGroup",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/manage/putSpAdGroup"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/manage/putSpAdGroup，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/manage/putSpAdGroup",
@@ -2656,7 +2706,7 @@
     {
       "name": "lingxing_ads_update_sp_campaign",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "修改 SP 广告活动和广告位，支持启停、预算、竞价策略和广告位比例；默认 dry_run，不确认不执行。",
       "required_args": [
         "campaigns"
@@ -2667,11 +2717,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/manage/putSpCampaign",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/manage/putSpCampaign"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/manage/putSpCampaign，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/manage/putSpCampaign",
@@ -2720,7 +2771,7 @@
     {
       "name": "lingxing_ads_update_sp_keyword",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "修改 SP 关键词，支持启停和竞价；默认 dry_run，不确认不执行。",
       "required_args": [
         "keywords"
@@ -2731,11 +2782,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/manage/putSpKeyword",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/manage/putSpKeyword"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/manage/putSpKeyword，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/manage/putSpKeyword",
@@ -2784,7 +2836,7 @@
     {
       "name": "lingxing_ads_update_sp_product_ads",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "修改 SP 广告商品启用/暂停状态，单次最多 1000 个；默认 dry_run，不确认不执行。",
       "required_args": [
         "product_ads"
@@ -2795,11 +2847,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/manage/putSpProductAds",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/manage/putSpProductAds"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/manage/putSpProductAds，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/manage/putSpProductAds",
@@ -2848,7 +2901,7 @@
     {
       "name": "lingxing_ads_update_sp_target",
       "origin": "manual",
-      "category": "ad_management",
+      "category": "manual",
       "description": "修改 SP 商品投放，支持启停和竞价；默认 dry_run，不确认不执行。",
       "required_args": [
         "targeting_clauses"
@@ -2859,11 +2912,12 @@
         "dry_run",
         "confirm"
       ],
-      "endpoint": "/basicOpen/adReport/manage/putSpTarget",
+      "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [
         "/basicOpen/adReport/manage/putSpTarget"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/adReport/manage/putSpTarget，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/adReport/manage/putSpTarget",
@@ -2930,6 +2984,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/mws/listing"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws/listing，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws/listing",
@@ -3000,6 +3055,7 @@
         "/pb/openapi/newad/hsaPurchasedAsinReports",
         "/pb/openapi/newad/listHsaProductAdReport"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 6 个 endpoint；最严格为 /basicOpen/baseData/account/list 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/baseData/account/list",
@@ -3102,6 +3158,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/sales_report/asinDailyLists"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/sales_report/asinDailyLists，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/sales_report/asinDailyLists",
@@ -3157,6 +3214,7 @@
         "/bd/productPerformance/openApi/asinList",
         "/erp/sc/routing/data/local_inventory/productList"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/openapi/storage/fbaWarehouseDetail",
@@ -3246,6 +3304,7 @@
         "/basicOpen/promotionalActivities/vipDiscount/list",
         "/basicOpen/promotionalActivities/coupon/list"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/sales_report/sales 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/sales_report/sales",
@@ -3396,6 +3455,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/abaReport"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/abaReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/abaReport",
@@ -3442,6 +3502,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaAdGroupReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaAdGroupReports",
@@ -3494,6 +3555,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaCampaignPlacementReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaCampaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaCampaignPlacementReports",
@@ -3546,6 +3608,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/listHsaKeywordPlacementReport"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/listHsaKeywordPlacementReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/listHsaKeywordPlacementReport",
@@ -3598,6 +3661,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/hsaQueryWordReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/hsaQueryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/hsaQueryWordReports",
@@ -3650,6 +3714,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/listHsaTargetingReport"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/listHsaTargetingReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/listHsaTargetingReport",
@@ -3702,6 +3767,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdAdGroupReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdAdGroupReports",
@@ -3754,6 +3820,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/sdMatchTargetReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/sdMatchTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/sdMatchTargetReports",
@@ -3806,6 +3873,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/spAdGroupReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/spAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/spAdGroupReports",
@@ -3858,6 +3926,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/campaignPlacementReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/campaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/campaignPlacementReports",
@@ -3910,6 +3979,7 @@
       "rate_limit_endpoints": [
         "/pb/openapi/newad/asinReports"
       ],
+      "rate_limit_description": "限流：endpoint /pb/openapi/newad/asinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/pb/openapi/newad/asinReports",
@@ -3964,6 +4034,7 @@
       "rate_limit_endpoints": [
         "/bd/profit/report/open/report/seller/list"
       ],
+      "rate_limit_description": "限流：endpoint /bd/profit/report/open/report/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/bd/profit/report/open/report/seller/list",
@@ -4021,6 +4092,7 @@
       "rate_limit_endpoints": [
         "/cost/center/openApi/fba/gather/query"
       ],
+      "rate_limit_description": "限流：endpoint /cost/center/openApi/fba/gather/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/cost/center/openApi/fba/gather/query",
@@ -4069,6 +4141,7 @@
       "rate_limit_endpoints": [
         "/cost/center/openApi/fba/detail/query"
       ],
+      "rate_limit_description": "限流：endpoint /cost/center/openApi/fba/detail/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/cost/center/openApi/fba/detail/query",
@@ -4129,6 +4202,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/openapi/storage/fbaWarehouseDetail"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/openapi/storage/fbaWarehouseDetail，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/openapi/storage/fbaWarehouseDetail",
@@ -4214,6 +4288,7 @@
       "rate_limit_endpoints": [
         "/bd/profit/report/open/report/asin/list"
       ],
+      "rate_limit_description": "限流：endpoint /bd/profit/report/open/report/asin/list，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。",
       "rate_limit_policies": [
         {
           "endpoint": "/bd/profit/report/open/report/asin/list",
@@ -4273,6 +4348,7 @@
       "rate_limit_endpoints": [
         "/api/auth-server/oauth/access-token"
       ],
+      "rate_limit_description": "限流：endpoint /api/auth-server/oauth/access-token，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/api/auth-server/oauth/access-token",
@@ -4312,6 +4388,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/routing/data/local_inventory/productList"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/routing/data/local_inventory/productList",
@@ -4382,6 +4459,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/routing/data/local_inventory/productList"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/routing/data/local_inventory/productList",
@@ -4437,6 +4515,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/seller/allMarketplace"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/seller/allMarketplace，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/seller/allMarketplace",
@@ -4485,6 +4564,7 @@
         "/order/amzod/api/orderDetails/returnInformation",
         "/basicOpen/openapi/salesOrder/multi-channel/list/transaction"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 5 个 endpoint；最严格为 /order/amzod/api/orderList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/order/amzod/api/orderList",
@@ -4620,6 +4700,7 @@
         "/erp/sc/data/seller/lists",
         "/erp/sc/data/seller/allMarketplace"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/mws/orderDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws/orderDetail",
@@ -4685,6 +4766,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/mws/orders"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws/orders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws/orders",
@@ -4746,6 +4828,7 @@
       "rate_limit_endpoints": [
         "/bd/productPerformance/openApi/asinList"
       ],
+      "rate_limit_description": "限流：endpoint /bd/productPerformance/openApi/asinList，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/bd/productPerformance/openApi/asinList",
@@ -4827,6 +4910,7 @@
       "rate_limit_endpoints": [
         "/bd/profit/statistics/open/asin/list"
       ],
+      "rate_limit_description": "限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/bd/profit/statistics/open/asin/list",
@@ -4884,6 +4968,7 @@
       "rate_limit_endpoints": [
         "/bd/profit/statistics/open/parent/asin/list"
       ],
+      "rate_limit_description": "限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/bd/profit/statistics/open/parent/asin/list",
@@ -4956,6 +5041,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/finance/profitReport/order/transcation/list"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/finance/profitReport/order/transcation/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/finance/profitReport/order/transcation/list",
@@ -5088,6 +5174,7 @@
       "rate_limit_endpoints": [
         "/bd/profit/statistics/open/seller/list"
       ],
+      "rate_limit_description": "限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/bd/profit/statistics/open/seller/list",
@@ -5145,6 +5232,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/promotionalActivities/coupon/list"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/promotionalActivities/coupon/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/promotionalActivities/coupon/list",
@@ -5198,6 +5286,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/promotion/listingList"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/promotion/listingList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/promotion/listingList",
@@ -5268,6 +5357,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/promotionalActivities/manage/list"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/promotionalActivities/manage/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/promotionalActivities/manage/list",
@@ -5316,6 +5406,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/promotionalActivities/secKill/list"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/promotionalActivities/secKill/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/promotionalActivities/secKill/list",
@@ -5364,6 +5455,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/promotionalActivities/vipDiscount/list"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/promotionalActivities/vipDiscount/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/promotionalActivities/vipDiscount/list",
@@ -5408,6 +5500,7 @@
       "endpoint": null,
       "docs_path": null,
       "rate_limit_endpoints": [],
+      "rate_limit_description": "限流：本工具不直接调用领星业务 OpenAPI，或仅返回本地网关策略；客户端可并发调用，但不应把它作为业务查询循环。",
       "rate_limit_policies": [],
       "input_schema": {
         "type": "object",
@@ -5438,6 +5531,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/mws_report/refundOrders"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/refundOrders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws_report/refundOrders",
@@ -5490,6 +5584,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/routing/fbaSug/asin/getInfo"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/routing/fbaSug/asin/getInfo，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/routing/fbaSug/asin/getInfo",
@@ -5538,6 +5633,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/routing/restocking/analysis/getSummaryList"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/routing/restocking/analysis/getSummaryList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/routing/restocking/analysis/getSummaryList",
@@ -5589,6 +5685,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/report/create/reportExportTask"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/report/create/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/report/create/reportExportTask",
@@ -5655,6 +5752,7 @@
         "/basicOpen/report/query/reportExportTask",
         "/basicOpen/report/amazonReportExportTask"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 2 个 endpoint；最严格为 /basicOpen/report/query/reportExportTask 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/report/query/reportExportTask",
@@ -5718,6 +5816,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/report/query/reportExportTask"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/report/query/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/report/query/reportExportTask",
@@ -5769,6 +5868,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/report/amazonReportExportTask"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/report/amazonReportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/report/amazonReportExportTask",
@@ -5823,6 +5923,7 @@
         "/basicOpen/promotionalActivities/vipDiscount/list",
         "/basicOpen/promotionalActivities/coupon/list"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 5 个 endpoint；最严格为 /basicOpen/promotion/listingList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/promotion/listingList",
@@ -5915,6 +6016,7 @@
       "rate_limit_endpoints": [
         "/basicOpen/salesAnalysis/returnOrder/analysisLists"
       ],
+      "rate_limit_description": "限流：endpoint /basicOpen/salesAnalysis/returnOrder/analysisLists，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/basicOpen/salesAnalysis/returnOrder/analysisLists",
@@ -6000,6 +6102,7 @@
         "/erp/sc/data/seller/lists",
         "/erp/sc/data/seller/allMarketplace"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/seller/lists",
@@ -6061,6 +6164,7 @@
         "/erp/sc/data/mws_report/allOrders",
         "/erp/sc/data/mws_report/manageInventory"
       ],
+      "rate_limit_description": "限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/seller/lists",
@@ -6202,6 +6306,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/mws_report/allOrders"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws_report/allOrders",
@@ -6252,6 +6357,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/mws_report/dailyInventory"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws_report/dailyInventory",
@@ -6294,6 +6400,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/mws_report/manageInventory"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/manageInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws_report/manageInventory",
@@ -6332,6 +6439,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/mws_report/reservedInventory"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/reservedInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws_report/reservedInventory",
@@ -6371,6 +6479,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/mws_report/transaction"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/mws_report/transaction",
@@ -6415,6 +6524,7 @@
       "rate_limit_endpoints": [
         "/erp/sc/data/sales_report/sales"
       ],
+      "rate_limit_description": "限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
       "rate_limit_policies": [
         {
           "endpoint": "/erp/sc/data/sales_report/sales",
@@ -6444,6 +6554,75 @@
           "start_date",
           "end_date"
         ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_voice_of_buyer",
+      "origin": "endpoint_spec",
+      "category": "source",
+      "description": "查询买家之声列表，返回 ASIN/MSKU/SKU 的满意度状况、不满意率、不满意订单数、订单总数、主要退货原因和退货标记。",
+      "required_args": [],
+      "optional_args": [
+        "fulfillment_channel",
+        "sids",
+        "pxc_health",
+        "search_field",
+        "search_value",
+        "return_badge"
+      ],
+      "endpoint": "/basicOpen/customerService/voiceOfBuyer/list",
+      "docs_path": "docs/Service/voiceOfBuyerList.md",
+      "rate_limit_endpoints": [
+        "/basicOpen/customerService/voiceOfBuyer/list"
+      ],
+      "rate_limit_description": "限流：endpoint /basicOpen/customerService/voiceOfBuyer/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。",
+      "rate_limit_policies": [
+        {
+          "endpoint": "/basicOpen/customerService/voiceOfBuyer/list",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "fulfillment_channel": {
+            "type": "string"
+          },
+          "sids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "pxc_health": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search_field": {
+            "type": "string"
+          },
+          "search_value": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "return_badge": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [],
         "additionalProperties": false
       }
     }

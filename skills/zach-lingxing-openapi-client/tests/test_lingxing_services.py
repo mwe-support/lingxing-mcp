@@ -105,6 +105,24 @@ class FakeClient:
             return PagedRows(rows=[{"sid": 101, "profit": 12.5}], page_count=2, total=1)
         if path == "/erp/sc/data/mws_report/allOrders":
             return PagedRows(rows=[{"amazon_order_id": "ALL-1"}], page_count=1, total=1)
+        if path == "/basicOpen/customerService/voiceOfBuyer/list":
+            return PagedRows(
+                rows=[
+                    {
+                        "sid": "101",
+                        "asin": "B0TARGET",
+                        "msku": "MSKU-1",
+                        "sku": "SKU-1",
+                        "fulfillment_channel": "FBA",
+                        "ncx_rate": "0.9000",
+                        "ncx_count": 3,
+                        "order_count": 5,
+                        "pcx_health_text": "良好",
+                    }
+                ],
+                page_count=1,
+                total=1,
+            )
         if path == "/erp/sc/data/mws_report/manageInventory":
             return PagedRows(rows=[{"asin": "B0TARGET", "available": 9}], page_count=1, total=1)
         if path == "/pb/openapi/newad/spProductAdReports":
@@ -283,6 +301,30 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(result["data"][0]["profit"], 12.5)
         self.assertEqual(result["meta"]["page_count"], 2)
+
+    def test_run_endpoint_spec_supports_voice_of_buyer_filters(self) -> None:
+        result = self.service.run_endpoint_spec(
+            "lingxing_voice_of_buyer",
+            {
+                "sids": [101],
+                "fulfillment_channel": "FBA",
+                "pxc_health": ["3"],
+                "search_field": "msku",
+                "search_value": ["MSKU-1"],
+                "return_badge": ["Yes", "At_Risk"],
+            },
+        )
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"][0]["asin"], "B0TARGET")
+        path, body, kwargs = self.service.client.post_calls[-1]
+        self.assertEqual(path, "/basicOpen/customerService/voiceOfBuyer/list")
+        self.assertEqual(body["length"], 200)
+        self.assertEqual(body["sids"], [101])
+        self.assertEqual(body["pxc_health"], ["3"])
+        self.assertEqual(body["search_value"], ["MSKU-1"])
+        self.assertEqual(body["return_badge"], ["Yes", "At_Risk"])
+        self.assertEqual(kwargs["data_path"], "data")
+        self.assertEqual(kwargs["total_path"], "total")
 
     def test_multi_channel_orders_enriches_optional_details(self) -> None:
         from lib.lingxing_openapi.multi_channel_orders import MultiChannelOrderQuery

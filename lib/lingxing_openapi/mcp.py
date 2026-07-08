@@ -109,6 +109,7 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_multi_channel_orders",
         "lingxing_refund_orders",
         "lingxing_return_analysis",
+        "lingxing_voice_of_buyer",
     }
     | OPERATIONS_AD_TOOL_NAMES
     | REPORT_ACCESS_TOOL_NAMES,
