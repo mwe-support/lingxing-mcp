@@ -8,6 +8,7 @@ import json
 import os
 import sys
 import tomllib
+import urllib.error
 import urllib.request
 from datetime import datetime
 from pathlib import Path
@@ -55,6 +56,7 @@ def _connection(args: argparse.Namespace) -> tuple[str, dict[str, str]]:
         headers["X-Mcp-Key"] = mcp_key
     headers["Accept"] = "application/json, text/event-stream"
     headers["Content-Type"] = "application/json"
+    headers.setdefault("User-Agent", "Codex-Lingxing-MCP-Exporter/1.0")
     return url, headers
 
 
@@ -69,8 +71,12 @@ def _call_tool(url: str, headers: dict[str, str], tool_name: str, arguments: dic
         ensure_ascii=False,
     ).encode("utf-8")
     request = urllib.request.Request(url, data=request_body, headers=headers, method="POST")
-    with urllib.request.urlopen(request, timeout=600) as response:
-        payload = json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(request, timeout=600) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read(500).decode("utf-8", errors="replace")
+        raise RuntimeError(f"MCP HTTP {exc.code}: {detail}") from exc
     if payload.get("error"):
         raise RuntimeError(str(payload["error"]))
     result = payload.get("result") or {}

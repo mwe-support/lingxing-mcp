@@ -14,6 +14,8 @@
 
 认证值不会写入 Excel，也不会打印到终端。
 
+导出器会发送固定的 `Codex-Lingxing-MCP-Exporter/1.0` User-Agent，避免 Cloudflare 将 Python 默认 `urllib` 客户端误判为受限浏览器签名。
+
 ## 导出方式
 
 全店铺发货结算报告：

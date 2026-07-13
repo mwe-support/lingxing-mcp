@@ -20,6 +20,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Added `scripts/export_mcp_xlsx.py` and the dependency-free `lib/lingxing_openapi/xlsx_export.py` writer.
 - One exporter run makes one MCP `tools/call`; all official pagination remains inside the MCP service, and the client does not loop over SID or seller ID.
 - Full records stay inside the exporter process. Terminal and MCP text content contain compact metadata only, while the generated `.xlsx` includes all verified rows.
+- The exporter uses an explicit non-secret User-Agent so Cloudflare does not reject Python's default `urllib` signature with error 1010.
 - Added `docs/mcp-excel-export.md` with MCP-only Codex prompting, authentication sources, targeted/full-store examples, pagination guarantees, and truncation checks.
 
 ### Removed Tools
@@ -40,7 +41,17 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Tool descriptions use MCP invocation language and do not instruct agents to operate the Lingxing browser UI.
 
 ### Validation
-- Local and remote compile, unit, role-permission, release-audit, service restart, live `tools/list`, and MCP-only comparison results are recorded after deployment below.
+- `python -m compileall -q lib mcp-servers scripts skills` passed locally and remotely.
+- OpenAPI/client/service tests passed locally and remotely: 34 tests.
+- MCP/auth/server tests passed locally and remotely: 8 tests.
+- `validate_role_permissions.py` passed with `minimal_count=13`, `operations_count=75`, and `finance_count=21`.
+- Production `LINGXING_MCP_ROLE_TOOLS` was backed up at `/etc/lingxing-mcp/lingxing-mcp.env.backup-20260713223531`; `operations` was updated from 73 to 75 tools, while `codex_ads_test` remained at 28.
+- `lingxing-mcp.service` restarted successfully and remained `active`; `/healthz` reported 15 active member tokens.
+- Live HTTP MCP `tools/list` returned 75 tools for `operations` and 21 for `finance`. Both roles included both new tools, `response_mode`, and visible `限流：` guidance.
+- MCP-only Excel smoke test for the all-store shipment settlement report completed with zero rows for `2026-06-01` through `2026-06-30`; the empty workbook remained valid.
+- MCP-only Excel comparison for sales outbound orders used the same date range: all stores returned 729 rows across 4 pages, while SID 7806 returned 79 rows across 1 page. All 79 filtered `wo_number` values were present in the all-store workbook, and every filtered row had SID 7806.
+- The two comparison workbooks were generated without printing record JSON: `lingxing-sales-outbound-all-2026-06.xlsx` and `lingxing-sales-outbound-sid-7806-2026-06.xlsx`.
+- The required release audit could not run because neither `/public/_templates/scripts/release_audit.py` nor `/public/lingxing-mcp/scripts/release_audit.py` exists. This repository/template gap is recorded rather than reported as a passing audit.
 
 ## 2026-07-08
 
