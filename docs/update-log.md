@@ -29,7 +29,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ### Existing Tool Changes
 - `lingxing_profit_report_order_list`: added compact `response_mode` and `preview_limit` behavior for safe large-result handling; no endpoint change.
-- `lingxing_shipment_settlement_report`: all-store selection now sends only active (`status=1`) Amazon stores. Explicit SID or seller-ID filters can still target inactive stores.
+- `lingxing_shipment_settlement_report`: all-store selection now sends only active (`status=1`) Amazon stores. Explicit SID or seller-ID filters can still target inactive stores. Selected stores are grouped by `marketplace_code` inside the service before pagination because a mixed-marketplace request can return an empty result; clients still make one MCP call.
 - `lingxing_sales_outbound_orders`: no MCP schema change; Excel output now follows the ERP web export and expands product details.
 
 ### Removed Tools
@@ -51,13 +51,13 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ### Validation
 - `python -m compileall -q lib mcp-servers scripts skills` passed locally and remotely.
-- OpenAPI/client/service tests passed locally and remotely: 34 tests.
+- OpenAPI/client/service tests passed locally and remotely: 41 tests.
 - MCP/auth/server tests passed locally and remotely: 8 tests.
 - `validate_role_permissions.py` passed with `minimal_count=13`, `operations_count=75`, and `finance_count=22`.
 - Production `LINGXING_MCP_ROLE_TOOLS` was backed up at `/etc/lingxing-mcp/lingxing-mcp.env.backup-20260713223531`; `operations` was updated from 73 to 75 tools, while `codex_ads_test` remained at 28.
 - `lingxing-mcp.service` restarted successfully and remained `active`; `/healthz` reported 15 active member tokens.
 - Live HTTP MCP `tools/list` returned 75 tools for `operations` and 22 for `finance`. Both roles included all three exportable report tools, `response_mode`, and visible `限流：` guidance.
-- The first all-store shipment settlement smoke test returned zero rows because inactive stores were included in the paired SID/seller-ID arrays. The active-store-only selection fix is covered by unit tests and requires a post-deployment rerun.
+- The first all-store shipment settlement smoke test returned zero rows. Further live diagnosis showed the decisive upstream behavior: 20 active US stores returned 6314 rows, while a mixed-marketplace array returned zero. The service now groups by marketplace internally; active-store filtering remains in place to keep the default scope operationally correct.
 - MCP-only Excel comparison for sales outbound orders used the same date range: all stores returned 729 rows across 4 pages, while SID 7806 returned 79 rows across 1 page. All 79 filtered `wo_number` values were present in the all-store workbook, and every filtered row had SID 7806.
 - The two comparison workbooks were generated without printing record JSON: `lingxing-sales-outbound-all-2026-06.xlsx` and `lingxing-sales-outbound-sid-7806-2026-06.xlsx`.
 - The required release audit could not run because neither `/public/_templates/scripts/release_audit.py` nor `/public/lingxing-mcp/scripts/release_audit.py` exists. This repository/template gap is recorded rather than reported as a passing audit.

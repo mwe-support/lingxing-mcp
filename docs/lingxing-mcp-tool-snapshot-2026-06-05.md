@@ -1,6 +1,6 @@
 # Lingxing MCP Tool Snapshot
 
-Generated: 2026-07-13 23:17:46
+Generated: 2026-07-13 23:32:28
 Source: LingxingMCPApplication built-in role defaults
 Registered tools: 112
 
@@ -232,7 +232,7 @@ Registered tools: 112
 | 101 | `lingxing_return_analysis` | `endpoint_spec` | `source` | startDate, endDate, asinType, dateType | mids, principalUid, searchField, searchValue, sortField, sortType, storeId | `/basicOpen/salesAnalysis/returnOrder/analysisLists` | 限流：endpoint /basicOpen/salesAnalysis/returnOrder/analysisLists，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询退货分析，按 MSKU / ASIN / 父 ASIN / SKU / SPU 等维度统计退货数量、退货件数、退货率和退货原因相关指标。 |
 | 102 | `lingxing_sales_outbound_orders` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, status, logistics_status, platform_order_numbers, system_order_numbers, outbound_order_numbers, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询 ERP 销售出库单。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时省略官方 sid_arr，一次 MCP 调用查询全部店铺，并按官方每页 200 条限制合并全部分页。默认 time_type=stock_delivered_at，按库存流水出库时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
 | 103 | `lingxing_seller_lists` | `manual` | `manual` | None | status, marketplace | `Manual` | 限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。 |
-| 104 | `lingxing_shipment_settlement_report` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, country_codes, order_numbers, shipment_numbers, custom_numbers, mskus, skus, product_names, track_codes, fulfillment_type, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺，并按官方每页 1000 条限制合并全部分页。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
+| 104 | `lingxing_shipment_settlement_report` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, country_codes, order_numbers, shipment_numbers, custom_numbers, mskus, skus, product_names, track_codes, fulfillment_type, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺；服务端按站点分组请求，并按官方每页 1000 条限制合并全部分页，避免跨站点混合数组返回空结果。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
 | 105 | `lingxing_smoke_check` | `manual` | `manual` | None | sid, date | `Manual` | 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
 | 106 | `lingxing_source_all_orders` | `endpoint_spec` | `source` | sid, start_date, end_date | date_type | `/erp/sc/data/mws_report/allOrders` | 限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。 | 亚马逊源表所有订单。 |
 | 107 | `lingxing_source_daily_inventory` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/dailyInventory` | 限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表每日库存。 |
@@ -2317,7 +2317,8 @@ Registered tools: 112
       "type": "integer"
     },
     "search_field": {
-      "type": "string"
+      "type": "string",
+      "default": "seller_sku"
     },
     "search_value": {
       "type": "array",
@@ -2326,10 +2327,12 @@ Registered tools: 112
       }
     },
     "exact_search": {
-      "type": "integer"
+      "type": "integer",
+      "default": 1
     },
     "store_type": {
-      "type": "integer"
+      "type": "integer",
+      "default": 1
     },
     "listing_update_start_time": {
       "type": "string"
@@ -3722,10 +3725,20 @@ Registered tools: 112
       "type": "string"
     },
     "response_mode": {
-      "type": "string"
+      "type": "string",
+      "description": "默认 summary，仅返回预览；full 仅供本地 Excel 导出器调用。",
+      "default": "summary",
+      "enum": [
+        "summary",
+        "full"
+      ]
     },
     "preview_limit": {
-      "type": "integer"
+      "type": "integer",
+      "description": "summary 模式预览条数，默认 20。",
+      "default": 20,
+      "minimum": 0,
+      "maximum": 100
     }
   },
   "required": [
@@ -4520,7 +4533,7 @@ Registered tools: 112
 
 - Origin: `manual`
 - Category: `manual`
-- Description: 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺，并按官方每页 1000 条限制合并全部分页。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。
+- Description: 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺；服务端按站点分组请求，并按官方每页 1000 条限制合并全部分页，避免跨站点混合数组返回空结果。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。
 - Endpoint: `Manual`
 - Docs path: `docs/Finance/SettlementReport.md`
 - Rate-limit endpoints: /erp/sc/data/seller/lists, /erp/sc/data/seller/allMarketplace, /cost/center/api/settlement/report

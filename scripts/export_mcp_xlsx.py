@@ -27,6 +27,7 @@ SUPPORTED_TOOLS = {
     "lingxing_profit_report_order_list": "profit_report_order_transaction",
     "lingxing_sales_outbound_orders": "sales_outbound_orders",
 }
+RESERVED_ARGUMENTS = {"start_date", "end_date", "response_mode", "sids", "amazon_seller_ids"}
 
 
 def _load_codex_server(config_path: Path, server_name: str) -> tuple[str, dict[str, str]]:
@@ -106,11 +107,10 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> int:
-    args = _parser().parse_args()
-    extra = json.loads(args.arguments_json)
-    if not isinstance(extra, dict):
-        raise RuntimeError("--arguments-json 必须是 JSON 对象")
+def _build_arguments(args: argparse.Namespace, extra: dict[str, Any]) -> dict[str, Any]:
+    reserved = sorted(RESERVED_ARGUMENTS.intersection(extra))
+    if reserved:
+        raise RuntimeError(f"--arguments-json 不能包含保留参数: {', '.join(reserved)}")
     arguments = dict(extra)
     arguments.update(
         {
@@ -125,6 +125,15 @@ def main() -> int:
         if args.tool == "lingxing_profit_report_order_list":
             raise RuntimeError("利润报表 Transaction 接口仅支持 --sid，不支持 --seller-id")
         arguments["amazon_seller_ids"] = args.seller_ids
+    return arguments
+
+
+def main() -> int:
+    args = _parser().parse_args()
+    extra = json.loads(args.arguments_json)
+    if not isinstance(extra, dict):
+        raise RuntimeError("--arguments-json 必须是 JSON 对象")
+    arguments = _build_arguments(args, extra)
 
     url, headers = _connection(args)
     result = _call_tool(url, headers, args.tool, arguments)

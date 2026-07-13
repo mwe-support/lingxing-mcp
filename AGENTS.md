@@ -107,6 +107,7 @@ Use the shared client and service layer instead of hand-rolled HTTP calls.
 - Large paginated report tools must default to a compact summary or bounded preview. Do not return an unbounded record list to an LLM by default.
 - Keep `response_mode=full` available only for non-interactive export orchestration such as `scripts/export_mcp_xlsx.py`; tool descriptions and docs must warn agents not to call full mode directly into model context.
 - Full-store exports must remain one MCP call. The service may paginate internally, but clients must not loop over SID or seller ID when the upstream endpoint supports an all-store request.
+- If a nominal all-store endpoint fails for mixed marketplaces, keep one client MCP call and group by `marketplace_code` inside the service, with independent pagination and an explicit warning in the result metadata.
 - Export scripts must consume the MCP response inside the local process, write the artifact directly, and print only compact metadata. Never print full business records or authentication headers.
 - Before writing an artifact, verify that returned and expected record counts match. Refuse to create a silently truncated Excel file.
 - Keep supported finance/outbound Excel exports aligned with actual Lingxing ERP web-export headers, sheet names, text identifiers, number formats, grouped headers, and item-row expansion. Preserve fixed headers for zero-row exports.

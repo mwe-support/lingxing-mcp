@@ -668,7 +668,8 @@ class LingxingMCPApplication:
                 name="lingxing_shipment_settlement_report",
                 description=(
                     "通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；"
-                    "两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺，并按官方每页 1000 条限制合并全部分页。"
+                    "两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺；服务端按站点分组请求，"
+                    "并按官方每页 1000 条限制合并全部分页，避免跨站点混合数组返回空结果。"
                     "默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，"
                     "避免把全量 JSON 放入模型上下文。"
                 ),

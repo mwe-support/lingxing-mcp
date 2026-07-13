@@ -4,8 +4,9 @@ import sys
 import tempfile
 import unittest
 import zipfile
-from xml.etree import ElementTree
 from pathlib import Path
+from types import SimpleNamespace
+from xml.etree import ElementTree
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -13,9 +14,21 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lib.lingxing_openapi.xlsx_export import write_records_xlsx  # noqa: E402
+from scripts.export_mcp_xlsx import _build_arguments  # noqa: E402
 
 
 class XlsxExportTests(unittest.TestCase):
+    def test_exporter_rejects_scope_overrides_in_arguments_json(self) -> None:
+        args = SimpleNamespace(
+            start_date="2026-06-01",
+            end_date="2026-06-30",
+            sids=None,
+            seller_ids=None,
+            tool="lingxing_shipment_settlement_report",
+        )
+        with self.assertRaisesRegex(RuntimeError, "保留参数: sids"):
+            _build_arguments(args, {"sids": [7806]})
+
     def test_write_records_xlsx_creates_valid_ooxml_with_flattened_columns(self) -> None:
         rows = [
             {"order": "A-1", "amount": 12.5, "store": {"sid": 101}, "tags": ["FBA", "DE"]},

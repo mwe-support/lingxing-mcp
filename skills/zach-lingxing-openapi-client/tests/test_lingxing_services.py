@@ -430,6 +430,31 @@ class LingxingServiceTests(unittest.TestCase):
         _, body, _ = self.service.client.post_calls[-1]
         self.assertEqual(body["sids"], [202])
 
+    def test_shipment_settlement_report_groups_cross_marketplace_stores_server_side(self) -> None:
+        class CrossMarketplaceClient(FakeClient):
+            def get_json(self, path: str, query_params: dict | None = None) -> dict:
+                payload = super().get_json(path, query_params)
+                if path == "/erp/sc/data/seller/allMarketplace":
+                    payload["data"].append({"mid": 2, "code": "DE", "marketplace_id": "A1PAUSEDMARKET"})
+                if path == "/erp/sc/data/seller/lists":
+                    payload["data"][1]["mid"] = 2
+                    payload["data"][1]["status"] = 1
+                return payload
+
+        service = LingxingOpenAPIService(client=CrossMarketplaceClient())
+        result = service.shipment_settlement_report(
+            start_date="2026-06-01",
+            end_date="2026-06-30",
+            response_mode="full",
+        )
+
+        calls = [call for call in service.client.post_calls if call[0] == "/cost/center/api/settlement/report"]
+        self.assertEqual(len(calls), 2)
+        self.assertEqual([call[1]["sids"] for call in calls], [[202], [101]])
+        self.assertEqual(result["meta"]["store_group_count"], 2)
+        self.assertEqual(result["meta"]["page_count"], 4)
+        self.assertEqual(result["data"]["record_count"], 2)
+
     def test_sales_outbound_orders_omits_sid_filter_for_all_store_export(self) -> None:
         result = self.service.sales_outbound_orders(
             start_date="2026-06-01",
@@ -485,6 +510,7 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertEqual(summary["data"]["record_count"], 1)
         self.assertEqual(summary["data"]["returned_count"], 0)
         self.assertNotIn("orderId", summary["data"])
+        self.assertTrue(any("摘要模式" in warning for warning in summary["warnings"]))
 
         full = self.service.run_endpoint_spec(
             "lingxing_profit_report_order_list",

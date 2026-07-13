@@ -86,6 +86,9 @@ class LingxingMCPTests(unittest.TestCase):
             self.assertIn("sids", transaction_schema["properties"])
             self.assertIn("response_mode", transaction_schema["properties"])
             self.assertIn("preview_limit", transaction_schema["properties"])
+            self.assertEqual(transaction_schema["properties"]["response_mode"]["enum"], ["summary", "full"])
+            self.assertEqual(transaction_schema["properties"]["preview_limit"]["minimum"], 0)
+            self.assertEqual(transaction_schema["properties"]["preview_limit"]["maximum"], 100)
 
     def test_stdio_can_list_tools_and_call_health_check(self) -> None:
         process = subprocess.Popen(

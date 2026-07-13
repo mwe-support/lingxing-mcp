@@ -13,17 +13,32 @@ class ToolArg:
     required: bool = False
     description: str = ""
     default: Any = None
+    enum: tuple[Any, ...] = ()
+    minimum: int | None = None
+    maximum: int | None = None
 
     def schema_property(self) -> dict[str, Any]:
         if self.arg_type == "integer":
-            return {"type": "integer"}
-        if self.arg_type == "boolean":
-            return {"type": "boolean"}
-        if self.arg_type == "array_string":
-            return {"type": "array", "items": {"type": "string"}}
-        if self.arg_type == "array_integer":
-            return {"type": "array", "items": {"type": "integer"}}
-        return {"type": "string"}
+            schema: dict[str, Any] = {"type": "integer"}
+        elif self.arg_type == "boolean":
+            schema = {"type": "boolean"}
+        elif self.arg_type == "array_string":
+            schema = {"type": "array", "items": {"type": "string"}}
+        elif self.arg_type == "array_integer":
+            schema = {"type": "array", "items": {"type": "integer"}}
+        else:
+            schema = {"type": "string"}
+        if self.description:
+            schema["description"] = self.description
+        if self.default is not None:
+            schema["default"] = self.default
+        if self.enum:
+            schema["enum"] = list(self.enum)
+        if self.minimum is not None:
+            schema["minimum"] = self.minimum
+        if self.maximum is not None:
+            schema["maximum"] = self.maximum
+        return schema
 
 
 @dataclass(frozen=True)
@@ -118,8 +133,21 @@ PROFIT_REPORT_ORDER_LIST_ARGS = (
     _s("order_status"),
     _s("gmt_modified_start_date"),
     _s("gmt_modified_end_date"),
-    _s("response_mode", default="summary"),
-    _i("preview_limit", default=20),
+    ToolArg(
+        name="response_mode",
+        arg_type="string",
+        description="默认 summary，仅返回预览；full 仅供本地 Excel 导出器调用。",
+        default="summary",
+        enum=("summary", "full"),
+    ),
+    ToolArg(
+        name="preview_limit",
+        arg_type="integer",
+        description="summary 模式预览条数，默认 20。",
+        default=20,
+        minimum=0,
+        maximum=100,
+    ),
 )
 SOURCE_RANGE_ARGS = (
     _i("sid", required=True),

@@ -1476,8 +1476,6 @@ class LingxingOpenAPIService:
             amazon_seller_ids=amazon_seller_ids,
         )
         body: dict[str, Any] = {
-            "amazonSellerIds": [str(item["seller_id"]) for item in sellers],
-            "sids": [int(item["sid"]) for item in sellers],
             "timeType": time_type,
             "filterBeginDate": start_date,
             "filterEndDate": end_date,
@@ -1501,15 +1499,34 @@ class LingxingOpenAPIService:
         if fulfillment_type:
             body["fulfillmentType"] = str(fulfillment_type)
 
-        page = self.client.paged_post_detailed(
-            endpoint,
-            body,
-            page_size=1000,
-            data_path="data.records",
-            total_path="data.total",
-        )
+        seller_groups: dict[str, list[dict[str, Any]]] = {}
+        for seller in sellers:
+            group_key = str(seller.get("marketplace_code") or seller.get("mid") or "unknown")
+            seller_groups.setdefault(group_key, []).append(seller)
+        rows: list[dict[str, Any]] = []
+        page_count = 0
+        for group_key in sorted(seller_groups):
+            group = seller_groups[group_key]
+            group_body = {
+                **body,
+                "amazonSellerIds": [str(item["seller_id"]) for item in group],
+                "sids": [int(item["sid"]) for item in group],
+            }
+            page = self.client.paged_post_detailed(
+                endpoint,
+                group_body,
+                page_size=1000,
+                data_path="data.records",
+                total_path="data.total",
+            )
+            rows.extend(page.rows)
+            page_count += page.page_count
+        if len(seller_groups) > 1:
+            warnings.append(
+                f"结算接口已按 {len(seller_groups)} 个站点分组请求并在服务端合并；客户端仍为一次 MCP 调用。"
+            )
         data = self._large_report_data(
-            page.rows,
+            rows,
             response_mode=normalized_mode,
             preview_limit=preview_limit,
             warnings=warnings,
@@ -1517,7 +1534,7 @@ class LingxingOpenAPIService:
         return self._result(
             data=data,
             endpoint=endpoint,
-            page_count=page.page_count,
+            page_count=page_count,
             warnings=warnings,
             date_range=f"{start_date}~{end_date}",
             extra_meta={
@@ -1525,8 +1542,9 @@ class LingxingOpenAPIService:
                 "store_scope": "filtered" if sids or amazon_seller_ids else "all",
                 "selected_store_count": len(sellers),
                 "selected_store_status": "explicit" if sids or amazon_seller_ids else "active",
+                "store_group_count": len(seller_groups),
                 "page_size": 1000,
-                "pagination_mode": "offset",
+                "pagination_mode": "offset_by_marketplace",
                 "response_mode": normalized_mode,
             },
         )
@@ -1852,16 +1870,18 @@ class LingxingOpenAPIService:
             data_path=spec.data_path,
             total_path=spec.total_path,
         )
+        warnings: list[str] = []
         data = self._large_report_data(
             page.rows,
             response_mode=normalized_mode,
             preview_limit=preview_limit,
-            warnings=[],
+            warnings=warnings,
         )
         return self._result(
             data=data,
             endpoint=spec.endpoint,
             page_count=page.page_count,
+            warnings=warnings,
             sid=None,
             date_range=f"{body['startDate']}~{body['endDate']}",
             extra_meta={
