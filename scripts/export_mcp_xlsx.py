@@ -23,8 +23,9 @@ from lib.lingxing_openapi.xlsx_export import write_records_xlsx  # noqa: E402
 
 
 SUPPORTED_TOOLS = {
-    "lingxing_shipment_settlement_report": "ShipmentSettlement",
-    "lingxing_sales_outbound_orders": "SalesOutboundOrders",
+    "lingxing_shipment_settlement_report": "shipment_settlement",
+    "lingxing_profit_report_order_list": "profit_report_order_transaction",
+    "lingxing_sales_outbound_orders": "sales_outbound_orders",
 }
 
 
@@ -121,6 +122,8 @@ def main() -> int:
     if args.sids:
         arguments["sids"] = args.sids
     if args.seller_ids:
+        if args.tool == "lingxing_profit_report_order_list":
+            raise RuntimeError("利润报表 Transaction 接口仅支持 --sid，不支持 --seller-id")
         arguments["amazon_seller_ids"] = args.seller_ids
 
     url, headers = _connection(args)
@@ -134,7 +137,7 @@ def main() -> int:
     if output is None:
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         output = Path.cwd() / f"{args.tool}-{args.start_date}-{args.end_date}-{stamp}.xlsx"
-    summary = write_records_xlsx(records, output, sheet_name=SUPPORTED_TOOLS[args.tool])
+    summary = write_records_xlsx(records, output, profile=SUPPORTED_TOOLS[args.tool])
     summary.update(
         {
             "ok": True,

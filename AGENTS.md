@@ -27,6 +27,8 @@ Important positioning from repository docs:
 - `lib/lingxing_openapi/services.py`: business service layer and high-level aggregation tools.
 - `lib/lingxing_openapi/endpoint_specs.py`: declarative MCP endpoint specs for simple read APIs.
 - `lib/lingxing_openapi/ad_management.py`: advertising management write-tool metadata and safety-oriented request specs.
+- `lib/lingxing_openapi/xlsx_profiles.py`: fixed Lingxing ERP web-export column layouts and field normalization.
+- `lib/lingxing_openapi/xlsx_export.py`: dependency-free XLSX writer used by MCP export orchestration.
 - `lib/lingxing_openapi/mcp.py`: MCP tool registry, allowlist filtering, stdio/HTTP JSON-RPC handling.
 - `mcp-servers/lingxing-openapi/server.py`: stdio MCP entrypoint.
 - `mcp-servers/lingxing-openapi/http_server.py`: HTTP MCP entrypoint.
@@ -107,6 +109,8 @@ Use the shared client and service layer instead of hand-rolled HTTP calls.
 - Full-store exports must remain one MCP call. The service may paginate internally, but clients must not loop over SID or seller ID when the upstream endpoint supports an all-store request.
 - Export scripts must consume the MCP response inside the local process, write the artifact directly, and print only compact metadata. Never print full business records or authentication headers.
 - Before writing an artifact, verify that returned and expected record counts match. Refuse to create a silently truncated Excel file.
+- Keep supported finance/outbound Excel exports aligned with actual Lingxing ERP web-export headers, sheet names, text identifiers, number formats, grouped headers, and item-row expansion. Preserve fixed headers for zero-row exports.
+- When the ERP web export contains calculated fields that the corresponding OpenAPI response does not expose, keep those columns blank and report them as unavailable. Do not infer financial values by joining reports unless the reconciliation rule is documented and tested against real exports.
 
 ## OpenAPI Rate Limiting
 

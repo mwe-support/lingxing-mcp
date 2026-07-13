@@ -18,10 +18,19 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ### Export Orchestration
 - Added `scripts/export_mcp_xlsx.py` and the dependency-free `lib/lingxing_openapi/xlsx_export.py` writer.
+- Added `lib/lingxing_openapi/xlsx_profiles.py` with fixed ERP web-export layouts for the 52-column shipment settlement report, 56-column Transaction report, and 68-column sales outbound report.
+- Extended the exporter to support the existing `lingxing_profit_report_order_list` tool. All three large-report tools now default to summary mode and reserve `response_mode=full` for the local exporter.
 - One exporter run makes one MCP `tools/call`; all official pagination remains inside the MCP service, and the client does not loop over SID or seller ID.
 - Full records stay inside the exporter process. Terminal and MCP text content contain compact metadata only, while the generated `.xlsx` includes all verified rows.
 - The exporter uses an explicit non-secret User-Agent so Cloudflare does not reject Python's default `urllib` signature with error 1010.
 - Added `docs/mcp-excel-export.md` with MCP-only Codex prompting, authentication sources, targeted/full-store examples, pagination guarantees, and truncation checks.
+- Long identifiers are written as text; empty reports retain fixed headers; outbound `product_info` is expanded to product rows with order-level vertical merges.
+- Columns shown by ERP but absent from the corresponding OpenAPI response remain blank and are reported in `unavailable_columns`; the exporter does not guess finance values by joining unrelated reports.
+
+### Existing Tool Changes
+- `lingxing_profit_report_order_list`: added compact `response_mode` and `preview_limit` behavior for safe large-result handling; no endpoint change.
+- `lingxing_shipment_settlement_report`: all-store selection now sends only active (`status=1`) Amazon stores. Explicit SID or seller-ID filters can still target inactive stores.
+- `lingxing_sales_outbound_orders`: no MCP schema change; Excel output now follows the ERP web export and expands product details.
 
 ### Removed Tools
 - None
@@ -30,25 +39,25 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - `operations`: 73 -> 75
   - Added: `lingxing_shipment_settlement_report`, `lingxing_sales_outbound_orders`
   - Removed: None
-- `finance`: 19 -> 21
-  - Added: `lingxing_shipment_settlement_report`, `lingxing_sales_outbound_orders`
+- `finance`: 19 -> 22
+  - Added: `lingxing_shipment_settlement_report`, `lingxing_sales_outbound_orders`, existing tool `lingxing_profit_report_order_list`
   - Removed: None
 - `minimal`: no change
 
 ### Active Production Role Snapshot
 - `operations`: production override updated to include both new tools.
-- `finance`: both new tools are available through built-in role defaults.
+- `finance`: both new tools and the existing Transaction tool are available through built-in role defaults.
 - Tool descriptions use MCP invocation language and do not instruct agents to operate the Lingxing browser UI.
 
 ### Validation
 - `python -m compileall -q lib mcp-servers scripts skills` passed locally and remotely.
 - OpenAPI/client/service tests passed locally and remotely: 34 tests.
 - MCP/auth/server tests passed locally and remotely: 8 tests.
-- `validate_role_permissions.py` passed with `minimal_count=13`, `operations_count=75`, and `finance_count=21`.
+- `validate_role_permissions.py` passed with `minimal_count=13`, `operations_count=75`, and `finance_count=22`.
 - Production `LINGXING_MCP_ROLE_TOOLS` was backed up at `/etc/lingxing-mcp/lingxing-mcp.env.backup-20260713223531`; `operations` was updated from 73 to 75 tools, while `codex_ads_test` remained at 28.
 - `lingxing-mcp.service` restarted successfully and remained `active`; `/healthz` reported 15 active member tokens.
-- Live HTTP MCP `tools/list` returned 75 tools for `operations` and 21 for `finance`. Both roles included both new tools, `response_mode`, and visible `限流：` guidance.
-- MCP-only Excel smoke test for the all-store shipment settlement report completed with zero rows for `2026-06-01` through `2026-06-30`; the empty workbook remained valid.
+- Live HTTP MCP `tools/list` returned 75 tools for `operations` and 22 for `finance`. Both roles included all three exportable report tools, `response_mode`, and visible `限流：` guidance.
+- The first all-store shipment settlement smoke test returned zero rows because inactive stores were included in the paired SID/seller-ID arrays. The active-store-only selection fix is covered by unit tests and requires a post-deployment rerun.
 - MCP-only Excel comparison for sales outbound orders used the same date range: all stores returned 729 rows across 4 pages, while SID 7806 returned 79 rows across 1 page. All 79 filtered `wo_number` values were present in the all-store workbook, and every filtered row had SID 7806.
 - The two comparison workbooks were generated without printing record JSON: `lingxing-sales-outbound-all-2026-06.xlsx` and `lingxing-sales-outbound-sid-7806-2026-06.xlsx`.
 - The required release audit could not run because neither `/public/_templates/scripts/release_audit.py` nor `/public/lingxing-mcp/scripts/release_audit.py` exists. This repository/template gap is recorded rather than reported as a passing audit.

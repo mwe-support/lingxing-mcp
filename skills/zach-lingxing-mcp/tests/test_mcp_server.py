@@ -65,18 +65,27 @@ class LingxingMCPTests(unittest.TestCase):
 
     def test_finance_and_operations_can_list_full_export_finance_tools(self) -> None:
         app = LingxingMCPApplication()
-        expected = {"lingxing_shipment_settlement_report", "lingxing_sales_outbound_orders"}
+        expected = {
+            "lingxing_shipment_settlement_report",
+            "lingxing_sales_outbound_orders",
+            "lingxing_profit_report_order_list",
+        }
         for role in ("finance", "operations"):
             tools = app.list_tools(AuthMatch(mode="test", token_id=role, description="test", role=role))
             by_name = {tool["name"]: tool for tool in tools}
             self.assertTrue(expected.issubset(by_name), f"{role} missing {sorted(expected - set(by_name))}")
-            for tool_name in expected:
+            for tool_name in {"lingxing_shipment_settlement_report", "lingxing_sales_outbound_orders"}:
                 schema = by_name[tool_name]["inputSchema"]
                 self.assertEqual(schema["required"], ["start_date", "end_date"])
                 self.assertIn("sids", schema["properties"])
                 self.assertIn("amazon_seller_ids", schema["properties"])
                 self.assertEqual(schema["properties"]["response_mode"]["enum"], ["summary", "full"])
                 self.assertIn("preview_limit", schema["properties"])
+            transaction_schema = by_name["lingxing_profit_report_order_list"]["inputSchema"]
+            self.assertEqual(transaction_schema["required"], ["start_date", "end_date"])
+            self.assertIn("sids", transaction_schema["properties"])
+            self.assertIn("response_mode", transaction_schema["properties"])
+            self.assertIn("preview_limit", transaction_schema["properties"])
 
     def test_stdio_can_list_tools_and_call_health_check(self) -> None:
         process = subprocess.Popen(

@@ -10,13 +10,15 @@
 - 传 `sids`：按领星店铺 SID 查询，并自动补齐对应 `seller_id`。
 - 传 `amazon_seller_ids`：按亚马逊 seller ID 查询，并自动补齐对应 SID。
 - 同时传两者：校验 SID 与 seller ID 映射一致。
-- 均不传：自动读取全部亚马逊店铺，在一次 MCP 调用中提交完整 `sids` 和 `amazonSellerIds` 数组。
+- 均不传：自动读取全部状态为启用的亚马逊店铺，在一次 MCP 调用中提交完整 `sids` 和 `amazonSellerIds` 数组；停用店铺不进入默认全量范围。
 
-全量模式要求每个店铺都同时具备 SID 和 seller ID；只要发现缺失配对的店铺，工具会直接失败并提示修复资料，避免以“全部店铺”名义静默漏数。
+全量模式要求每个启用店铺都同时具备 SID 和 seller ID；只要发现缺失配对的启用店铺，工具会直接失败并提示修复资料。显式传入 SID 或 seller ID 时仍可查询停用店铺。
 
 `start_date`、`end_date` 必填。`time_type` 默认 `04`，表示按结算时间筛选。
 
 默认 `response_mode=summary`，只返回前 20 条预览以及完整记录数。`preview_limit` 可设为 0 到 100。`response_mode=full` 会返回全部明细，仅供 `scripts/export_mcp_xlsx.py` 在进程内生成 Excel，不应由模型直接调用。
+
+Excel 使用领星 ERP 网页端`结算差异报告`的固定 52 列顺序。OpenAPI 未返回的到账状态、平台费、发货费、成本和毛利列会保留为空，并在导出摘要的 `unavailable_columns` 中列出。
 
 ## 分页
 

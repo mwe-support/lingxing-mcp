@@ -1403,14 +1403,19 @@ class LingxingOpenAPIService:
         requested_seller_ids = list(dict.fromkeys(_listify_strings(amazon_seller_ids)))
         sid_filter = set(requested_sids)
         seller_id_filter = set(requested_seller_ids)
+        explicit_scope = bool(sid_filter or seller_id_filter)
         selected: list[dict[str, Any]] = []
         skipped_without_pair = 0
+        skipped_inactive = 0
         for seller in self.seller_lists()["data"]:
             sid = int(seller.get("sid") or 0)
             seller_id = str(seller.get("seller_id") or "").strip()
             if sid_filter and sid not in sid_filter:
                 continue
             if seller_id_filter and seller_id not in seller_id_filter:
+                continue
+            if not explicit_scope and str(seller.get("status") or "") != "1":
+                skipped_inactive += 1
                 continue
             if not sid or not seller_id:
                 skipped_without_pair += 1
@@ -1436,6 +1441,8 @@ class LingxingOpenAPIService:
             raise LingxingConfigError("没有可用于查询的亚马逊店铺 sid/seller_id 对")
 
         warnings: list[str] = []
+        if skipped_inactive:
+            warnings.append(f"全量查询已跳过 {skipped_inactive} 个非启用店铺。")
         if skipped_without_pair:
             warnings.append(f"已跳过 {skipped_without_pair} 个缺少 sid 或 seller_id 的店铺。")
         return selected, warnings
@@ -1517,6 +1524,7 @@ class LingxingOpenAPIService:
                 "docs_path": "docs/Finance/SettlementReport.md",
                 "store_scope": "filtered" if sids or amazon_seller_ids else "all",
                 "selected_store_count": len(sellers),
+                "selected_store_status": "explicit" if sids or amazon_seller_ids else "active",
                 "page_size": 1000,
                 "pagination_mode": "offset",
                 "response_mode": normalized_mode,
@@ -1791,6 +1799,10 @@ class LingxingOpenAPIService:
         )
 
     def _run_profit_report_order_spec(self, spec: EndpointSpec, args: dict[str, Any]) -> dict[str, Any]:
+        normalized_mode, preview_limit = self._normalize_large_report_options(
+            str(args.get("response_mode") or "summary"),
+            20 if args.get("preview_limit") is None else int(args["preview_limit"]),
+        )
         body: dict[str, Any] = {
             "offset": 0,
             "length": spec.page_size,
@@ -1840,8 +1852,14 @@ class LingxingOpenAPIService:
             data_path=spec.data_path,
             total_path=spec.total_path,
         )
+        data = self._large_report_data(
+            page.rows,
+            response_mode=normalized_mode,
+            preview_limit=preview_limit,
+            warnings=[],
+        )
         return self._result(
-            data=page.rows,
+            data=data,
             endpoint=spec.endpoint,
             page_count=page.page_count,
             sid=None,
@@ -1853,6 +1871,9 @@ class LingxingOpenAPIService:
                     "listing_owner": "principalUids",
                     "search_date_field": "searchDateField",
                 },
+                "page_size": spec.page_size,
+                "pagination_mode": "offset",
+                "response_mode": normalized_mode,
             },
         )
 

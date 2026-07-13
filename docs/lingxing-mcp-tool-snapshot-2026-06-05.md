@@ -1,12 +1,12 @@
 # Lingxing MCP Tool Snapshot
 
-Generated: 2026-07-13 22:29:44
+Generated: 2026-07-13 23:17:46
 Source: LingxingMCPApplication built-in role defaults
 Registered tools: 112
 
 ## Role Allowlists
 
-### finance (21)
+### finance (22)
 
 - `lingxing_exp_finance_report_seller`
 - `lingxing_fba_stock_aggregate`
@@ -17,6 +17,7 @@ Registered tools: 112
 - `lingxing_local_product_costs`
 - `lingxing_order_details`
 - `lingxing_profit_asin`
+- `lingxing_profit_report_order_list`
 - `lingxing_profit_seller`
 - `lingxing_rate_limit_policy`
 - `lingxing_report_export_create`
@@ -212,7 +213,7 @@ Registered tools: 112
 | 82 | `lingxing_product_performance` | `endpoint_spec` | `source` | sid, start_date, end_date | search_field, search_value, summary_field, mid, currency_code, is_recently_enum, purchase_status, sort_field, sort_type | `/bd/productPerformance/openApi/asinList` | 限流：endpoint /bd/productPerformance/openApi/asinList，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。 |
 | 83 | `lingxing_profit_asin` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/asin/list` | 限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | ASIN 维度利润统计。 |
 | 84 | `lingxing_profit_parent_asin` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/parent/asin/list` | 限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 父 ASIN 维度利润统计。 |
-| 85 | `lingxing_profit_report_order_list` | `endpoint_spec` | `profit_report_order` | start_date, end_date | search_date_field, sids, mids, fee_type, listing_owner, currency_code, search_field, search_value, sort_field, sort_type, settlement_status, fund_transfer_status, account_type, fulfillment, product_developer_uids, order_status, gmt_modified_start_date, gmt_modified_end_date | `/basicOpen/finance/profitReport/order/transcation/list` | 限流：endpoint /basicOpen/finance/profitReport/order/transcation/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询利润报表订单 transaction 视图；fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。 |
+| 85 | `lingxing_profit_report_order_list` | `endpoint_spec` | `profit_report_order` | start_date, end_date | search_date_field, sids, mids, fee_type, listing_owner, currency_code, search_field, search_value, sort_field, sort_type, settlement_status, fund_transfer_status, account_type, fulfillment, product_developer_uids, order_status, gmt_modified_start_date, gmt_modified_end_date, response_mode, preview_limit | `/basicOpen/finance/profitReport/order/transcation/list` | 限流：endpoint /basicOpen/finance/profitReport/order/transcation/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询利润报表订单 Transaction 视图；默认返回摘要，full 仅供本地 Excel 导出器。fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。 |
 | 86 | `lingxing_profit_seller` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value, monthly_query | `/bd/profit/statistics/open/seller/list` | 限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 店铺维度利润统计。 |
 | 87 | `lingxing_promotion_coupon` | `manual` | `manual` | sid, start_date, end_date | None | `Manual` | 限流：endpoint /basicOpen/promotionalActivities/coupon/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。 |
 | 88 | `lingxing_promotion_listing` | `manual` | `manual` | sid, site_date, start_time, end_time | status, product_status, promotion_category | `Manual` | 限流：endpoint /basicOpen/promotion/listingList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。 |
@@ -231,7 +232,7 @@ Registered tools: 112
 | 101 | `lingxing_return_analysis` | `endpoint_spec` | `source` | startDate, endDate, asinType, dateType | mids, principalUid, searchField, searchValue, sortField, sortType, storeId | `/basicOpen/salesAnalysis/returnOrder/analysisLists` | 限流：endpoint /basicOpen/salesAnalysis/returnOrder/analysisLists，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询退货分析，按 MSKU / ASIN / 父 ASIN / SKU / SPU 等维度统计退货数量、退货件数、退货率和退货原因相关指标。 |
 | 102 | `lingxing_sales_outbound_orders` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, status, logistics_status, platform_order_numbers, system_order_numbers, outbound_order_numbers, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询 ERP 销售出库单。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时省略官方 sid_arr，一次 MCP 调用查询全部店铺，并按官方每页 200 条限制合并全部分页。默认 time_type=stock_delivered_at，按库存流水出库时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
 | 103 | `lingxing_seller_lists` | `manual` | `manual` | None | status, marketplace | `Manual` | 限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。 |
-| 104 | `lingxing_shipment_settlement_report` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, country_codes, order_numbers, shipment_numbers, custom_numbers, mskus, skus, product_names, track_codes, fulfillment_type, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部亚马逊店铺，并按官方每页 1000 条限制合并全部分页。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
+| 104 | `lingxing_shipment_settlement_report` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, country_codes, order_numbers, shipment_numbers, custom_numbers, mskus, skus, product_names, track_codes, fulfillment_type, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺，并按官方每页 1000 条限制合并全部分页。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
 | 105 | `lingxing_smoke_check` | `manual` | `manual` | None | sid, date | `Manual` | 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
 | 106 | `lingxing_source_all_orders` | `endpoint_spec` | `source` | sid, start_date, end_date | date_type | `/erp/sc/data/mws_report/allOrders` | 限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。 | 亚马逊源表所有订单。 |
 | 107 | `lingxing_source_daily_inventory` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/dailyInventory` | 限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表每日库存。 |
@@ -250,9 +251,11 @@ Registered tools: 112
 - Description: 查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/baseData/account/list
+- Rate limit: 限流：endpoint /basicOpen/baseData/account/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: None
 - Optional args: type, sid, profile_id, country_code, status
-- Rate limit: 限流：endpoint /basicOpen/baseData/account/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -285,9 +288,11 @@ Registered tools: 112
 - Description: 添加 SP 关键词，单次最多 1000 个；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/spTarget/addKeywords
+- Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: keywords
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -332,9 +337,11 @@ Registered tools: 112
 - Description: 添加 SP 否定关键词，支持活动层级和广告组层级；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/spTarget/addNegativeKeywords
+- Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: negative_keywords
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -379,9 +386,11 @@ Registered tools: 112
 - Description: 添加 SP 否定 ASIN，支持活动层级和广告组层级；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/spTarget/addNegativeTargets
+- Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: asins
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -426,9 +435,11 @@ Registered tools: 112
 - Description: 归档 SP 否定关键词或否定 ASIN，需传官方 target_id；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/spTarget/archiveNegatives
+- Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/archiveNegatives，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: targetIds
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/archiveNegatives，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -472,9 +483,11 @@ Registered tools: 112
 - Description: 查询广告操作日志，支持 SP/SB/SD、ERP/亚马逊后台来源和广告对象类型过滤。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /pb/openapi/newad/apiLogStandard
+- Rate limit: 限流：endpoint /pb/openapi/newad/apiLogStandard，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。
 - Required args: sid, log_source, sponsored_type, operate_type, start_date, end_date
 - Optional args: offset, length
-- Rate limit: 限流：endpoint /pb/openapi/newad/apiLogStandard，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。
+- Input schema:
 
 ```json
 {
@@ -527,9 +540,11 @@ Registered tools: 112
 - Description: 广告组合列表。
 - Endpoint: `/pb/openapi/newad/portfolios`
 - Docs path: `docs/newAd/baseData/portfolios.md`
+- Rate-limit endpoints: /pb/openapi/newad/portfolios
+- Rate limit: 限流：endpoint /pb/openapi/newad/portfolios，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id
-- Rate limit: 限流：endpoint /pb/openapi/newad/portfolios，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -556,9 +571,11 @@ Registered tools: 112
 - Description: SB 广告组小时数据。
 - Endpoint: `/pb/openapi/newad/sbAdGroupHourData`
 - Docs path: `docs/newAd/report/sbAdGroupHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/sbAdGroupHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/sbAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sbAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -592,9 +609,11 @@ Registered tools: 112
 - Description: SB 广告组基础数据。
 - Endpoint: `/pb/openapi/newad/hsaAdGroups`
 - Docs path: `docs/newAd/baseData/hsaAdGroups.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaAdGroups
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -624,9 +643,11 @@ Registered tools: 112
 - Description: SB 广告活动小时数据。
 - Endpoint: `/pb/openapi/newad/sbCampaignHourData`
 - Docs path: `docs/newAd/report/sbCampaignHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/sbCampaignHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/sbCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sbCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -660,9 +681,11 @@ Registered tools: 112
 - Description: SB 广告活动日报。
 - Endpoint: `/pb/openapi/newad/hsaCampaignReports`
 - Docs path: `docs/newAd/report/hsaCampaignReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaCampaignReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -696,9 +719,11 @@ Registered tools: 112
 - Description: SB 广告活动基础数据。
 - Endpoint: `/pb/openapi/newad/hsaCampaigns`
 - Docs path: `docs/newAd/baseData/hsaCampaigns.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaCampaigns
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -728,9 +753,11 @@ Registered tools: 112
 - Description: SB 广告创意日报。
 - Endpoint: `/pb/openapi/newad/listHsaProductAdReport`
 - Docs path: `docs/newAd/report/listHsaProductAdReport.md`
+- Rate-limit endpoints: /pb/openapi/newad/listHsaProductAdReport
+- Rate limit: 限流：endpoint /pb/openapi/newad/listHsaProductAdReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/listHsaProductAdReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -764,9 +791,11 @@ Registered tools: 112
 - Description: SB 广告创意基础数据。
 - Endpoint: `/pb/openapi/newad/hsaProductAds`
 - Docs path: `docs/newAd/baseData/sbAdHasProductAds.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaProductAds
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -793,9 +822,11 @@ Registered tools: 112
 - Description: SB 否定关键词基础数据，用于查看 SB 否定关键词。
 - Endpoint: `/pb/openapi/newad/hsaNegativeKeywords`
 - Docs path: `docs/newAd/baseData/hsaNegativeKeywords.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaNegativeKeywords
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -825,9 +856,11 @@ Registered tools: 112
 - Description: SB 否定商品投放基础数据，用于查看 SB 否定商品投放。
 - Endpoint: `/pb/openapi/newad/hsaNegativeTargets`
 - Docs path: `docs/newAd/baseData/hsaNegativeTargets.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaNegativeTargets
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -857,9 +890,11 @@ Registered tools: 112
 - Description: SB 广告位小时数据。
 - Endpoint: `/pb/openapi/newad/sbAdPlacementHourData`
 - Docs path: `docs/newAd/report/sbAdPlacementHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/sbAdPlacementHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/sbAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sbAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -893,9 +928,11 @@ Registered tools: 112
 - Description: SB 已购买 ASIN 报表，用于按 ASIN 归因销售/订单。
 - Endpoint: `/pb/openapi/newad/hsaPurchasedAsinReports`
 - Docs path: `docs/newAd/report/hsaPurchasedAsinReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaPurchasedAsinReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaPurchasedAsinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaPurchasedAsinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -926,9 +963,11 @@ Registered tools: 112
 - Description: SB 投放小时数据。
 - Endpoint: `/pb/openapi/newad/sbTargetHourData`
 - Docs path: `docs/newAd/report/sbTargetHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/sbTargetHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/sbTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sbTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -962,9 +1001,11 @@ Registered tools: 112
 - Description: SB 投放基础数据。
 - Endpoint: `/pb/openapi/newad/sbTargeting`
 - Docs path: `docs/newAd/baseData/sbTargeting.md`
+- Rate-limit endpoints: /pb/openapi/newad/sbTargeting
+- Rate limit: 限流：endpoint /pb/openapi/newad/sbTargeting，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/sbTargeting，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -994,9 +1035,11 @@ Registered tools: 112
 - Description: SD 广告组小时数据。
 - Endpoint: `/pb/openapi/newad/sdAdGroupHourData`
 - Docs path: `docs/newAd/report/sdAdGroupHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdAdGroupHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1030,9 +1073,11 @@ Registered tools: 112
 - Description: SD 广告组基础数据。
 - Endpoint: `/pb/openapi/newad/sdAdGroups`
 - Docs path: `docs/newAd/baseData/sdAdGroups.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdAdGroups
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1062,9 +1107,11 @@ Registered tools: 112
 - Description: SD 广告小时数据。
 - Endpoint: `/pb/openapi/newad/sdAdvertiseHourData`
 - Docs path: `docs/newAd/report/sdAdvertiseHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdAdvertiseHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1098,9 +1145,11 @@ Registered tools: 112
 - Description: SD 广告活动小时数据。
 - Endpoint: `/pb/openapi/newad/sdCampaignHourData`
 - Docs path: `docs/newAd/report/sdCampaignHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdCampaignHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1134,9 +1183,11 @@ Registered tools: 112
 - Description: SD 广告活动日报。
 - Endpoint: `/pb/openapi/newad/sdCampaignReports`
 - Docs path: `docs/newAd/report/sdCampaignReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdCampaignReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1170,9 +1221,11 @@ Registered tools: 112
 - Description: SD 广告活动基础数据。
 - Endpoint: `/pb/openapi/newad/sdCampaigns`
 - Docs path: `docs/newAd/baseData/sdCampaigns.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdCampaigns
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1202,9 +1255,11 @@ Registered tools: 112
 - Description: SD 否定商品定位基础数据，用于查看 SD 否定投放对象。
 - Endpoint: `/pb/openapi/newad/sdNegativeTargets`
 - Docs path: `docs/newAd/baseData/sdNegativeTargets.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdNegativeTargets
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1234,9 +1289,11 @@ Registered tools: 112
 - Description: SD 广告商品日报，可直接按 ASIN 聚合。
 - Endpoint: `/pb/openapi/newad/sdProductAdReports`
 - Docs path: `docs/newAd/report/sdProductAdReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdProductAdReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1270,9 +1327,11 @@ Registered tools: 112
 - Description: SD 广告商品基础数据。
 - Endpoint: `/pb/openapi/newad/sdProductAds`
 - Docs path: `docs/newAd/baseData/sdProductAds.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdProductAds
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1302,9 +1361,11 @@ Registered tools: 112
 - Description: SD 投放小时数据。
 - Endpoint: `/pb/openapi/newad/sdTargetHourData`
 - Docs path: `docs/newAd/report/sdTargetHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdTargetHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1338,9 +1399,11 @@ Registered tools: 112
 - Description: SD 商品定位日报。
 - Endpoint: `/pb/openapi/newad/sdTargetReports`
 - Docs path: `docs/newAd/report/sdTargetReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdTargetReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1374,9 +1437,11 @@ Registered tools: 112
 - Description: SD 商品定位基础数据。
 - Endpoint: `/pb/openapi/newad/sdTargets`
 - Docs path: `docs/newAd/baseData/sdTargets.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdTargets
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1406,9 +1471,11 @@ Registered tools: 112
 - Description: SP 广告组小时数据。
 - Endpoint: `/pb/openapi/newad/spAdGroupHourData`
 - Docs path: `docs/newAd/report/spAdGroupHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/spAdGroupHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/spAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1442,9 +1509,11 @@ Registered tools: 112
 - Description: SP 广告组基础数据。
 - Endpoint: `/pb/openapi/newad/spAdGroups`
 - Docs path: `docs/newAd/baseData/spAdGroups.md`
+- Rate-limit endpoints: /pb/openapi/newad/spAdGroups
+- Rate limit: 限流：endpoint /pb/openapi/newad/spAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/spAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1474,9 +1543,11 @@ Registered tools: 112
 - Description: SP 广告小时数据。
 - Endpoint: `/pb/openapi/newad/spAdvertiseHourData`
 - Docs path: `docs/newAd/report/spAdvertiseHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/spAdvertiseHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/spAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1510,9 +1581,11 @@ Registered tools: 112
 - Description: SP 广告活动小时数据。
 - Endpoint: `/pb/openapi/newad/spCampaignHourData`
 - Docs path: `docs/newAd/report/spCampaignHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/spCampaignHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/spCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1546,9 +1619,11 @@ Registered tools: 112
 - Description: SP 广告活动日报。
 - Endpoint: `/pb/openapi/newad/spCampaignReports`
 - Docs path: `docs/newAd/report/spCampaignReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/spCampaignReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/spCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1582,9 +1657,11 @@ Registered tools: 112
 - Description: SP 广告活动基础数据。
 - Endpoint: `/pb/openapi/newad/spCampaigns`
 - Docs path: `docs/newAd/baseData/spCampaigns.md`
+- Rate-limit endpoints: /pb/openapi/newad/spCampaigns
+- Rate limit: 限流：endpoint /pb/openapi/newad/spCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/spCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1614,9 +1691,11 @@ Registered tools: 112
 - Description: SP 关键词日报。
 - Endpoint: `/pb/openapi/newad/spKeywordReports`
 - Docs path: `docs/newAd/report/spKeywordReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/spKeywordReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/spKeywordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spKeywordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1650,9 +1729,11 @@ Registered tools: 112
 - Description: SP 关键词基础数据。
 - Endpoint: `/pb/openapi/newad/spKeywords`
 - Docs path: `docs/newAd/baseData/spKeywords.md`
+- Rate-limit endpoints: /pb/openapi/newad/spKeywords
+- Rate limit: 限流：endpoint /pb/openapi/newad/spKeywords，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/spKeywords，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1682,9 +1763,11 @@ Registered tools: 112
 - Description: SP 否定投放基础数据，返回否定关键词和否定商品投放，用于归档前查找 target_id。
 - Endpoint: `/pb/openapi/newad/spNegativeTargetsOrKeywords`
 - Docs path: `docs/newAd/baseData/spNegativeTargetsOrKeywords.md`
+- Rate-limit endpoints: /pb/openapi/newad/spNegativeTargetsOrKeywords
+- Rate limit: 限流：endpoint /pb/openapi/newad/spNegativeTargetsOrKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/spNegativeTargetsOrKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1714,9 +1797,11 @@ Registered tools: 112
 - Description: SP 广告位小时数据。
 - Endpoint: `/pb/openapi/newad/spAdPlacementHourData`
 - Docs path: `docs/newAd/report/spAdPlacementHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/spAdPlacementHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/spAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1750,9 +1835,11 @@ Registered tools: 112
 - Description: SP 广告商品日报，可直接按 ASIN 聚合。
 - Endpoint: `/pb/openapi/newad/spProductAdReports`
 - Docs path: `docs/newAd/report/spProductAdReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/spProductAdReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/spProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1786,9 +1873,11 @@ Registered tools: 112
 - Description: SP 广告商品基础数据。
 - Endpoint: `/pb/openapi/newad/spProductAds`
 - Docs path: `docs/newAd/baseData/spProductAds.md`
+- Rate-limit endpoints: /pb/openapi/newad/spProductAds
+- Rate limit: 限流：endpoint /pb/openapi/newad/spProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/spProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1818,9 +1907,11 @@ Registered tools: 112
 - Description: SP 用户搜索词日报。
 - Endpoint: `/pb/openapi/newad/queryWordReports`
 - Docs path: `docs/newAd/report/queryWordReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/queryWordReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/queryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail, target_type
-- Rate limit: 限流：endpoint /pb/openapi/newad/queryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1857,9 +1948,11 @@ Registered tools: 112
 - Description: SP 投放小时数据。
 - Endpoint: `/pb/openapi/newad/spTargetHourData`
 - Docs path: `docs/newAd/report/spTargetHourData.md`
+- Rate-limit endpoints: /pb/openapi/newad/spTargetHourData
+- Rate limit: 限流：endpoint /pb/openapi/newad/spTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1893,9 +1986,11 @@ Registered tools: 112
 - Description: SP 商品定位日报。
 - Endpoint: `/pb/openapi/newad/spTargetReports`
 - Docs path: `docs/newAd/report/spTargetReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/spTargetReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/spTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1929,9 +2024,11 @@ Registered tools: 112
 - Description: SP 商品定位基础数据。
 - Endpoint: `/pb/openapi/newad/spTargets`
 - Docs path: `docs/newAd/baseData/spTargets.md`
+- Rate-limit endpoints: /pb/openapi/newad/spTargets
+- Rate limit: 限流：endpoint /pb/openapi/newad/spTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
-- Rate limit: 限流：endpoint /pb/openapi/newad/spTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -1961,9 +2058,11 @@ Registered tools: 112
 - Description: 修改 SP 广告组，支持启停和默认竞价；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/manage/putSpAdGroup
+- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpAdGroup，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: ad_groups
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpAdGroup，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2008,9 +2107,11 @@ Registered tools: 112
 - Description: 修改 SP 广告活动和广告位，支持启停、预算、竞价策略和广告位比例；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/manage/putSpCampaign
+- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpCampaign，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: campaigns
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpCampaign，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2055,9 +2156,11 @@ Registered tools: 112
 - Description: 修改 SP 关键词，支持启停和竞价；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/manage/putSpKeyword
+- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpKeyword，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: keywords
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpKeyword，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2102,9 +2205,11 @@ Registered tools: 112
 - Description: 修改 SP 广告商品启用/暂停状态，单次最多 1000 个；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/manage/putSpProductAds
+- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpProductAds，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: product_ads
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpProductAds，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2149,9 +2254,11 @@ Registered tools: 112
 - Description: 修改 SP 商品投放，支持启停和竞价；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/adReport/manage/putSpTarget
+- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpTarget，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: targeting_clauses
 - Optional args: sid, profile_id, dry_run, confirm
-- Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpTarget，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2196,9 +2303,11 @@ Registered tools: 112
 - Description: 查询亚马逊 Listing，可按 MSKU、ASIN 或本地 SKU 搜索，返回 fulfillment_channel_type 配送方式以及 FBA/FBM 库存字段。
 - Endpoint: `/erp/sc/data/mws/listing`
 - Docs path: `docs/Sale/Listing.md`
+- Rate-limit endpoints: /erp/sc/data/mws/listing
+- Rate limit: 限流：endpoint /erp/sc/data/mws/listing，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, search_value
 - Optional args: search_field, exact_search, store_type, listing_update_start_time, listing_update_end_time
-- Rate limit: 限流：endpoint /erp/sc/data/mws/listing，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2244,9 +2353,11 @@ Registered tools: 112
 - Description: 按 ASIN 汇总每日广告指标，采用 balanced 归因。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/baseData/account/list, /pb/openapi/newad/hsaProductAds, /pb/openapi/newad/spProductAdReports, /pb/openapi/newad/sdProductAdReports, /pb/openapi/newad/hsaPurchasedAsinReports, /pb/openapi/newad/listHsaProductAdReport
+- Rate limit: 限流：聚合工具，涉及 6 个 endpoint；最严格为 /basicOpen/baseData/account/list 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: sid, asin, start_date, end_date
 - Optional args: attribution_policy
-- Rate limit: 限流：聚合工具，涉及 6 个 endpoint；最严格为 /basicOpen/baseData/account/list 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -2285,9 +2396,11 @@ Registered tools: 112
 - Description: 按店铺、日期和指标类型拉取 AsinDailyLists。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/data/sales_report/asinDailyLists
+- Rate limit: 限流：endpoint /erp/sc/data/sales_report/asinDailyLists，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, event_date, metric_type
 - Optional args: asin_type
-- Rate limit: 限流：endpoint /erp/sc/data/sales_report/asinDailyLists，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2322,9 +2435,11 @@ Registered tools: 112
 - Description: 按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，例如 ["B0..."]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/openapi/storage/fbaWarehouseDetail, /bd/productPerformance/openApi/asinList, /erp/sc/routing/data/local_inventory/productList
+- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: sid, asins
 - Optional args: start_date, end_date
-- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -2367,9 +2482,11 @@ Registered tools: 112
 - Description: 按周汇总 ASIN 的总销量、广告指标和促销标签。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/data/sales_report/sales, /basicOpen/baseData/account/list, /pb/openapi/newad/hsaProductAds, /pb/openapi/newad/spProductAdReports, /pb/openapi/newad/sdProductAdReports, /pb/openapi/newad/hsaPurchasedAsinReports, /pb/openapi/newad/listHsaProductAdReport, /basicOpen/promotion/listingList, /basicOpen/promotionalActivities/secKill/list, /basicOpen/promotionalActivities/manage/list, /basicOpen/promotionalActivities/vipDiscount/list, /basicOpen/promotionalActivities/coupon/list
+- Rate limit: 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/sales_report/sales 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: sid, asin, start_date, end_date
 - Optional args: None
-- Rate limit: 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/sales_report/sales 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -2405,9 +2522,11 @@ Registered tools: 112
 - Description: 实验层：ABA 搜索词周报下载信息。
 - Endpoint: `/pb/openapi/newad/abaReport`
 - Docs path: `docs/newAd/reportDownload/abaReport.md`
+- Rate-limit endpoints: /pb/openapi/newad/abaReport
+- Rate limit: 限流：endpoint /pb/openapi/newad/abaReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: country, data_start_time
 - Optional args: None
-- Rate limit: 限流：endpoint /pb/openapi/newad/abaReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2435,9 +2554,11 @@ Registered tools: 112
 - Description: 实验层：SB 广告组日报。
 - Endpoint: `/pb/openapi/newad/hsaAdGroupReports`
 - Docs path: `docs/newAd/report/hsaAdGroupReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaAdGroupReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2471,9 +2592,11 @@ Registered tools: 112
 - Description: 实验层：SB 广告位日报。
 - Endpoint: `/pb/openapi/newad/hsaCampaignPlacementReports`
 - Docs path: `docs/newAd/report/hsaCampaignPlacementReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaCampaignPlacementReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaCampaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaCampaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2507,9 +2630,11 @@ Registered tools: 112
 - Description: 实验层：SB 关键词广告位日报。
 - Endpoint: `/pb/openapi/newad/listHsaKeywordPlacementReport`
 - Docs path: `docs/newAd/report/listHsaKeywordPlacementReport.md`
+- Rate-limit endpoints: /pb/openapi/newad/listHsaKeywordPlacementReport
+- Rate limit: 限流：endpoint /pb/openapi/newad/listHsaKeywordPlacementReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/listHsaKeywordPlacementReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2543,9 +2668,11 @@ Registered tools: 112
 - Description: 实验层：SB 用户搜索词日报。
 - Endpoint: `/pb/openapi/newad/hsaQueryWordReports`
 - Docs path: `docs/newAd/report/hsaQueryWordReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/hsaQueryWordReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaQueryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaQueryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2579,9 +2706,11 @@ Registered tools: 112
 - Description: 实验层：SB 投放日报。
 - Endpoint: `/pb/openapi/newad/listHsaTargetingReport`
 - Docs path: `docs/newAd/report/listHsaTargetingReport.md`
+- Rate-limit endpoints: /pb/openapi/newad/listHsaTargetingReport
+- Rate limit: 限流：endpoint /pb/openapi/newad/listHsaTargetingReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/listHsaTargetingReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2615,9 +2744,11 @@ Registered tools: 112
 - Description: 实验层：SD 广告组日报。
 - Endpoint: `/pb/openapi/newad/sdAdGroupReports`
 - Docs path: `docs/newAd/report/sdAdGroupReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdAdGroupReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2651,9 +2782,11 @@ Registered tools: 112
 - Description: 实验层：SD 匹配目标日报。
 - Endpoint: `/pb/openapi/newad/sdMatchTargetReports`
 - Docs path: `docs/newAd/report/sdMatchTargetReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/sdMatchTargetReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdMatchTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdMatchTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2687,9 +2820,11 @@ Registered tools: 112
 - Description: 实验层：SP 广告组日报。
 - Endpoint: `/pb/openapi/newad/spAdGroupReports`
 - Docs path: `docs/newAd/report/spAdGroupReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/spAdGroupReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/spAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/spAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2723,9 +2858,11 @@ Registered tools: 112
 - Description: 实验层：SP 广告位日报。
 - Endpoint: `/pb/openapi/newad/campaignPlacementReports`
 - Docs path: `docs/newAd/report/campaignPlacementReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/campaignPlacementReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/campaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/campaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2759,9 +2896,11 @@ Registered tools: 112
 - Description: 实验层：SP 已购买 ASIN 报表。
 - Endpoint: `/pb/openapi/newad/asinReports`
 - Docs path: `docs/newAd/report/asinReports.md`
+- Rate-limit endpoints: /pb/openapi/newad/asinReports
+- Rate limit: 限流：endpoint /pb/openapi/newad/asinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
 - Optional args: profile_id, show_detail
-- Rate limit: 限流：endpoint /pb/openapi/newad/asinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2795,9 +2934,11 @@ Registered tools: 112
 - Description: 实验层：结算利润报表店铺视角。
 - Endpoint: `/bd/profit/report/open/report/seller/list`
 - Docs path: `docs/Finance/bdSeller.md`
+- Rate-limit endpoints: /bd/profit/report/open/report/seller/list
+- Rate limit: 限流：endpoint /bd/profit/report/open/report/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: currency_code, monthly_query, order_status
-- Rate limit: 限流：endpoint /bd/profit/report/open/report/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2838,9 +2979,11 @@ Registered tools: 112
 - Description: FBA 库存新报表汇总。
 - Endpoint: `/cost/center/openApi/fba/gather/query`
 - Docs path: `docs/Statistics/FbaStockAggregateListNew.md`
+- Rate-limit endpoints: /cost/center/openApi/fba/gather/query
+- Rate limit: 限流：endpoint /cost/center/openApi/fba/gather/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_month, end_month
 - Optional args: None
-- Rate limit: 限流：endpoint /cost/center/openApi/fba/gather/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2872,9 +3015,11 @@ Registered tools: 112
 - Description: FBA 库存新报表明细。
 - Endpoint: `/cost/center/openApi/fba/detail/query`
 - Docs path: `docs/Statistics/FbaStockDetailListNew.md`
+- Rate-limit endpoints: /cost/center/openApi/fba/detail/query
+- Rate limit: 限流：endpoint /cost/center/openApi/fba/detail/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_month, end_month
 - Optional args: None
-- Rate limit: 限流：endpoint /cost/center/openApi/fba/detail/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2906,9 +3051,11 @@ Registered tools: 112
 - Description: 按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。
 - Endpoint: `/basicOpen/openapi/storage/fbaWarehouseDetail`
 - Docs path: `docs/Warehouse/FBAStock_v2.md`
+- Rate-limit endpoints: /basicOpen/openapi/storage/fbaWarehouseDetail
+- Rate limit: 限流：endpoint /basicOpen/openapi/storage/fbaWarehouseDetail，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: search_field, search_value, cid, bid, attribute, asin_principal, status, senior_search_list, fulfillment_channel_type, is_hide_zero_stock, is_parant_asin_merge, is_contain_del_ls, query_fba_storage_quantity_list
-- Rate limit: 限流：endpoint /basicOpen/openapi/storage/fbaWarehouseDetail，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -2971,9 +3118,11 @@ Registered tools: 112
 - Description: 结算利润报表 ASIN 视角。
 - Endpoint: `/bd/profit/report/open/report/asin/list`
 - Docs path: `docs/Finance/bdASIN.md`
+- Rate-limit endpoints: /bd/profit/report/open/report/asin/list
+- Rate limit: 限流：endpoint /bd/profit/report/open/report/asin/list，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。
 - Required args: sid, start_date, end_date
 - Optional args: currency_code, search_value, monthly_query, summary_enabled, order_status
-- Rate limit: 限流：endpoint /bd/profit/report/open/report/asin/list，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。
+- Input schema:
 
 ```json
 {
@@ -3020,9 +3169,11 @@ Registered tools: 112
 - Description: 检查领星环境变量、token 状态和基础连通性，不拉业务数据。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /api/auth-server/oauth/access-token
+- Rate limit: 限流：endpoint /api/auth-server/oauth/access-token，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: None
 - Optional args: None
-- Rate limit: 限流：endpoint /api/auth-server/oauth/access-token，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3039,9 +3190,11 @@ Registered tools: 112
 - Description: 按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/routing/data/local_inventory/productList
+- Rate limit: 限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: None
 - Optional args: sku_list, sku_identifier_list, update_time_start, update_time_end, create_time_start, create_time_end, page_size, include_supplier_quotes, include_raw
-- Rate limit: 限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3092,9 +3245,11 @@ Registered tools: 112
 - Description: 按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。
 - Endpoint: `/erp/sc/routing/data/local_inventory/productList`
 - Docs path: `docs/Product/ProductLists.md`
+- Rate-limit endpoints: /erp/sc/routing/data/local_inventory/productList
+- Rate limit: 限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: None
 - Optional args: sku_list, sku_identifier_list, update_time_start, update_time_end, create_time_start, create_time_end
-- Rate limit: 限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3137,9 +3292,11 @@ Registered tools: 112
 - Description: 返回领星市场列表，并补充站点时区映射。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/data/seller/allMarketplace
+- Rate limit: 限流：endpoint /erp/sc/data/seller/allMarketplace，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: None
 - Optional args: None
-- Rate limit: 限流：endpoint /erp/sc/data/seller/allMarketplace，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3156,9 +3313,11 @@ Registered tools: 112
 - Description: 查询亚马逊多渠道订单列表，按店铺 sid、日期范围和订单状态过滤；可选补充商品、物流、交易明细、退换货详情。为避免领星默认拉取最近 6 个月，本工具强制要求 start_date/end_date。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /order/amzod/api/orderList, /order/amzod/api/orderDetails/productInformation, /order/amzod/api/orderDetails/logisticsInformation, /order/amzod/api/orderDetails/returnInformation, /basicOpen/openapi/salesOrder/multi-channel/list/transaction
+- Rate limit: 限流：聚合工具，涉及 5 个 endpoint；最严格为 /order/amzod/api/orderList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: sids, start_date, end_date
 - Optional args: date_type, order_status, amazon_order_id, seller_fulfillment_order_id, include_product_detail, include_logistics_detail, include_transaction_detail, include_return_detail, page_size, max_records
-- Rate limit: 限流：聚合工具，涉及 5 个 endpoint；最严格为 /order/amzod/api/orderList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -3240,9 +3399,11 @@ Registered tools: 112
 - Description: 按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/data/mws/orderDetail, /erp/sc/data/seller/lists, /erp/sc/data/seller/allMarketplace
+- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/mws/orderDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: None
 - Optional args: order_id, order_ids
-- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/mws/orderDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -3271,9 +3432,11 @@ Registered tools: 112
 - Description: 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/data/mws/orders
+- Rate limit: 限流：endpoint /erp/sc/data/mws/orders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: date_type
-- Rate limit: 限流：endpoint /erp/sc/data/mws/orders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3308,9 +3471,11 @@ Registered tools: 112
 - Description: 产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。
 - Endpoint: `/bd/productPerformance/openApi/asinList`
 - Docs path: `docs/Statistics/AsinListNew.md`
+- Rate-limit endpoints: /bd/productPerformance/openApi/asinList
+- Rate limit: 限流：endpoint /bd/productPerformance/openApi/asinList，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: search_field, search_value, summary_field, mid, currency_code, is_recently_enum, purchase_status, sort_field, sort_type
-- Rate limit: 限流：endpoint /bd/productPerformance/openApi/asinList，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3372,9 +3537,11 @@ Registered tools: 112
 - Description: ASIN 维度利润统计。
 - Endpoint: `/bd/profit/statistics/open/asin/list`
 - Docs path: `docs/Statistics/statisticsOpenASIN.md`
+- Rate-limit endpoints: /bd/profit/statistics/open/asin/list
+- Rate limit: 限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: currency_code, search_value
-- Rate limit: 限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3412,9 +3579,11 @@ Registered tools: 112
 - Description: 父 ASIN 维度利润统计。
 - Endpoint: `/bd/profit/statistics/open/parent/asin/list`
 - Docs path: `docs/Statistics/statisticsOpenParent.md`
+- Rate-limit endpoints: /bd/profit/statistics/open/parent/asin/list
+- Rate limit: 限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: currency_code, search_value
-- Rate limit: 限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3449,12 +3618,14 @@ Registered tools: 112
 
 - Origin: `endpoint_spec`
 - Category: `profit_report_order`
-- Description: 查询利润报表订单 transaction 视图；fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。
+- Description: 查询利润报表订单 Transaction 视图；默认返回摘要，full 仅供本地 Excel 导出器。fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。
 - Endpoint: `/basicOpen/finance/profitReport/order/transcation/list`
 - Docs path: `docs/Finance/profitReportOrderTranscationList.md`
-- Required args: start_date, end_date
-- Optional args: search_date_field, sids, mids, fee_type, listing_owner, currency_code, search_field, search_value, sort_field, sort_type, settlement_status, fund_transfer_status, account_type, fulfillment, product_developer_uids, order_status, gmt_modified_start_date, gmt_modified_end_date
+- Rate-limit endpoints: /basicOpen/finance/profitReport/order/transcation/list
 - Rate limit: 限流：endpoint /basicOpen/finance/profitReport/order/transcation/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Required args: start_date, end_date
+- Optional args: search_date_field, sids, mids, fee_type, listing_owner, currency_code, search_field, search_value, sort_field, sort_type, settlement_status, fund_transfer_status, account_type, fulfillment, product_developer_uids, order_status, gmt_modified_start_date, gmt_modified_end_date, response_mode, preview_limit
+- Input schema:
 
 ```json
 {
@@ -3549,6 +3720,12 @@ Registered tools: 112
     },
     "gmt_modified_end_date": {
       "type": "string"
+    },
+    "response_mode": {
+      "type": "string"
+    },
+    "preview_limit": {
+      "type": "integer"
     }
   },
   "required": [
@@ -3566,9 +3743,11 @@ Registered tools: 112
 - Description: 店铺维度利润统计。
 - Endpoint: `/bd/profit/statistics/open/seller/list`
 - Docs path: `docs/Statistics/statisticsOpenSeller.md`
+- Rate-limit endpoints: /bd/profit/statistics/open/seller/list
+- Rate limit: 限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: currency_code, search_value, monthly_query
-- Rate limit: 限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3609,9 +3788,11 @@ Registered tools: 112
 - Description: 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/promotionalActivities/coupon/list
+- Rate limit: 限流：endpoint /basicOpen/promotionalActivities/coupon/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: None
-- Rate limit: 限流：endpoint /basicOpen/promotionalActivities/coupon/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3643,9 +3824,11 @@ Registered tools: 112
 - Description: 拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/promotion/listingList
+- Rate limit: 限流：endpoint /basicOpen/promotion/listingList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, site_date, start_time, end_time
 - Optional args: status, product_status, promotion_category
-- Rate limit: 限流：endpoint /basicOpen/promotion/listingList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3699,9 +3882,11 @@ Registered tools: 112
 - Description: 拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/promotionalActivities/manage/list
+- Rate limit: 限流：endpoint /basicOpen/promotionalActivities/manage/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: None
-- Rate limit: 限流：endpoint /basicOpen/promotionalActivities/manage/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3733,9 +3918,11 @@ Registered tools: 112
 - Description: 拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/promotionalActivities/secKill/list
+- Rate limit: 限流：endpoint /basicOpen/promotionalActivities/secKill/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: None
-- Rate limit: 限流：endpoint /basicOpen/promotionalActivities/secKill/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3767,9 +3954,11 @@ Registered tools: 112
 - Description: 拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/promotionalActivities/vipDiscount/list
+- Rate limit: 限流：endpoint /basicOpen/promotionalActivities/vipDiscount/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: None
-- Rate limit: 限流：endpoint /basicOpen/promotionalActivities/vipDiscount/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3801,9 +3990,11 @@ Registered tools: 112
 - Description: 返回当前 MCP 工具到领星 OpenAPI endpoint 的限流政策，供客户端 agent 在调用前按 endpoint 自主排队。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: None
+- Rate limit: 限流：本工具不直接调用领星业务 OpenAPI，或仅返回本地网关策略；客户端可并发调用，但不应把它作为业务查询循环。
 - Required args: None
 - Optional args: tool_name
-- Rate limit: 限流：本工具不直接调用领星业务 OpenAPI，或仅返回本地网关策略；客户端可并发调用，但不应把它作为业务查询循环。
+- Input schema:
 
 ```json
 {
@@ -3825,9 +4016,11 @@ Registered tools: 112
 - Description: 查询 FBA customer returns 报表，返回 FBA 退货订单源表原始数据。
 - Endpoint: `/erp/sc/data/mws_report/refundOrders`
 - Docs path: `docs/SourceData/RefundOrders.md`
+- Rate-limit endpoints: /erp/sc/data/mws_report/refundOrders
+- Rate limit: 限流：endpoint /erp/sc/data/mws_report/refundOrders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: date_type
-- Rate limit: 限流：endpoint /erp/sc/data/mws_report/refundOrders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3862,9 +4055,11 @@ Registered tools: 112
 - Description: 补货建议 ASIN 明细。
 - Endpoint: `/erp/sc/routing/fbaSug/asin/getInfo`
 - Docs path: `docs/FBASug/InfoASIN.md`
+- Rate-limit endpoints: /erp/sc/routing/fbaSug/asin/getInfo
+- Rate limit: 限流：endpoint /erp/sc/routing/fbaSug/asin/getInfo，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, asin
 - Optional args: mode
-- Rate limit: 限流：endpoint /erp/sc/routing/fbaSug/asin/getInfo，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3895,9 +4090,11 @@ Registered tools: 112
 - Description: 补货建议列表。
 - Endpoint: `/erp/sc/routing/restocking/analysis/getSummaryList`
 - Docs path: `docs/FBASug/GetSummaryList.md`
+- Rate-limit endpoints: /erp/sc/routing/restocking/analysis/getSummaryList
+- Rate limit: 限流：endpoint /erp/sc/routing/restocking/analysis/getSummaryList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: asin, mode
-- Rate limit: 限流：endpoint /erp/sc/routing/restocking/analysis/getSummaryList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3927,9 +4124,11 @@ Registered tools: 112
 - Description: 创建亚马逊报告导出任务。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/report/create/reportExportTask
+- Rate limit: 限流：endpoint /basicOpen/report/create/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_type
 - Optional args: data_start_time, data_end_time, marketplace_ids, region, seller_id
-- Rate limit: 限流：endpoint /basicOpen/report/create/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -3975,9 +4174,11 @@ Registered tools: 112
 - Description: 下载并解析亚马逊报告导出文件。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/report/query/reportExportTask, /basicOpen/report/amazonReportExportTask
+- Rate limit: 限流：聚合工具，涉及 2 个 endpoint；最严格为 /basicOpen/report/query/reportExportTask 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: None
 - Optional args: url, sid, task_id, report_document_id, region, seller_id
-- Rate limit: 限流：聚合工具，涉及 2 个 endpoint；最严格为 /basicOpen/report/query/reportExportTask 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -4013,9 +4214,11 @@ Registered tools: 112
 - Description: 查询亚马逊报告导出任务结果。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/report/query/reportExportTask
+- Rate limit: 限流：endpoint /basicOpen/report/query/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: task_id
 - Optional args: sid, region, seller_id
-- Rate limit: 限流：endpoint /basicOpen/report/query/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -4048,9 +4251,11 @@ Registered tools: 112
 - Description: 续期亚马逊报告下载链接。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/report/amazonReportExportTask
+- Rate limit: 限流：endpoint /basicOpen/report/amazonReportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: report_document_id
 - Optional args: sid, region, seller_id
-- Rate limit: 限流：endpoint /basicOpen/report/amazonReportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -4083,9 +4288,11 @@ Registered tools: 112
 - Description: 输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /basicOpen/promotion/listingList, /basicOpen/promotionalActivities/secKill/list, /basicOpen/promotionalActivities/manage/list, /basicOpen/promotionalActivities/vipDiscount/list, /basicOpen/promotionalActivities/coupon/list
+- Rate limit: 限流：聚合工具，涉及 5 个 endpoint；最严格为 /basicOpen/promotion/listingList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: sid, target_date
 - Optional args: lookback_days
-- Rate limit: 限流：聚合工具，涉及 5 个 endpoint；最严格为 /basicOpen/promotion/listingList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -4116,9 +4323,11 @@ Registered tools: 112
 - Description: 查询退货分析，按 MSKU / ASIN / 父 ASIN / SKU / SPU 等维度统计退货数量、退货件数、退货率和退货原因相关指标。
 - Endpoint: `/basicOpen/salesAnalysis/returnOrder/analysisLists`
 - Docs path: `docs/Statistics/ReturnOrderAnalysisLists.md`
+- Rate-limit endpoints: /basicOpen/salesAnalysis/returnOrder/analysisLists
+- Rate limit: 限流：endpoint /basicOpen/salesAnalysis/returnOrder/analysisLists，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: startDate, endDate, asinType, dateType
 - Optional args: mids, principalUid, searchField, searchValue, sortField, sortType, storeId
-- Rate limit: 限流：endpoint /basicOpen/salesAnalysis/returnOrder/analysisLists，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -4187,9 +4396,11 @@ Registered tools: 112
 - Description: 通过领星 OpenAPI 查询 ERP 销售出库单。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时省略官方 sid_arr，一次 MCP 调用查询全部店铺，并按官方每页 200 条限制合并全部分页。默认 time_type=stock_delivered_at，按库存流水出库时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。
 - Endpoint: `Manual`
 - Docs path: `docs/Warehouse/WmsOrderList.md`
+- Rate-limit endpoints: /erp/sc/data/seller/lists, /erp/sc/data/seller/allMarketplace, /erp/sc/routing/wms/order/wmsOrderList
+- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: start_date, end_date
 - Optional args: sids, amazon_seller_ids, time_type, status, logistics_status, platform_order_numbers, system_order_numbers, outbound_order_numbers, response_mode, preview_limit
-- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -4282,9 +4493,11 @@ Registered tools: 112
 - Description: 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/data/seller/lists, /erp/sc/data/seller/allMarketplace
+- Rate limit: 限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: None
 - Optional args: status, marketplace
-- Rate limit: 限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -4307,12 +4520,14 @@ Registered tools: 112
 
 - Origin: `manual`
 - Category: `manual`
-- Description: 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部亚马逊店铺，并按官方每页 1000 条限制合并全部分页。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。
+- Description: 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺，并按官方每页 1000 条限制合并全部分页。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。
 - Endpoint: `Manual`
 - Docs path: `docs/Finance/SettlementReport.md`
+- Rate-limit endpoints: /erp/sc/data/seller/lists, /erp/sc/data/seller/allMarketplace, /cost/center/api/settlement/report
+- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: start_date, end_date
 - Optional args: sids, amazon_seller_ids, time_type, country_codes, order_numbers, shipment_numbers, custom_numbers, mskus, skus, product_names, track_codes, fulfillment_type, response_mode, preview_limit
-- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -4331,7 +4546,7 @@ Registered tools: 112
       "items": {
         "type": "integer"
       },
-      "description": "可选；领星店铺 SID。与 amazon_seller_ids 均不传时查询全部店铺。"
+      "description": "可选；领星店铺 SID。与 amazon_seller_ids 均不传时查询全部启用店铺。"
     },
     "amazon_seller_ids": {
       "type": "array",
@@ -4426,9 +4641,11 @@ Registered tools: 112
 - Description: 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/data/seller/lists, /erp/sc/data/seller/allMarketplace, /erp/sc/data/sales_report/sales, /erp/sc/data/mws/orders, /basicOpen/promotion/listingList, /basicOpen/baseData/account/list, /pb/openapi/newad/spProductAdReports, /pb/openapi/newad/sdProductAdReports, /pb/openapi/newad/hsaPurchasedAsinReports, /bd/profit/statistics/open/seller/list, /erp/sc/data/mws_report/allOrders, /erp/sc/data/mws_report/manageInventory
+- Rate limit: 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
 - Required args: None
 - Optional args: sid, date
-- Rate limit: 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+- Input schema:
 
 ```json
 {
@@ -4452,9 +4669,11 @@ Registered tools: 112
 - Description: 亚马逊源表所有订单。
 - Endpoint: `/erp/sc/data/mws_report/allOrders`
 - Docs path: `docs/SourceData/AllOrders.md`
+- Rate-limit endpoints: /erp/sc/data/mws_report/allOrders
+- Rate limit: 限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。
 - Required args: sid, start_date, end_date
 - Optional args: date_type
-- Rate limit: 限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。
+- Input schema:
 
 ```json
 {
@@ -4489,9 +4708,11 @@ Registered tools: 112
 - Description: 亚马逊源表每日库存。
 - Endpoint: `/erp/sc/data/mws_report/dailyInventory`
 - Docs path: `docs/SourceData/DailyInventory.md`
+- Rate-limit endpoints: /erp/sc/data/mws_report/dailyInventory
+- Rate limit: 限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, event_date
 - Optional args: None
-- Rate limit: 限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -4519,9 +4740,11 @@ Registered tools: 112
 - Description: 亚马逊源表 FBA 库存。
 - Endpoint: `/erp/sc/data/mws_report/manageInventory`
 - Docs path: `docs/SourceData/ManageInventory.md`
+- Rate-limit endpoints: /erp/sc/data/mws_report/manageInventory
+- Rate limit: 限流：endpoint /erp/sc/data/mws_report/manageInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: None
-- Rate limit: 限流：endpoint /erp/sc/data/mws_report/manageInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -4545,9 +4768,11 @@ Registered tools: 112
 - Description: 亚马逊源表预留库存。
 - Endpoint: `/erp/sc/data/mws_report/reservedInventory`
 - Docs path: `docs/SourceData/ReservedInventory.md`
+- Rate-limit endpoints: /erp/sc/data/mws_report/reservedInventory
+- Rate limit: 限流：endpoint /erp/sc/data/mws_report/reservedInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: None
-- Rate limit: 限流：endpoint /erp/sc/data/mws_report/reservedInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -4571,9 +4796,11 @@ Registered tools: 112
 - Description: 亚马逊源表交易明细。
 - Endpoint: `/erp/sc/data/mws_report/transaction`
 - Docs path: `docs/SourceData/Transaction.md`
+- Rate-limit endpoints: /erp/sc/data/mws_report/transaction
+- Rate limit: 限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, event_date
 - Optional args: None
-- Rate limit: 限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -4601,9 +4828,11 @@ Registered tools: 112
 - Description: 按店铺和日期范围拉取 StoreSales，并自动合并分页。
 - Endpoint: `Manual`
 - Docs path: `None`
+- Rate-limit endpoints: /erp/sc/data/sales_report/sales
+- Rate limit: 限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
 - Optional args: None
-- Rate limit: 限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {
@@ -4635,9 +4864,11 @@ Registered tools: 112
 - Description: 查询买家之声列表，返回 ASIN/MSKU/SKU 的满意度状况、不满意率、不满意订单数、订单总数、主要退货原因和退货标记。
 - Endpoint: `/basicOpen/customerService/voiceOfBuyer/list`
 - Docs path: `docs/Service/voiceOfBuyerList.md`
+- Rate-limit endpoints: /basicOpen/customerService/voiceOfBuyer/list
+- Rate limit: 限流：endpoint /basicOpen/customerService/voiceOfBuyer/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: None
 - Optional args: fulfillment_channel, sids, pxc_health, search_field, search_value, return_badge
-- Rate limit: 限流：endpoint /basicOpen/customerService/voiceOfBuyer/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Input schema:
 
 ```json
 {

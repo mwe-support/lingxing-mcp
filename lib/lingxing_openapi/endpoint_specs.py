@@ -118,6 +118,8 @@ PROFIT_REPORT_ORDER_LIST_ARGS = (
     _s("order_status"),
     _s("gmt_modified_start_date"),
     _s("gmt_modified_end_date"),
+    _s("response_mode", default="summary"),
+    _i("preview_limit", default=20),
 )
 SOURCE_RANGE_ARGS = (
     _i("sid", required=True),
@@ -705,7 +707,7 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
     ),
     EndpointSpec(
         tool_name="lingxing_profit_report_order_list",
-        description="查询利润报表订单 transaction 视图；fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。",
+        description="查询利润报表订单 Transaction 视图；默认返回摘要，full 仅供本地 Excel 导出器。fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。",
         endpoint="/basicOpen/finance/profitReport/order/transcation/list",
         category="profit_report_order",
         args=PROFIT_REPORT_ORDER_LIST_ARGS,

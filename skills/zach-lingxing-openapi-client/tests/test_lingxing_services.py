@@ -136,6 +136,12 @@ class FakeClient:
                 page_count=2,
                 total=1,
             )
+        if path == "/basicOpen/finance/profitReport/order/transcation/list":
+            return PagedRows(
+                rows=[{"sid": "101", "orderId": "ORDER-TX-1", "productSales": 12.5}],
+                page_count=2,
+                total=1,
+            )
         if path == "/erp/sc/routing/wms/order/wmsOrderList":
             return PagedRows(
                 rows=[{"sid": 101, "wo_number": "WO-1"}],
@@ -345,7 +351,7 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertEqual(kwargs["data_path"], "data")
         self.assertEqual(kwargs["total_path"], "total")
 
-    def test_shipment_settlement_report_uses_all_sellers_when_sids_are_omitted(self) -> None:
+    def test_shipment_settlement_report_uses_active_sellers_when_sids_are_omitted(self) -> None:
         result = self.service.shipment_settlement_report(
             start_date="2026-06-01",
             end_date="2026-06-30",
@@ -357,11 +363,12 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertEqual(result["data"]["returned_count"], 1)
         self.assertFalse(result["data"]["truncated"])
         self.assertEqual(result["meta"]["store_scope"], "all")
-        self.assertEqual(result["meta"]["selected_store_count"], 2)
+        self.assertEqual(result["meta"]["selected_store_count"], 1)
+        self.assertEqual(result["meta"]["selected_store_status"], "active")
         path, body, kwargs = self.service.client.post_calls[-1]
         self.assertEqual(path, "/cost/center/api/settlement/report")
-        self.assertEqual(body["sids"], [101, 202])
-        self.assertEqual(body["amazonSellerIds"], ["A1SELLER", "A2SELLER"])
+        self.assertEqual(body["sids"], [101])
+        self.assertEqual(body["amazonSellerIds"], ["A1SELLER"])
         self.assertEqual(body["timeType"], "04")
         self.assertEqual(body["filterBeginDate"], "2026-06-01")
         self.assertEqual(body["filterEndDate"], "2026-06-30")
@@ -397,20 +404,31 @@ class LingxingServiceTests(unittest.TestCase):
                 self.assertEqual(body["sids"], expected_sids)
                 self.assertEqual(body["amazonSellerIds"], expected_seller_ids)
 
-    def test_shipment_settlement_report_rejects_incomplete_all_store_scope(self) -> None:
+    def test_shipment_settlement_report_skips_inactive_incomplete_store_for_all_scope(self) -> None:
         class IncompleteSellerClient(FakeClient):
             def get_json(self, path: str, query_params: dict | None = None) -> dict:
                 payload = super().get_json(path, query_params)
                 if path == "/erp/sc/data/seller/lists":
-                    payload["data"].append({"sid": 303, "name": "Missing Seller ID"})
+                    payload["data"].append({"sid": 303, "name": "Missing Seller ID", "status": 0})
                 return payload
 
         service = LingxingOpenAPIService(client=IncompleteSellerClient())
-        with self.assertRaisesRegex(Exception, "全量查询要求每个店铺同时具备 sid 和 seller_id"):
-            service.shipment_settlement_report(
-                start_date="2026-06-01",
-                end_date="2026-06-30",
-            )
+        result = service.shipment_settlement_report(
+            start_date="2026-06-01",
+            end_date="2026-06-30",
+        )
+        self.assertTrue(result["ok"])
+        _, body, _ = service.client.post_calls[-1]
+        self.assertEqual(body["sids"], [101])
+
+    def test_shipment_settlement_report_allows_explicit_inactive_store(self) -> None:
+        self.service.shipment_settlement_report(
+            start_date="2026-06-01",
+            end_date="2026-06-30",
+            sids=[202],
+        )
+        _, body, _ = self.service.client.post_calls[-1]
+        self.assertEqual(body["sids"], [202])
 
     def test_sales_outbound_orders_omits_sid_filter_for_all_store_export(self) -> None:
         result = self.service.sales_outbound_orders(
@@ -457,6 +475,27 @@ class LingxingServiceTests(unittest.TestCase):
                 )
                 _, body, _ = service.client.post_calls[-1]
                 self.assertEqual(body["sid_arr"], expected_sids)
+
+    def test_profit_report_order_defaults_to_summary_and_supports_full_export(self) -> None:
+        summary = self.service.run_endpoint_spec(
+            "lingxing_profit_report_order_list",
+            {"start_date": "2026-06-01", "end_date": "2026-06-30", "preview_limit": 0},
+        )
+        self.assertEqual(summary["meta"]["response_mode"], "summary")
+        self.assertEqual(summary["data"]["record_count"], 1)
+        self.assertEqual(summary["data"]["returned_count"], 0)
+        self.assertNotIn("orderId", summary["data"])
+
+        full = self.service.run_endpoint_spec(
+            "lingxing_profit_report_order_list",
+            {
+                "start_date": "2026-06-01",
+                "end_date": "2026-06-30",
+                "response_mode": "full",
+            },
+        )
+        self.assertEqual(full["meta"]["response_mode"], "full")
+        self.assertEqual(full["data"]["records"][0]["orderId"], "ORDER-TX-1")
 
     def test_multi_channel_orders_enriches_optional_details(self) -> None:
         from lib.lingxing_openapi.multi_channel_orders import MultiChannelOrderQuery

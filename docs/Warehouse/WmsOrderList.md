@@ -16,6 +16,8 @@
 
 默认 `response_mode=summary`，只返回前 20 条预览以及完整记录数。`preview_limit` 可设为 0 到 100。`response_mode=full` 会返回全部明细，仅供 `scripts/export_mcp_xlsx.py` 在进程内生成 Excel，不应由模型直接调用。
 
+Excel 使用领星 ERP 网页端 `sheet1` 的固定 68 列顺序。`product_info` 会拆成商品明细行；同一出库单有多个商品时，前 48 个订单级字段纵向合并。长订单号和平台单号按文本保存。
+
 ## 分页
 
 官方单页上限为 200。MCP 使用 `page/page_size` 顺序翻页，直到累计记录数达到顶层 `total`。调用方不需要按店铺或页码批量调用工具；摘要模式只控制最终响应大小，不影响服务端完成全部分页。

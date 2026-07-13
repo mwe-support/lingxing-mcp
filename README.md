@@ -239,7 +239,7 @@
 - 广告只读：`lingxing_ad_accounts`、`lingxing_ads_sp_*`、`lingxing_ads_sd_*`、`lingxing_ads_sb_*`
 - 广告管理：`lingxing_ads_update_sp_*`、`lingxing_ads_add_sp_*`、`lingxing_ads_archive_sp_negatives`、`lingxing_ads_operation_logs`
 - 利润：`lingxing_profit_seller`、`lingxing_profit_asin`、`lingxing_profit_parent_asin`
-- 财务与出库报表：`lingxing_shipment_settlement_report`、`lingxing_sales_outbound_orders`；均支持 SID、seller ID 定向查询和无店铺筛选的一次调用全量查询，服务端自动合并分页。默认 MCP 响应只返回摘要预览；使用 `scripts/export_mcp_xlsx.py` 可在不把全量 JSON 放入模型上下文的情况下生成 Excel
+- 财务与出库报表：`lingxing_shipment_settlement_report`、`lingxing_profit_report_order_list`、`lingxing_sales_outbound_orders`；服务端自动合并官方分页，默认 MCP 响应只返回摘要预览。`scripts/export_mcp_xlsx.py` 可在不把全量 JSON 放入模型上下文的情况下，按领星 ERP 网页端 52/56/68 列模板生成 Excel。发货结算全量查询默认仅选择启用店铺；Transaction 官方接口只支持 SID 筛选
 - 源表 / 库存 / 补货：`lingxing_source_*`、`lingxing_fba_*`、`lingxing_replenishment_*`
 - 报告导出：`lingxing_report_export_create`、`lingxing_report_export_query`、`lingxing_report_export_refresh_url`、`lingxing_report_export_download`
 - 高层聚合：`lingxing_asin_ads_daily_rollup`、`lingxing_asin_weekly_rollup`

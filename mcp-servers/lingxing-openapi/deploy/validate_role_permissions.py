@@ -60,6 +60,7 @@ EXPECTED_FINANCE = BASE_TOOLS | {
     "lingxing_fba_stock_detail",
     "lingxing_shipment_settlement_report",
     "lingxing_sales_outbound_orders",
+    "lingxing_profit_report_order_list",
 } | REPORT_ACCESS_TOOL_NAMES
 
 
