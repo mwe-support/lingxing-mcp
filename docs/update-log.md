@@ -2,6 +2,46 @@
 
 This log records MCP tool-surface changes. Each entry must list added tools, removed tools, built-in role allowlist changes, production `LINGXING_MCP_ROLE_TOOLS` changes when touched, and validation results.
 
+## 2026-07-13
+
+### Added Tools
+- `lingxing_shipment_settlement_report`
+  - Official API: `POST /cost/center/api/settlement/report`
+  - Supports targeted queries by `sids` or `amazon_seller_ids`; if neither is provided, the service resolves all Amazon stores and submits the complete SID/seller ID arrays in one MCP call.
+  - Automatically merges all pages with the official `offset/length` page size limit of 1000.
+  - Defaults to `response_mode=summary`; `response_mode=full` is reserved for the local Excel exporter.
+- `lingxing_sales_outbound_orders`
+  - Official API: `POST /erp/sc/routing/wms/order/wmsOrderList`
+  - Supports targeted queries by `sids` or `amazon_seller_ids`; if neither is provided, the service omits optional `sid_arr` for an all-store query in one MCP call.
+  - Automatically merges all pages with the official `page/page_size` page size limit of 200.
+  - Defaults to `response_mode=summary`; `response_mode=full` is reserved for the local Excel exporter.
+
+### Export Orchestration
+- Added `scripts/export_mcp_xlsx.py` and the dependency-free `lib/lingxing_openapi/xlsx_export.py` writer.
+- One exporter run makes one MCP `tools/call`; all official pagination remains inside the MCP service, and the client does not loop over SID or seller ID.
+- Full records stay inside the exporter process. Terminal and MCP text content contain compact metadata only, while the generated `.xlsx` includes all verified rows.
+- Added `docs/mcp-excel-export.md` with MCP-only Codex prompting, authentication sources, targeted/full-store examples, pagination guarantees, and truncation checks.
+
+### Removed Tools
+- None
+
+### Built-In Role Allowlist Changes
+- `operations`: 73 -> 75
+  - Added: `lingxing_shipment_settlement_report`, `lingxing_sales_outbound_orders`
+  - Removed: None
+- `finance`: 19 -> 21
+  - Added: `lingxing_shipment_settlement_report`, `lingxing_sales_outbound_orders`
+  - Removed: None
+- `minimal`: no change
+
+### Active Production Role Snapshot
+- `operations`: production override updated to include both new tools.
+- `finance`: both new tools are available through built-in role defaults.
+- Tool descriptions use MCP invocation language and do not instruct agents to operate the Lingxing browser UI.
+
+### Validation
+- Local and remote compile, unit, role-permission, release-audit, service restart, live `tools/list`, and MCP-only comparison results are recorded after deployment below.
+
 ## 2026-07-08
 
 ### Added Tools

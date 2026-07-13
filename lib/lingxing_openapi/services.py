@@ -175,6 +175,38 @@ class LingxingOpenAPIService:
             meta.update(extra_meta)
         return LingxingResult(ok=ok, data=data, meta=meta, warnings=warnings or []).to_dict()
 
+    def _normalize_large_report_options(self, response_mode: str, preview_limit: int) -> tuple[str, int]:
+        normalized_mode = str(response_mode or "summary").strip().lower()
+        if normalized_mode not in {"summary", "full"}:
+            raise LingxingConfigError("response_mode 必须为 summary 或 full")
+        if preview_limit < 0 or preview_limit > 100:
+            raise LingxingConfigError("preview_limit 必须在 0 到 100 之间")
+        return normalized_mode, preview_limit
+
+    def _large_report_data(
+        self,
+        rows: list[dict[str, Any]],
+        *,
+        response_mode: str,
+        preview_limit: int,
+        warnings: list[str],
+    ) -> dict[str, Any]:
+        normalized_mode, preview_limit = self._normalize_large_report_options(response_mode, preview_limit)
+
+        records = rows if normalized_mode == "full" else rows[:preview_limit]
+        truncated = len(records) < len(rows)
+        if truncated:
+            warnings.append(
+                f"摘要模式仅返回前 {len(records)} 条预览，共 {len(rows)} 条；"
+                "生成 Excel 时请由本地导出器使用 response_mode=full。"
+            )
+        return {
+            "records": records,
+            "record_count": len(rows),
+            "returned_count": len(records),
+            "truncated": truncated,
+        }
+
     def health_check(self) -> dict[str, Any]:
         env_status = {
             "LINGXING_APP_ID": bool(os.getenv("LINGXING_APP_ID", "").strip()),
@@ -1360,6 +1392,226 @@ class LingxingOpenAPIService:
             "marketplace_id": str(marketplace_id),
             "seller_id": seller_id,
         }
+
+    def _select_amazon_sellers(
+        self,
+        *,
+        sids: list[int] | None = None,
+        amazon_seller_ids: list[str] | None = None,
+    ) -> tuple[list[dict[str, Any]], list[str]]:
+        requested_sids = list(dict.fromkeys(_listify_ints(sids)))
+        requested_seller_ids = list(dict.fromkeys(_listify_strings(amazon_seller_ids)))
+        sid_filter = set(requested_sids)
+        seller_id_filter = set(requested_seller_ids)
+        selected: list[dict[str, Any]] = []
+        skipped_without_pair = 0
+        for seller in self.seller_lists()["data"]:
+            sid = int(seller.get("sid") or 0)
+            seller_id = str(seller.get("seller_id") or "").strip()
+            if sid_filter and sid not in sid_filter:
+                continue
+            if seller_id_filter and seller_id not in seller_id_filter:
+                continue
+            if not sid or not seller_id:
+                skipped_without_pair += 1
+                continue
+            selected.append({**seller, "sid": sid, "seller_id": seller_id})
+
+        if not sid_filter and not seller_id_filter and skipped_without_pair:
+            raise LingxingConfigError(
+                "全量查询要求每个店铺同时具备 sid 和 seller_id；"
+                f"当前有 {skipped_without_pair} 个店铺缺少配对标识，请修复店铺资料或改用定向筛选。"
+            )
+
+        selected_sids = {int(item["sid"]) for item in selected}
+        selected_seller_ids = {str(item["seller_id"]) for item in selected}
+        missing_sids = sorted(sid_filter - selected_sids)
+        missing_seller_ids = sorted(seller_id_filter - selected_seller_ids)
+        if missing_sids or missing_seller_ids:
+            raise LingxingConfigError(
+                "店铺筛选无法匹配 sid 与 seller_id 对应关系："
+                f"missing_sids={missing_sids}, missing_seller_ids={missing_seller_ids}"
+            )
+        if not selected:
+            raise LingxingConfigError("没有可用于查询的亚马逊店铺 sid/seller_id 对")
+
+        warnings: list[str] = []
+        if skipped_without_pair:
+            warnings.append(f"已跳过 {skipped_without_pair} 个缺少 sid 或 seller_id 的店铺。")
+        return selected, warnings
+
+    def shipment_settlement_report(
+        self,
+        start_date: str,
+        end_date: str,
+        *,
+        sids: list[int] | None = None,
+        amazon_seller_ids: list[str] | None = None,
+        time_type: str = "04",
+        country_codes: list[str] | None = None,
+        order_numbers: list[str] | None = None,
+        shipment_numbers: list[str] | None = None,
+        custom_numbers: list[str] | None = None,
+        mskus: list[str] | None = None,
+        skus: list[str] | None = None,
+        product_names: list[str] | None = None,
+        track_codes: list[str] | None = None,
+        fulfillment_type: str | None = None,
+        response_mode: str = "summary",
+        preview_limit: int = 20,
+    ) -> dict[str, Any]:
+        normalized_mode, preview_limit = self._normalize_large_report_options(response_mode, preview_limit)
+        endpoint = "/cost/center/api/settlement/report"
+        if time_type not in {"01", "02", "03", "04", "05", "06"}:
+            raise LingxingConfigError("time_type 必须为 01 至 06；04 表示结算时间")
+        sellers, warnings = self._select_amazon_sellers(
+            sids=sids,
+            amazon_seller_ids=amazon_seller_ids,
+        )
+        body: dict[str, Any] = {
+            "amazonSellerIds": [str(item["seller_id"]) for item in sellers],
+            "sids": [int(item["sid"]) for item in sellers],
+            "timeType": time_type,
+            "filterBeginDate": start_date,
+            "filterEndDate": end_date,
+            "offset": 0,
+            "length": 1000,
+        }
+        array_mappings = {
+            "countryCodes": country_codes,
+            "orderNumbers": order_numbers,
+            "shipmentNumbers": shipment_numbers,
+            "customNumbers": custom_numbers,
+            "mskus": mskus,
+            "skus": skus,
+            "productNames": product_names,
+            "trackCodes": track_codes,
+        }
+        for body_name, values in array_mappings.items():
+            normalized = _listify_strings(values)
+            if normalized:
+                body[body_name] = normalized
+        if fulfillment_type:
+            body["fulfillmentType"] = str(fulfillment_type)
+
+        page = self.client.paged_post_detailed(
+            endpoint,
+            body,
+            page_size=1000,
+            data_path="data.records",
+            total_path="data.total",
+        )
+        data = self._large_report_data(
+            page.rows,
+            response_mode=normalized_mode,
+            preview_limit=preview_limit,
+            warnings=warnings,
+        )
+        return self._result(
+            data=data,
+            endpoint=endpoint,
+            page_count=page.page_count,
+            warnings=warnings,
+            date_range=f"{start_date}~{end_date}",
+            extra_meta={
+                "docs_path": "docs/Finance/SettlementReport.md",
+                "store_scope": "filtered" if sids or amazon_seller_ids else "all",
+                "selected_store_count": len(sellers),
+                "page_size": 1000,
+                "pagination_mode": "offset",
+                "response_mode": normalized_mode,
+            },
+        )
+
+    def sales_outbound_orders(
+        self,
+        start_date: str,
+        end_date: str,
+        *,
+        sids: list[int] | None = None,
+        amazon_seller_ids: list[str] | None = None,
+        time_type: str = "stock_delivered_at",
+        status: list[int] | None = None,
+        logistics_status: list[int] | None = None,
+        platform_order_numbers: list[str] | None = None,
+        system_order_numbers: list[str] | None = None,
+        outbound_order_numbers: list[str] | None = None,
+        response_mode: str = "summary",
+        preview_limit: int = 20,
+    ) -> dict[str, Any]:
+        normalized_mode, preview_limit = self._normalize_large_report_options(response_mode, preview_limit)
+        endpoint = "/erp/sc/routing/wms/order/wmsOrderList"
+        if time_type not in {"create_at", "delivered_at", "stock_delivered_at", "update_at"}:
+            raise LingxingConfigError(
+                "time_type 必须为 create_at、delivered_at、stock_delivered_at 或 update_at"
+            )
+        requested_sids = list(dict.fromkeys(_listify_ints(sids)))
+        if amazon_seller_ids:
+            sellers, warnings = self._select_amazon_sellers(
+                sids=requested_sids or None,
+                amazon_seller_ids=amazon_seller_ids,
+            )
+            selected_sids = [int(item["sid"]) for item in sellers]
+        else:
+            warnings = []
+            selected_sids = requested_sids
+
+        body: dict[str, Any] = {
+            "page": 1,
+            "page_size": 200,
+            "time_type": time_type,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+        if selected_sids:
+            body["sid_arr"] = selected_sids
+        integer_array_mappings = {
+            "status_arr": status,
+            "logistics_status_arr": logistics_status,
+        }
+        string_array_mappings = {
+            "platform_order_no_arr": platform_order_numbers,
+            "order_number_arr": system_order_numbers,
+            "wo_number_arr": outbound_order_numbers,
+        }
+        for body_name, values in integer_array_mappings.items():
+            normalized = _listify_ints(values)
+            if normalized:
+                body[body_name] = normalized
+        for body_name, values in string_array_mappings.items():
+            normalized = _listify_strings(values)
+            if normalized:
+                body[body_name] = normalized
+
+        page = self.client.paged_post_detailed(
+            endpoint,
+            body,
+            page_size=200,
+            data_path="data",
+            total_path="total",
+            pagination_mode="page",
+        )
+        data = self._large_report_data(
+            page.rows,
+            response_mode=normalized_mode,
+            preview_limit=preview_limit,
+            warnings=warnings,
+        )
+        return self._result(
+            data=data,
+            endpoint=endpoint,
+            page_count=page.page_count,
+            warnings=warnings,
+            date_range=f"{start_date}~{end_date}",
+            extra_meta={
+                "docs_path": "docs/Warehouse/WmsOrderList.md",
+                "store_scope": "filtered" if sids or amazon_seller_ids else "all",
+                "selected_store_count": len(selected_sids) if selected_sids else None,
+                "page_size": 200,
+                "pagination_mode": "page",
+                "response_mode": normalized_mode,
+            },
+        )
 
     def _normalize_spec_value(self, value: Any) -> Any:
         if isinstance(value, list):

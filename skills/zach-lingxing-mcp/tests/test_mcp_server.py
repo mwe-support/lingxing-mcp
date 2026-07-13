@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from lib.lingxing_openapi.auth import load_bearer_auth_config  # noqa: E402
+from lib.lingxing_openapi.auth import AuthMatch, load_bearer_auth_config  # noqa: E402
 from lib.lingxing_openapi.mcp import LingxingMCPApplication, process_http_request  # noqa: E402
 
 
@@ -43,6 +43,41 @@ def _write_message(stream, payload: dict) -> None:
 
 
 class LingxingMCPTests(unittest.TestCase):
+    def test_full_report_result_does_not_duplicate_records_in_text_content(self) -> None:
+        app = LingxingMCPApplication()
+        payload = {
+            "ok": True,
+            "data": {
+                "records": [{"secret_marker": "FULL-ROW"}],
+                "record_count": 1,
+                "returned_count": 1,
+                "truncated": False,
+            },
+            "meta": {"response_mode": "full"},
+            "warnings": [],
+        }
+
+        result = app._tool_result(payload)
+
+        self.assertNotIn("FULL-ROW", result["content"][0]["text"])
+        self.assertTrue(json.loads(result["content"][0]["text"])["data"]["records_omitted_from_text"])
+        self.assertEqual(result["structuredContent"]["data"]["records"][0]["secret_marker"], "FULL-ROW")
+
+    def test_finance_and_operations_can_list_full_export_finance_tools(self) -> None:
+        app = LingxingMCPApplication()
+        expected = {"lingxing_shipment_settlement_report", "lingxing_sales_outbound_orders"}
+        for role in ("finance", "operations"):
+            tools = app.list_tools(AuthMatch(mode="test", token_id=role, description="test", role=role))
+            by_name = {tool["name"]: tool for tool in tools}
+            self.assertTrue(expected.issubset(by_name), f"{role} missing {sorted(expected - set(by_name))}")
+            for tool_name in expected:
+                schema = by_name[tool_name]["inputSchema"]
+                self.assertEqual(schema["required"], ["start_date", "end_date"])
+                self.assertIn("sids", schema["properties"])
+                self.assertIn("amazon_seller_ids", schema["properties"])
+                self.assertEqual(schema["properties"]["response_mode"]["enum"], ["summary", "full"])
+                self.assertIn("preview_limit", schema["properties"])
+
     def test_stdio_can_list_tools_and_call_health_check(self) -> None:
         process = subprocess.Popen(
             [sys.executable, str(STDIO_SERVER)],

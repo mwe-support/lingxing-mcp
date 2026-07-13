@@ -76,6 +76,8 @@ KNOWN_RATE_LIMIT_RULES: dict[str, RateLimitRule] = {
     "/erp/sc/data/mws_report/refundOrders": RateLimitRule(1.0, 1, "openapi_docs"),
     "/basicOpen/salesAnalysis/returnOrder/analysisLists": RateLimitRule(1.0, 1, "openapi_docs"),
     "/basicOpen/customerService/voiceOfBuyer/list": RateLimitRule(1.0, 1, "openapi_docs"),
+    "/cost/center/api/settlement/report": RateLimitRule(3.0, 3, "openapi_docs"),
+    "/erp/sc/routing/wms/order/wmsOrderList": RateLimitRule(1.0, 1, "openapi_docs"),
     # Production endpoints without local capacity docs use a conservative queue.
     "/basicOpen/openapi/storage/fbaWarehouseDetail": RateLimitRule(1.0, 1, "conservative"),
     "/erp/sc/routing/data/local_inventory/productList": RateLimitRule(1.0, 1, "conservative"),
@@ -650,6 +652,29 @@ class LingxingOpenAPIClient:
                     break
                 next_token = str(new_next_token)
             return PagedRows(rows=results, page_count=page_count, total=total, next_token=next_token)
+
+        if pagination_mode == "page":
+            page_number = int(body.get("page") or 1)
+            while True:
+                page_count += 1
+                page_body = dict(body)
+                page_body["page"] = page_number
+                page_body["page_size"] = page_size
+                payload = self.post_json(path, page_body, extra_headers=extra_headers)
+                data = extract_path_value(payload, data_path) or []
+                if not isinstance(data, list):
+                    raise LingxingRequestError(
+                        f"{path} 返回 {data_path} 不是数组",
+                        endpoint=path,
+                        details={"payload": payload},
+                    )
+                results.extend(data)
+                total_raw = extract_path_value(payload, total_path)
+                total = int(total_raw) if total_raw not in (None, "") else len(results)
+                if not data or len(results) >= total:
+                    break
+                page_number += 1
+            return PagedRows(rows=results, page_count=page_count, total=total, next_token=None)
 
         offset = int(body.get("offset") or 0)
         while True:

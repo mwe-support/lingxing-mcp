@@ -100,6 +100,14 @@ Use the shared client and service layer instead of hand-rolled HTTP calls.
 - Preserve the standard service result envelope: `ok`, `data`, `meta`, and `warnings`.
 - Prefer structured API parsing over ad hoc string parsing.
 
+### Large MCP exports
+
+- Large paginated report tools must default to a compact summary or bounded preview. Do not return an unbounded record list to an LLM by default.
+- Keep `response_mode=full` available only for non-interactive export orchestration such as `scripts/export_mcp_xlsx.py`; tool descriptions and docs must warn agents not to call full mode directly into model context.
+- Full-store exports must remain one MCP call. The service may paginate internally, but clients must not loop over SID or seller ID when the upstream endpoint supports an all-store request.
+- Export scripts must consume the MCP response inside the local process, write the artifact directly, and print only compact metadata. Never print full business records or authentication headers.
+- Before writing an artifact, verify that returned and expected record counts match. Refuse to create a silently truncated Excel file.
+
 ## OpenAPI Rate Limiting
 
 Lingxing OpenAPI throttling is centralized in `lib/lingxing_openapi/client.py`. Do not add ad hoc sleeps or per-tool throttling in service methods unless there is a tool-specific business reason.

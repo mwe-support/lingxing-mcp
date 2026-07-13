@@ -40,6 +40,8 @@ EXPECTED_OPERATIONS = BASE_TOOLS | {
     "lingxing_product_performance",
     "lingxing_profit_report_order_list",
     "lingxing_multi_channel_orders",
+    "lingxing_shipment_settlement_report",
+    "lingxing_sales_outbound_orders",
     "lingxing_refund_orders",
     "lingxing_return_analysis",
     "lingxing_voice_of_buyer",
@@ -56,6 +58,8 @@ EXPECTED_FINANCE = BASE_TOOLS | {
     "lingxing_order_details",
     "lingxing_fba_warehouse_detail",
     "lingxing_fba_stock_detail",
+    "lingxing_shipment_settlement_report",
+    "lingxing_sales_outbound_orders",
 } | REPORT_ACCESS_TOOL_NAMES
 
 

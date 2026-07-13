@@ -62,6 +62,7 @@
 - 亚马逊源表：`lingxing_source_all_orders`、`lingxing_source_manage_inventory`、`lingxing_source_daily_inventory`、`lingxing_source_reserved_inventory`、`lingxing_source_transaction`
 - FBA / 补货：`lingxing_fba_stock_aggregate`、`lingxing_fba_stock_detail`、`lingxing_replenishment_summary`、`lingxing_replenishment_asin_info`
 - 报告导出：`lingxing_report_export_create`、`lingxing_report_export_query`、`lingxing_report_export_refresh_url`、`lingxing_report_export_download`
+- 财务与出库报表：`lingxing_shipment_settlement_report`、`lingxing_sales_outbound_orders`；可按 SID 或 seller ID 查询，也可省略店铺筛选，在一次 MCP 调用内自动拉取全店铺并合并官方分页。默认返回摘要；全量 Excel 通过 `scripts/export_mcp_xlsx.py` 在本地进程内生成，避免明细 JSON 进入模型上下文
 - 高层聚合：`lingxing_asin_ads_daily_rollup`、`lingxing_asin_weekly_rollup`
 
 新增广告管理工具：

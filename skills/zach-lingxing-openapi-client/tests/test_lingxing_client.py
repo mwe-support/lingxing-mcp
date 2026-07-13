@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import io
+import json
 import sys
 import unittest
 import zipfile
@@ -32,6 +33,7 @@ class StubClient(LingxingOpenAPIClient):
         )
         self.last_request = None
         self.page_responses: list[dict] = []
+        self.request_bodies: list[dict] = []
 
     def _build_public_query(self, business_params: dict) -> dict[str, str]:  # noqa: ANN001
         return {
@@ -43,6 +45,8 @@ class StubClient(LingxingOpenAPIClient):
 
     def _request(self, request, *, endpoint: str) -> dict:  # noqa: ANN001
         self.last_request = request
+        if request.data:
+            self.request_bodies.append(json.loads(request.data.decode("utf-8")))
         if self.page_responses:
             return self.page_responses.pop(0)
         return {"code": 0, "data": []}
@@ -132,6 +136,27 @@ class LingxingClientTests(unittest.TestCase):
         self.assertEqual([row["id"] for row in page.rows], [1, 2])
         self.assertEqual(page.page_count, 2)
         self.assertIsNone(page.next_token)
+
+    def test_paged_post_detailed_supports_page_number_pagination(self) -> None:
+        client = StubClient()
+        client.page_responses = [
+            {"code": 0, "data": [{"id": 1}, {"id": 2}], "total": 3},
+            {"code": 0, "data": [{"id": 3}], "total": 3},
+        ]
+        page = client.paged_post_detailed(
+            "/erp/sc/routing/wms/order/wmsOrderList",
+            {"page": 1, "page_size": 2},
+            page_size=2,
+            pagination_mode="page",
+        )
+
+        self.assertEqual([row["id"] for row in page.rows], [1, 2, 3])
+        self.assertEqual(page.page_count, 2)
+        self.assertEqual(page.total, 3)
+        self.assertEqual(client.request_bodies, [
+            {"page": 1, "page_size": 2},
+            {"page": 2, "page_size": 2},
+        ])
 
     def test_parse_download_response_handles_gzip_csv(self) -> None:
         client = StubClient()

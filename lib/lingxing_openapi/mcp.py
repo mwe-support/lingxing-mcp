@@ -107,6 +107,8 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_product_performance",
         "lingxing_profit_report_order_list",
         "lingxing_multi_channel_orders",
+        "lingxing_shipment_settlement_report",
+        "lingxing_sales_outbound_orders",
         "lingxing_refund_orders",
         "lingxing_return_analysis",
         "lingxing_voice_of_buyer",
@@ -126,6 +128,8 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_order_details",
         "lingxing_fba_warehouse_detail",
         "lingxing_fba_stock_detail",
+        "lingxing_shipment_settlement_report",
+        "lingxing_sales_outbound_orders",
     }
     | REPORT_ACCESS_TOOL_NAMES,
 }
@@ -167,6 +171,16 @@ MANUAL_TOOL_RATE_LIMIT_ENDPOINTS: dict[str, tuple[str, ...]] = {
         "/order/amzod/api/orderDetails/logisticsInformation",
         "/order/amzod/api/orderDetails/returnInformation",
         "/basicOpen/openapi/salesOrder/multi-channel/list/transaction",
+    ),
+    "lingxing_shipment_settlement_report": (
+        "/erp/sc/data/seller/lists",
+        "/erp/sc/data/seller/allMarketplace",
+        "/cost/center/api/settlement/report",
+    ),
+    "lingxing_sales_outbound_orders": (
+        "/erp/sc/data/seller/lists",
+        "/erp/sc/data/seller/allMarketplace",
+        "/erp/sc/routing/wms/order/wmsOrderList",
     ),
     "lingxing_promotion_listing": ("/basicOpen/promotion/listingList",),
     "lingxing_promotion_sec_kill": ("/basicOpen/promotionalActivities/secKill/list",),
@@ -647,6 +661,138 @@ class LingxingMCPApplication:
                         page_size=_optional_int(args, "page_size") or 200,
                         max_records=_optional_int(args, "max_records") or 1000,
                     )
+                ),
+            ),
+            "lingxing_shipment_settlement_report": ToolDefinition(
+                name="lingxing_shipment_settlement_report",
+                description=(
+                    "通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；"
+                    "两者都不传时，一次 MCP 调用自动覆盖全部亚马逊店铺，并按官方每页 1000 条限制合并全部分页。"
+                    "默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，"
+                    "避免把全量 JSON 放入模型上下文。"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "start_date": {"type": "string", "description": "开始日期，YYYY-MM-DD，双闭区间。"},
+                        "end_date": {"type": "string", "description": "结束日期，YYYY-MM-DD，双闭区间。"},
+                        "sids": {
+                            "type": "array",
+                            "items": {"type": "integer"},
+                            "description": "可选；领星店铺 SID。与 amazon_seller_ids 均不传时查询全部店铺。",
+                        },
+                        "amazon_seller_ids": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "可选；亚马逊 seller_id。服务端自动解析配对 SID。",
+                        },
+                        "time_type": {
+                            "type": "string",
+                            "description": "时间类型：01 下单、02 付款、03 发货、04 结算、05 转账、06 更新；默认 04。",
+                        },
+                        "country_codes": {"type": "array", "items": {"type": "string"}},
+                        "order_numbers": {"type": "array", "items": {"type": "string"}},
+                        "shipment_numbers": {"type": "array", "items": {"type": "string"}},
+                        "custom_numbers": {"type": "array", "items": {"type": "string"}},
+                        "mskus": {"type": "array", "items": {"type": "string"}},
+                        "skus": {"type": "array", "items": {"type": "string"}},
+                        "product_names": {"type": "array", "items": {"type": "string"}},
+                        "track_codes": {"type": "array", "items": {"type": "string"}},
+                        "fulfillment_type": {"type": "string", "description": "可选；01 表示 FBA，不传表示全部。"},
+                        "response_mode": {
+                            "type": "string",
+                            "enum": ["summary", "full"],
+                            "description": "默认 summary，仅返回预览；full 仅供本地 Excel 导出器调用。",
+                        },
+                        "preview_limit": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100,
+                            "description": "summary 模式预览条数，默认 20。",
+                        },
+                    },
+                    "required": ["start_date", "end_date"],
+                    "additionalProperties": False,
+                },
+                handler=lambda args: self.service.shipment_settlement_report(
+                    _required_text(args, "start_date"),
+                    _required_text(args, "end_date"),
+                    sids=_list_of_ints(args, "sids"),
+                    amazon_seller_ids=_listify_strings(args.get("amazon_seller_ids")),
+                    time_type=str(args.get("time_type") or "04").strip() or "04",
+                    country_codes=_listify_strings(args.get("country_codes")),
+                    order_numbers=_listify_strings(args.get("order_numbers")),
+                    shipment_numbers=_listify_strings(args.get("shipment_numbers")),
+                    custom_numbers=_listify_strings(args.get("custom_numbers")),
+                    mskus=_listify_strings(args.get("mskus")),
+                    skus=_listify_strings(args.get("skus")),
+                    product_names=_listify_strings(args.get("product_names")),
+                    track_codes=_listify_strings(args.get("track_codes")),
+                    fulfillment_type=str(args.get("fulfillment_type") or "").strip() or None,
+                    response_mode=str(args.get("response_mode") or "summary").strip() or "summary",
+                    preview_limit=20 if args.get("preview_limit") is None else int(args["preview_limit"]),
+                ),
+            ),
+            "lingxing_sales_outbound_orders": ToolDefinition(
+                name="lingxing_sales_outbound_orders",
+                description=(
+                    "通过领星 OpenAPI 查询 ERP 销售出库单。可传 sids 或 amazon_seller_ids 定向查询；"
+                    "两者都不传时省略官方 sid_arr，一次 MCP 调用查询全部店铺，并按官方每页 200 条限制合并全部分页。"
+                    "默认 time_type=stock_delivered_at，按库存流水出库时间筛选。默认只返回摘要预览；"
+                    "生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "start_date": {"type": "string", "description": "开始日期，YYYY-MM-DD。"},
+                        "end_date": {"type": "string", "description": "结束日期，YYYY-MM-DD。"},
+                        "sids": {
+                            "type": "array",
+                            "items": {"type": "integer"},
+                            "description": "可选；领星店铺 SID。与 amazon_seller_ids 均不传时查询全部店铺。",
+                        },
+                        "amazon_seller_ids": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "可选；亚马逊 seller_id，由服务端解析为官方 sid_arr。",
+                        },
+                        "time_type": {
+                            "type": "string",
+                            "description": "create_at、delivered_at、stock_delivered_at 或 update_at；默认 stock_delivered_at。",
+                        },
+                        "status": {"type": "array", "items": {"type": "integer"}, "description": "出库单状态：1 物流下单、2 待出库、3 已出库、4 已截单。"},
+                        "logistics_status": {"type": "array", "items": {"type": "integer"}},
+                        "platform_order_numbers": {"type": "array", "items": {"type": "string"}},
+                        "system_order_numbers": {"type": "array", "items": {"type": "string"}},
+                        "outbound_order_numbers": {"type": "array", "items": {"type": "string"}},
+                        "response_mode": {
+                            "type": "string",
+                            "enum": ["summary", "full"],
+                            "description": "默认 summary，仅返回预览；full 仅供本地 Excel 导出器调用。",
+                        },
+                        "preview_limit": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100,
+                            "description": "summary 模式预览条数，默认 20。",
+                        },
+                    },
+                    "required": ["start_date", "end_date"],
+                    "additionalProperties": False,
+                },
+                handler=lambda args: self.service.sales_outbound_orders(
+                    _required_text(args, "start_date"),
+                    _required_text(args, "end_date"),
+                    sids=_list_of_ints(args, "sids"),
+                    amazon_seller_ids=_listify_strings(args.get("amazon_seller_ids")),
+                    time_type=str(args.get("time_type") or "stock_delivered_at").strip() or "stock_delivered_at",
+                    status=_list_of_ints(args, "status"),
+                    logistics_status=_list_of_ints(args, "logistics_status"),
+                    platform_order_numbers=_listify_strings(args.get("platform_order_numbers")),
+                    system_order_numbers=_listify_strings(args.get("system_order_numbers")),
+                    outbound_order_numbers=_listify_strings(args.get("outbound_order_numbers")),
+                    response_mode=str(args.get("response_mode") or "summary").strip() or "summary",
+                    preview_limit=20 if args.get("preview_limit") is None else int(args["preview_limit"]),
                 ),
             ),
             "lingxing_promotion_listing": ToolDefinition(
@@ -1136,8 +1282,20 @@ class LingxingMCPApplication:
         }
 
     def _tool_result(self, payload: dict[str, Any], *, is_error: bool = False) -> dict[str, Any]:
+        text_payload = payload
+        data = payload.get("data")
+        if (payload.get("meta") or {}).get("response_mode") == "full" and isinstance(data, dict):
+            text_payload = {
+                **payload,
+                "data": {
+                    key: value
+                    for key, value in data.items()
+                    if key != "records"
+                },
+            }
+            text_payload["data"]["records_omitted_from_text"] = True
         return {
-            "content": [{"type": "text", "text": _json_text(payload)}],
+            "content": [{"type": "text", "text": _json_text(text_payload)}],
             "structuredContent": payload,
             "isError": is_error,
         }

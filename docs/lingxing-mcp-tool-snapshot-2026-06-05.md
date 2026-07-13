@@ -1,12 +1,12 @@
 # Lingxing MCP Tool Snapshot
 
-Generated: 2026-07-08 16:20:06
+Generated: 2026-07-13 22:29:44
 Source: LingxingMCPApplication built-in role defaults
-Registered tools: 110
+Registered tools: 112
 
 ## Role Allowlists
 
-### finance (19)
+### finance (21)
 
 - `lingxing_exp_finance_report_seller`
 - `lingxing_fba_stock_aggregate`
@@ -23,7 +23,9 @@ Registered tools: 110
 - `lingxing_report_export_download`
 - `lingxing_report_export_query`
 - `lingxing_report_export_refresh_url`
+- `lingxing_sales_outbound_orders`
 - `lingxing_seller_lists`
+- `lingxing_shipment_settlement_report`
 - `lingxing_smoke_check`
 - `lingxing_source_transaction`
 - `lingxing_store_sales`
@@ -44,7 +46,7 @@ Registered tools: 110
 - `lingxing_seller_lists`
 - `lingxing_smoke_check`
 
-### operations (73)
+### operations (75)
 
 - `lingxing_ad_accounts`
 - `lingxing_ads_add_sp_keywords`
@@ -115,7 +117,9 @@ Registered tools: 110
 - `lingxing_report_export_query`
 - `lingxing_report_export_refresh_url`
 - `lingxing_return_analysis`
+- `lingxing_sales_outbound_orders`
 - `lingxing_seller_lists`
+- `lingxing_shipment_settlement_report`
 - `lingxing_smoke_check`
 - `lingxing_source_transaction`
 - `lingxing_voice_of_buyer`
@@ -225,15 +229,17 @@ Registered tools: 110
 | 99 | `lingxing_report_export_refresh_url` | `manual` | `manual` | report_document_id | sid, region, seller_id | `Manual` | 限流：endpoint /basicOpen/report/amazonReportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 续期亚马逊报告下载链接。 |
 | 100 | `lingxing_resolve_daily_promotions` | `manual` | `manual` | sid, target_date | lookback_days | `Manual` | 限流：聚合工具，涉及 5 个 endpoint；最严格为 /basicOpen/promotion/listingList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。 |
 | 101 | `lingxing_return_analysis` | `endpoint_spec` | `source` | startDate, endDate, asinType, dateType | mids, principalUid, searchField, searchValue, sortField, sortType, storeId | `/basicOpen/salesAnalysis/returnOrder/analysisLists` | 限流：endpoint /basicOpen/salesAnalysis/returnOrder/analysisLists，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询退货分析，按 MSKU / ASIN / 父 ASIN / SKU / SPU 等维度统计退货数量、退货件数、退货率和退货原因相关指标。 |
-| 102 | `lingxing_seller_lists` | `manual` | `manual` | None | status, marketplace | `Manual` | 限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。 |
-| 103 | `lingxing_smoke_check` | `manual` | `manual` | None | sid, date | `Manual` | 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
-| 104 | `lingxing_source_all_orders` | `endpoint_spec` | `source` | sid, start_date, end_date | date_type | `/erp/sc/data/mws_report/allOrders` | 限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。 | 亚马逊源表所有订单。 |
-| 105 | `lingxing_source_daily_inventory` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/dailyInventory` | 限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表每日库存。 |
-| 106 | `lingxing_source_manage_inventory` | `endpoint_spec` | `source` | sid | None | `/erp/sc/data/mws_report/manageInventory` | 限流：endpoint /erp/sc/data/mws_report/manageInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表 FBA 库存。 |
-| 107 | `lingxing_source_reserved_inventory` | `endpoint_spec` | `source` | sid | None | `/erp/sc/data/mws_report/reservedInventory` | 限流：endpoint /erp/sc/data/mws_report/reservedInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表预留库存。 |
-| 108 | `lingxing_source_transaction` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/transaction` | 限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表交易明细。 |
-| 109 | `lingxing_store_sales` | `manual` | `manual` | sid, start_date, end_date | None | `Manual` | 限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 按店铺和日期范围拉取 StoreSales，并自动合并分页。 |
-| 110 | `lingxing_voice_of_buyer` | `endpoint_spec` | `source` | None | fulfillment_channel, sids, pxc_health, search_field, search_value, return_badge | `/basicOpen/customerService/voiceOfBuyer/list` | 限流：endpoint /basicOpen/customerService/voiceOfBuyer/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询买家之声列表，返回 ASIN/MSKU/SKU 的满意度状况、不满意率、不满意订单数、订单总数、主要退货原因和退货标记。 |
+| 102 | `lingxing_sales_outbound_orders` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, status, logistics_status, platform_order_numbers, system_order_numbers, outbound_order_numbers, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询 ERP 销售出库单。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时省略官方 sid_arr，一次 MCP 调用查询全部店铺，并按官方每页 200 条限制合并全部分页。默认 time_type=stock_delivered_at，按库存流水出库时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
+| 103 | `lingxing_seller_lists` | `manual` | `manual` | None | status, marketplace | `Manual` | 限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。 |
+| 104 | `lingxing_shipment_settlement_report` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, country_codes, order_numbers, shipment_numbers, custom_numbers, mskus, skus, product_names, track_codes, fulfillment_type, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部亚马逊店铺，并按官方每页 1000 条限制合并全部分页。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
+| 105 | `lingxing_smoke_check` | `manual` | `manual` | None | sid, date | `Manual` | 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
+| 106 | `lingxing_source_all_orders` | `endpoint_spec` | `source` | sid, start_date, end_date | date_type | `/erp/sc/data/mws_report/allOrders` | 限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。 | 亚马逊源表所有订单。 |
+| 107 | `lingxing_source_daily_inventory` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/dailyInventory` | 限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表每日库存。 |
+| 108 | `lingxing_source_manage_inventory` | `endpoint_spec` | `source` | sid | None | `/erp/sc/data/mws_report/manageInventory` | 限流：endpoint /erp/sc/data/mws_report/manageInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表 FBA 库存。 |
+| 109 | `lingxing_source_reserved_inventory` | `endpoint_spec` | `source` | sid | None | `/erp/sc/data/mws_report/reservedInventory` | 限流：endpoint /erp/sc/data/mws_report/reservedInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表预留库存。 |
+| 110 | `lingxing_source_transaction` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/transaction` | 限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表交易明细。 |
+| 111 | `lingxing_store_sales` | `manual` | `manual` | sid, start_date, end_date | None | `Manual` | 限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 按店铺和日期范围拉取 StoreSales，并自动合并分页。 |
+| 112 | `lingxing_voice_of_buyer` | `endpoint_spec` | `source` | None | fulfillment_channel, sids, pxc_health, search_field, search_value, return_badge | `/basicOpen/customerService/voiceOfBuyer/list` | 限流：endpoint /basicOpen/customerService/voiceOfBuyer/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询买家之声列表，返回 ASIN/MSKU/SKU 的满意度状况、不满意率、不满意订单数、订单总数、主要退货原因和退货标记。 |
 
 ## Tool Details
 
@@ -243,6 +249,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: type, sid, profile_id, country_code, status
 - Rate limit: 限流：endpoint /basicOpen/baseData/account/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -277,6 +284,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 添加 SP 关键词，单次最多 1000 个；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: keywords
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -323,6 +331,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 添加 SP 否定关键词，支持活动层级和广告组层级；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: negative_keywords
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -369,6 +378,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 添加 SP 否定 ASIN，支持活动层级和广告组层级；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: asins
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/addNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -415,6 +425,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 归档 SP 否定关键词或否定 ASIN，需传官方 target_id；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: targetIds
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/spTarget/archiveNegatives，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -460,6 +471,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 查询广告操作日志，支持 SP/SB/SD、ERP/亚马逊后台来源和广告对象类型过滤。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, log_source, sponsored_type, operate_type, start_date, end_date
 - Optional args: offset, length
 - Rate limit: 限流：endpoint /pb/openapi/newad/apiLogStandard，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。
@@ -1948,6 +1960,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 修改 SP 广告组，支持启停和默认竞价；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: ad_groups
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpAdGroup，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -1994,6 +2007,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 修改 SP 广告活动和广告位，支持启停、预算、竞价策略和广告位比例；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: campaigns
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpCampaign，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -2040,6 +2054,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 修改 SP 关键词，支持启停和竞价；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: keywords
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpKeyword，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -2086,6 +2101,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 修改 SP 广告商品启用/暂停状态，单次最多 1000 个；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: product_ads
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpProductAds，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -2132,6 +2148,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 修改 SP 商品投放，支持启停和竞价；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: targeting_clauses
 - Optional args: sid, profile_id, dry_run, confirm
 - Rate limit: 限流：endpoint /basicOpen/adReport/manage/putSpTarget，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -2226,6 +2243,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 按 ASIN 汇总每日广告指标，采用 balanced 归因。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, asin, start_date, end_date
 - Optional args: attribution_policy
 - Rate limit: 限流：聚合工具，涉及 6 个 endpoint；最严格为 /basicOpen/baseData/account/list 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -2266,6 +2284,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 按店铺、日期和指标类型拉取 AsinDailyLists。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, event_date, metric_type
 - Optional args: asin_type
 - Rate limit: 限流：endpoint /erp/sc/data/sales_report/asinDailyLists，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -2302,6 +2321,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，例如 ["B0..."]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, asins
 - Optional args: start_date, end_date
 - Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -2346,6 +2366,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 按周汇总 ASIN 的总销量、广告指标和促销标签。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, asin, start_date, end_date
 - Optional args: None
 - Rate limit: 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/sales_report/sales 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -2998,6 +3019,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 检查领星环境变量、token 状态和基础连通性，不拉业务数据。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: None
 - Rate limit: 限流：endpoint /api/auth-server/oauth/access-token，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3016,6 +3038,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: sku_list, sku_identifier_list, update_time_start, update_time_end, create_time_start, create_time_end, page_size, include_supplier_quotes, include_raw
 - Rate limit: 限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3113,6 +3136,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 返回领星市场列表，并补充站点时区映射。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: None
 - Rate limit: 限流：endpoint /erp/sc/data/seller/allMarketplace，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3131,6 +3155,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 查询亚马逊多渠道订单列表，按店铺 sid、日期范围和订单状态过滤；可选补充商品、物流、交易明细、退换货详情。为避免领星默认拉取最近 6 个月，本工具强制要求 start_date/end_date。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sids, start_date, end_date
 - Optional args: date_type, order_status, amazon_order_id, seller_fulfillment_order_id, include_product_detail, include_logistics_detail, include_transaction_detail, include_return_detail, page_size, max_records
 - Rate limit: 限流：聚合工具，涉及 5 个 endpoint；最严格为 /order/amzod/api/orderList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -3214,6 +3239,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: order_id, order_ids
 - Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/mws/orderDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -3244,6 +3270,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, start_date, end_date
 - Optional args: date_type
 - Rate limit: 限流：endpoint /erp/sc/data/mws/orders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3581,6 +3608,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, start_date, end_date
 - Optional args: None
 - Rate limit: 限流：endpoint /basicOpen/promotionalActivities/coupon/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3614,6 +3642,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, site_date, start_time, end_time
 - Optional args: status, product_status, promotion_category
 - Rate limit: 限流：endpoint /basicOpen/promotion/listingList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3669,6 +3698,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, start_date, end_date
 - Optional args: None
 - Rate limit: 限流：endpoint /basicOpen/promotionalActivities/manage/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3702,6 +3732,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 拉取秒杀活动列表，并补充 best_deal / lightning_deal 标签。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, start_date, end_date
 - Optional args: None
 - Rate limit: 限流：endpoint /basicOpen/promotionalActivities/secKill/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3735,6 +3766,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 拉取会员折扣/价格折扣列表，并归类 prime_exclusive / all_customers。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, start_date, end_date
 - Optional args: None
 - Rate limit: 限流：endpoint /basicOpen/promotionalActivities/vipDiscount/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3768,6 +3800,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 返回当前 MCP 工具到领星 OpenAPI endpoint 的限流政策，供客户端 agent 在调用前按 endpoint 自主排队。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: tool_name
 - Rate limit: 限流：本工具不直接调用领星业务 OpenAPI，或仅返回本地网关策略；客户端可并发调用，但不应把它作为业务查询循环。
@@ -3893,6 +3926,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 创建亚马逊报告导出任务。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, report_type
 - Optional args: data_start_time, data_end_time, marketplace_ids, region, seller_id
 - Rate limit: 限流：endpoint /basicOpen/report/create/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -3940,6 +3974,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 下载并解析亚马逊报告导出文件。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: url, sid, task_id, report_document_id, region, seller_id
 - Rate limit: 限流：聚合工具，涉及 2 个 endpoint；最严格为 /basicOpen/report/query/reportExportTask 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -3977,6 +4012,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 查询亚马逊报告导出任务结果。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: task_id
 - Optional args: sid, region, seller_id
 - Rate limit: 限流：endpoint /basicOpen/report/query/reportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -4011,6 +4047,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 续期亚马逊报告下载链接。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: report_document_id
 - Optional args: sid, region, seller_id
 - Rate limit: 限流：endpoint /basicOpen/report/amazonReportExportTask，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -4045,6 +4082,7 @@ Registered tools: 110
 - Category: `manual`
 - Description: 输入 sid + target_date，汇总 listing 和各促销详情，输出 ASIN 当天命中的统一促销标签。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, target_date
 - Optional args: lookback_days
 - Rate limit: 限流：聚合工具，涉及 5 个 endpoint；最严格为 /basicOpen/promotion/listingList 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -4142,12 +4180,108 @@ Registered tools: 110
 }
 ```
 
-### 102. `lingxing_seller_lists`
+### 102. `lingxing_sales_outbound_orders`
+
+- Origin: `manual`
+- Category: `manual`
+- Description: 通过领星 OpenAPI 查询 ERP 销售出库单。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时省略官方 sid_arr，一次 MCP 调用查询全部店铺，并按官方每页 200 条限制合并全部分页。默认 time_type=stock_delivered_at，按库存流水出库时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。
+- Endpoint: `Manual`
+- Docs path: `docs/Warehouse/WmsOrderList.md`
+- Required args: start_date, end_date
+- Optional args: sids, amazon_seller_ids, time_type, status, logistics_status, platform_order_numbers, system_order_numbers, outbound_order_numbers, response_mode, preview_limit
+- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "start_date": {
+      "type": "string",
+      "description": "开始日期，YYYY-MM-DD。"
+    },
+    "end_date": {
+      "type": "string",
+      "description": "结束日期，YYYY-MM-DD。"
+    },
+    "sids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "可选；领星店铺 SID。与 amazon_seller_ids 均不传时查询全部店铺。"
+    },
+    "amazon_seller_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "可选；亚马逊 seller_id，由服务端解析为官方 sid_arr。"
+    },
+    "time_type": {
+      "type": "string",
+      "description": "create_at、delivered_at、stock_delivered_at 或 update_at；默认 stock_delivered_at。"
+    },
+    "status": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "出库单状态：1 物流下单、2 待出库、3 已出库、4 已截单。"
+    },
+    "logistics_status": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "platform_order_numbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "system_order_numbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "outbound_order_numbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "response_mode": {
+      "type": "string",
+      "enum": [
+        "summary",
+        "full"
+      ],
+      "description": "默认 summary，仅返回预览；full 仅供本地 Excel 导出器调用。"
+    },
+    "preview_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "summary 模式预览条数，默认 20。"
+    }
+  },
+  "required": [
+    "start_date",
+    "end_date"
+  ],
+  "additionalProperties": false
+}
+```
+
+### 103. `lingxing_seller_lists`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 获取亚马逊店铺列表，返回 sid、店铺名、站点、时区等信息；可按状态或站点过滤。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: status, marketplace
 - Rate limit: 限流：聚合工具，涉及 2 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -4169,12 +4303,129 @@ Registered tools: 110
 }
 ```
 
-### 103. `lingxing_smoke_check`
+### 104. `lingxing_shipment_settlement_report`
+
+- Origin: `manual`
+- Category: `manual`
+- Description: 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部亚马逊店铺，并按官方每页 1000 条限制合并全部分页。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。
+- Endpoint: `Manual`
+- Docs path: `docs/Finance/SettlementReport.md`
+- Required args: start_date, end_date
+- Optional args: sids, amazon_seller_ids, time_type, country_codes, order_numbers, shipment_numbers, custom_numbers, mskus, skus, product_names, track_codes, fulfillment_type, response_mode, preview_limit
+- Rate limit: 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "start_date": {
+      "type": "string",
+      "description": "开始日期，YYYY-MM-DD，双闭区间。"
+    },
+    "end_date": {
+      "type": "string",
+      "description": "结束日期，YYYY-MM-DD，双闭区间。"
+    },
+    "sids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "可选；领星店铺 SID。与 amazon_seller_ids 均不传时查询全部店铺。"
+    },
+    "amazon_seller_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "可选；亚马逊 seller_id。服务端自动解析配对 SID。"
+    },
+    "time_type": {
+      "type": "string",
+      "description": "时间类型：01 下单、02 付款、03 发货、04 结算、05 转账、06 更新；默认 04。"
+    },
+    "country_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "order_numbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "shipment_numbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "custom_numbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mskus": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "skus": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "product_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "track_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fulfillment_type": {
+      "type": "string",
+      "description": "可选；01 表示 FBA，不传表示全部。"
+    },
+    "response_mode": {
+      "type": "string",
+      "enum": [
+        "summary",
+        "full"
+      ],
+      "description": "默认 summary，仅返回预览；full 仅供本地 Excel 导出器调用。"
+    },
+    "preview_limit": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "summary 模式预览条数，默认 20。"
+    }
+  },
+  "required": [
+    "start_date",
+    "end_date"
+  ],
+  "additionalProperties": false
+}
+```
+
+### 105. `lingxing_smoke_check`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: None
 - Optional args: sid, date
 - Rate limit: 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。
@@ -4194,7 +4445,7 @@ Registered tools: 110
 }
 ```
 
-### 104. `lingxing_source_all_orders`
+### 106. `lingxing_source_all_orders`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -4231,7 +4482,7 @@ Registered tools: 110
 }
 ```
 
-### 105. `lingxing_source_daily_inventory`
+### 107. `lingxing_source_daily_inventory`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -4261,7 +4512,7 @@ Registered tools: 110
 }
 ```
 
-### 106. `lingxing_source_manage_inventory`
+### 108. `lingxing_source_manage_inventory`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -4287,7 +4538,7 @@ Registered tools: 110
 }
 ```
 
-### 107. `lingxing_source_reserved_inventory`
+### 109. `lingxing_source_reserved_inventory`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -4313,7 +4564,7 @@ Registered tools: 110
 }
 ```
 
-### 108. `lingxing_source_transaction`
+### 110. `lingxing_source_transaction`
 
 - Origin: `endpoint_spec`
 - Category: `source`
@@ -4343,12 +4594,13 @@ Registered tools: 110
 }
 ```
 
-### 109. `lingxing_store_sales`
+### 111. `lingxing_store_sales`
 
 - Origin: `manual`
 - Category: `manual`
 - Description: 按店铺和日期范围拉取 StoreSales，并自动合并分页。
 - Endpoint: `Manual`
+- Docs path: `None`
 - Required args: sid, start_date, end_date
 - Optional args: None
 - Rate limit: 限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
@@ -4376,7 +4628,7 @@ Registered tools: 110
 }
 ```
 
-### 110. `lingxing_voice_of_buyer`
+### 112. `lingxing_voice_of_buyer`
 
 - Origin: `endpoint_spec`
 - Category: `source`

@@ -239,6 +239,7 @@
 - 广告只读：`lingxing_ad_accounts`、`lingxing_ads_sp_*`、`lingxing_ads_sd_*`、`lingxing_ads_sb_*`
 - 广告管理：`lingxing_ads_update_sp_*`、`lingxing_ads_add_sp_*`、`lingxing_ads_archive_sp_negatives`、`lingxing_ads_operation_logs`
 - 利润：`lingxing_profit_seller`、`lingxing_profit_asin`、`lingxing_profit_parent_asin`
+- 财务与出库报表：`lingxing_shipment_settlement_report`、`lingxing_sales_outbound_orders`；均支持 SID、seller ID 定向查询和无店铺筛选的一次调用全量查询，服务端自动合并分页。默认 MCP 响应只返回摘要预览；使用 `scripts/export_mcp_xlsx.py` 可在不把全量 JSON 放入模型上下文的情况下生成 Excel
 - 源表 / 库存 / 补货：`lingxing_source_*`、`lingxing_fba_*`、`lingxing_replenishment_*`
 - 报告导出：`lingxing_report_export_create`、`lingxing_report_export_query`、`lingxing_report_export_refresh_url`、`lingxing_report_export_download`
 - 高层聚合：`lingxing_asin_ads_daily_rollup`、`lingxing_asin_weekly_rollup`
@@ -262,6 +263,7 @@
 - 飞书补充文档： [docs/feishu-onboarding.md](./docs/feishu-onboarding.md)
 - Agent 说明： [docs/agent-context.md](./docs/agent-context.md)
 - 管理员执行清单： [docs/admin-setup.md](./docs/admin-setup.md)
+- MCP 全量 Excel 导出： [docs/mcp-excel-export.md](./docs/mcp-excel-export.md)
 - 腾讯云新手购买指南： [docs/tencent-cloud-buying-guide.md](./docs/tencent-cloud-buying-guide.md)
 - 手动安装： [docs/manual-install.md](./docs/manual-install.md)
 - 发布前闸门： [docs/release-gate.md](./docs/release-gate.md)
