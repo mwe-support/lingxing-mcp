@@ -101,18 +101,33 @@ class XlsxExportTests(unittest.TestCase):
                 "order_number": "103710166681993321",
                 "status_name": "已出库",
                 "seller_name": "易贝优-UK",
+                "order_type": 2,
+                "consignee_full_address": "英国 LONDON 5 FAVERSHAM ROAD",
+                "consignee_address": "5 FAVERSHAM ROAD",
                 "product_info": [
-                    {"sku": "SKU-1", "seller_sku": "MSKU-1", "product_name": "产品一", "count": 1},
+                    {
+                        "sku": "SKU-1",
+                        "seller_sku": "MSKU-1",
+                        "product_name": "产品一",
+                        "count": 1,
+                        "currency_code": "$",
+                        "declared_weight": "60000",
+                    },
                     {"sku": "SKU-2", "seller_sku": "MSKU-2", "product_name": "产品二", "count": 2},
                 ],
-            }
+            },
+            {
+                "wo_number": "WO103710765523995138",
+                "order_type": 3,
+                "product_info": [{"sku": "SKU-3", "count": 2}],
+            },
         ]
         with tempfile.TemporaryDirectory() as temp_dir:
             output = Path(temp_dir) / "outbound.xlsx"
             summary = write_records_xlsx(rows, output, profile="sales_outbound_orders")
 
-            self.assertEqual(summary["source_record_count"], 1)
-            self.assertEqual(summary["row_count"], 2)
+            self.assertEqual(summary["source_record_count"], 2)
+            self.assertEqual(summary["row_count"], 3)
             self.assertEqual(summary["column_count"], 68)
             self.assertEqual(summary["unavailable_columns"], ["库位"])
             with zipfile.ZipFile(output) as archive:
@@ -123,6 +138,10 @@ class XlsxExportTests(unittest.TestCase):
             self.assertIn("103710166681993321", sheet)
             self.assertIn("SKU-1", sheet)
             self.assertIn("SKU-2", sheet)
+            self.assertIn("多品多件", sheet)
+            self.assertIn("单品多件", sheet)
+            self.assertIn("英国 LONDON 5 FAVERSHAM ROAD", sheet)
+            self.assertIn("60000.00g", sheet)
 
 
 if __name__ == "__main__":

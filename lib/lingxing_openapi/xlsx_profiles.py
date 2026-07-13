@@ -303,7 +303,25 @@ def _bool_status(value: Any, positive: str, negative: str) -> str:
 
 
 def _order_type(value: Any) -> Any:
-    return {1: "单品单件", 2: "单品多件", 3: "多品多件"}.get(int(value or 0), value)
+    return {1: "单品单件", 2: "多品多件", 3: "单品多件"}.get(int(value or 0), value)
+
+
+def _declared_weight_text(value: Any) -> str | None:
+    if value in (None, ""):
+        return None
+    try:
+        return f"{float(value):.2f}g"
+    except (TypeError, ValueError):
+        return str(value)
+
+
+def _declaration_currency(item: dict[str, Any]) -> Any:
+    explicit = item.get("declared_currency_icon") or item.get("declared_currency_code")
+    if explicit:
+        return explicit
+    declaration_fields = ("unit_price", "declared_weight", "declared_quantity", "cn_name", "en_name", "customs_code")
+    has_declaration = any(item.get(field) not in (None, "") for field in declaration_fields)
+    return item.get("currency_code") if has_declaration else None
 
 
 def _outbound_rows(records: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -362,7 +380,7 @@ def _outbound_rows(records: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
                 "收件人": record.get("consignee"),
                 "电话": _text(record.get("consignee_phone")),
                 "邮编": _text(record.get("consignee_postcode")),
-                "收货地址": record.get("consignee_address"),
+                "收货地址": record.get("consignee_full_address") or record.get("consignee_address"),
                 "订单金额": _currency_text(record.get("order_origin_amount"), record.get("order_currency_code"), 2),
                 "发货时限": record.get("deliver_deadline"),
                 "客服备注": record.get("order_customer_service_notes"),
@@ -407,10 +425,10 @@ def _outbound_rows(records: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
                 "分摊运费": _number(item.get("apportion_freight")),
                 "单个运费": _number(item.get("apportion_freight_single")),
                 "申报单价": _number(item.get("unit_price")),
-                "申报币种": item.get("declared_currency_icon") or item.get("declared_currency_code"),
+                "申报币种": _declaration_currency(item),
                 "中文申报名": item.get("cn_name"),
                 "英文申报名": item.get("en_name"),
-                "申报重量": _number(item.get("declared_weight")),
+                "申报重量": _declared_weight_text(item.get("declared_weight")),
                 "海关编码": _text(item.get("customs_code")),
                 "申报数量": _number(item.get("declared_quantity")),
                 "产品属性": item.get("material"),
@@ -455,7 +473,7 @@ TRANSACTION_COLUMNS = tuple(
 OUTBOUND_COLUMNS = tuple(
     ExportColumn(
         header,
-        "integer" if header in {"数量", "申报数量"} else "decimal4" if header in {"分摊运费", "单个运费"} else "decimal2" if header in {"物流运费", "货值", "费用", "头程", "申报单价", "申报重量"} else None,
+        "integer" if header in {"数量", "申报数量"} else "decimal4" if header in {"分摊运费", "单个运费"} else "decimal2" if header in {"物流运费", "货值", "费用", "头程", "申报单价"} else None,
     )
     for header in (
         "销售出库单号", "系统单号", "状态", "波次号", "三方仓出库时间", "发货员", "系统出库时间", "订单出库成本",

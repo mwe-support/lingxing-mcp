@@ -27,6 +27,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Long identifiers are written as text; empty reports retain fixed headers; outbound `product_info` is expanded to product rows with order-level vertical merges.
 - Columns shown by ERP but absent from the corresponding OpenAPI response remain blank and are reported in `unavailable_columns`; the exporter does not guess finance values by joining unrelated reports.
 - Real-export reconciliation confirmed that the outbound OpenAPI omits the ERP `库位` column; it is retained as a blank, explicitly unavailable field.
+- Corrected outbound ERP field semantics for order type codes 2/3, full consignee address, product-level declaration currency, and declaration weight with the web-export `g` suffix.
 
 ### Existing Tool Changes
 - `lingxing_profit_report_order_list`: added compact `response_mode` and `preview_limit` behavior for safe large-result handling; no endpoint change.
