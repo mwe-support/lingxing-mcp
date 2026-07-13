@@ -207,10 +207,7 @@ def _percentage(value: Any) -> str | None:
     number = _number(value)
     if number is None:
         return None
-    numeric = float(number)
-    if abs(numeric) <= 1:
-        numeric *= 100
-    return f"{numeric:.2f}%"
+    return f"{float(number) * 100:.2f}%"
 
 
 def _transaction_rows(records: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:

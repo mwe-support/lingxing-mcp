@@ -73,13 +73,17 @@ class XlsxExportTests(unittest.TestCase):
                 "settlementId": "26761815271",
                 "productSales": 549,
                 "settlementGrossProfitRate": 0.2424,
-            }
+            },
+            {
+                "orderId": "ORDER-OVER-100",
+                "settlementGrossProfitRate": 1.1145,
+            },
         ]
         with tempfile.TemporaryDirectory() as temp_dir:
             output = Path(temp_dir) / "transaction.xlsx"
             summary = write_records_xlsx(rows, output, profile="profit_report_order_transaction")
 
-            self.assertEqual(summary["row_count"], 1)
+            self.assertEqual(summary["row_count"], 2)
             self.assertEqual(summary["column_count"], 56)
             with zipfile.ZipFile(output) as archive:
                 sheet = archive.read("xl/worksheets/sheet1.xml").decode("utf-8")
@@ -87,6 +91,7 @@ class XlsxExportTests(unittest.TestCase):
             self.assertIn("基础信息", sheet)
             self.assertIn("Settlement Id", sheet)
             self.assertIn("24.24%", sheet)
+            self.assertIn("111.45%", sheet)
             self.assertIn('r="J3" t="inlineStr"', sheet)
 
     def test_outbound_profile_explodes_products_and_preserves_long_ids_as_text(self) -> None:
