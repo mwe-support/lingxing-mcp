@@ -114,6 +114,7 @@ class XlsxExportTests(unittest.TestCase):
             self.assertEqual(summary["source_record_count"], 1)
             self.assertEqual(summary["row_count"], 2)
             self.assertEqual(summary["column_count"], 68)
+            self.assertEqual(summary["unavailable_columns"], ["库位"])
             with zipfile.ZipFile(output) as archive:
                 sheet = archive.read("xl/worksheets/sheet1.xml").decode("utf-8")
                 ElementTree.fromstring(sheet)

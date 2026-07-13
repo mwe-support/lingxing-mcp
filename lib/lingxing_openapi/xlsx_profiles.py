@@ -502,6 +502,7 @@ EXPORT_PROFILES = {
         columns=OUTBOUND_COLUMNS,
         prepare_rows=_outbound_rows,
         merge_order_columns=48,
+        unavailable_columns=("库位",),
     ),
 }
 

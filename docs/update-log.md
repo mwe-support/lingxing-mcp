@@ -26,6 +26,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Added `docs/mcp-excel-export.md` with MCP-only Codex prompting, authentication sources, targeted/full-store examples, pagination guarantees, and truncation checks.
 - Long identifiers are written as text; empty reports retain fixed headers; outbound `product_info` is expanded to product rows with order-level vertical merges.
 - Columns shown by ERP but absent from the corresponding OpenAPI response remain blank and are reported in `unavailable_columns`; the exporter does not guess finance values by joining unrelated reports.
+- Real-export reconciliation confirmed that the outbound OpenAPI omits the ERP `库位` column; it is retained as a blank, explicitly unavailable field.
 
 ### Existing Tool Changes
 - `lingxing_profit_report_order_list`: added compact `response_mode` and `preview_limit` behavior for safe large-result handling; no endpoint change.
@@ -58,6 +59,9 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - `lingxing-mcp.service` restarted successfully and remained `active`; `/healthz` reported 15 active member tokens.
 - Live HTTP MCP `tools/list` returned 75 tools for `operations` and 22 for `finance`. Both roles included all three exportable report tools, `response_mode`, and visible `限流：` guidance.
 - The first all-store shipment settlement smoke test returned zero rows. Further live diagnosis showed the decisive upstream behavior: 20 active US stores returned 6314 rows, while a mixed-marketplace array returned zero. The service now groups by marketplace internally; active-store filtering remains in place to keep the default scope operationally correct.
+- Final all-store shipment settlement export returned 7006 data rows across 23 upstream pages. Its 52-column header exactly matched the ERP workbook, and all 6290 ERP sample keys `(订单号, 配送编号, MSKU)` were present in the MCP export.
+- Final Transaction export returned 8958 rows across 9 upstream pages. Its 56-column/two-row header and complete row multiset exactly matched the ERP workbook after applying the ERP percentage display format.
+- Final sales outbound export returned 729 orders across 4 upstream pages and expanded them to 786 product rows. The overlapping ERP sample order matched all 68 columns except `库位`, which the OpenAPI does not return and the exporter now reports as unavailable.
 - MCP-only Excel comparison for sales outbound orders used the same date range: all stores returned 729 rows across 4 pages, while SID 7806 returned 79 rows across 1 page. All 79 filtered `wo_number` values were present in the all-store workbook, and every filtered row had SID 7806.
 - The two comparison workbooks were generated without printing record JSON: `lingxing-sales-outbound-all-2026-06.xlsx` and `lingxing-sales-outbound-sid-7806-2026-06.xlsx`.
 - The required release audit could not run because neither `/public/_templates/scripts/release_audit.py` nor `/public/lingxing-mcp/scripts/release_audit.py` exists. This repository/template gap is recorded rather than reported as a passing audit.

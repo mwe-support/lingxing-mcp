@@ -57,7 +57,7 @@ python scripts/export_mcp_xlsx.py --tool lingxing_shipment_settlement_report --s
 - 订单号、Settlement ID、系统单号、平台单号、跟踪号等标识字段按文本写入，避免 Excel 科学计数法和 15 位精度丢失。
 - 表头使用网页端的粗体居中样式，首列宽度约 20.71，其余列约 13；数值列使用对应的整数、两位或四位小数格式。
 
-OpenAPI 与 ERP 网页端的数据层并不完全相同。发货结算接口不返回`到账状态`以及平台费、发货费、成本和毛利等 10 个网页端计算字段；Transaction 接口不返回`延迟时间`。模板保留这些列但保持空白，导出摘要的 `unavailable_columns` 会列出它们，禁止跨报表猜算或伪造。
+OpenAPI 与 ERP 网页端的数据层并不完全相同。发货结算接口不返回`到账状态`以及平台费、发货费、成本和毛利等 10 个网页端计算字段；Transaction 接口不返回`延迟时间`；销售出库接口不返回`库位`。模板保留这些列但保持空白，导出摘要的 `unavailable_columns` 会列出它们，禁止跨报表猜算或伪造。
 
 ## Codex 编排提示词
 
