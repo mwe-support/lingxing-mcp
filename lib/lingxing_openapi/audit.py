@@ -142,7 +142,10 @@ def build_audit_event(
         "request_bytes": len(body),
         "response_bytes": max(0, int(response_bytes)),
     }
-    event.update(_request_metadata(body))
+    if auth_match is None:
+        event["mcp_method"] = "unauthenticated"
+    else:
+        event.update(_request_metadata(body))
     event.update(_response_metadata(status, payload))
     if not delivered:
         event["outcome"] = "client_disconnected"
@@ -174,3 +177,17 @@ class MCPAuditLogger:
             return True
         except (OSError, ValueError):
             return False
+
+
+def report_audit_write_failure(audit_id: str) -> None:
+    """Emit a metadata-only fallback signal without failing the MCP response."""
+    event = {
+        "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+        "event": "mcp_audit_write_failed",
+        "audit_id": _bounded_text(audit_id),
+    }
+    try:
+        sys.stderr.write(json.dumps(event, separators=(",", ":")) + "\n")
+        sys.stderr.flush()
+    except (OSError, ValueError):
+        pass

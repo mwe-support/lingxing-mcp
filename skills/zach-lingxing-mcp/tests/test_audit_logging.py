@@ -8,6 +8,7 @@ import threading
 import unittest
 import urllib.error
 import urllib.request
+from contextlib import redirect_stderr
 from pathlib import Path
 
 
@@ -184,6 +185,63 @@ class LingxingMCPAuditTests(unittest.TestCase):
         )
 
         self.assertEqual(event["outcome"], "client_disconnected")
+
+    def test_unauthenticated_request_body_does_not_supply_audit_metadata(self) -> None:
+        body = b'{"method":"attackerMethod","params":{"name":"attackerTool","arguments":{"secretKey":"value"}}}'
+        event = build_audit_event(
+            audit_id="audit-unauthenticated",
+            auth_match=None,
+            body=body,
+            status=401,
+            payload={"error": "unauthorized"},
+            duration_ms=1,
+            response_bytes=10,
+            delivered=True,
+        )
+
+        serialized = json.dumps(event)
+        self.assertEqual(event["mcp_method"], "unauthenticated")
+        self.assertNotIn("attackerMethod", serialized)
+        self.assertNotIn("attackerTool", serialized)
+        self.assertNotIn("secretKey", serialized)
+
+    def test_failed_primary_audit_write_emits_metadata_only_health_event(self) -> None:
+        class FailingStream:
+            def write(self, value: str) -> None:
+                raise OSError("audit stream unavailable")
+
+            def flush(self) -> None:
+                return None
+
+        server = create_http_server(
+            "127.0.0.1",
+            0,
+            bearer_token="unit-test-token",
+            audit_logger=MCPAuditLogger(enabled=True, stream=FailingStream()),
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        fallback = io.StringIO()
+        try:
+            body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}).encode()
+            request = urllib.request.Request(
+                f"http://127.0.0.1:{server.server_port}/mcp",
+                data=body,
+                headers={"Authorization": "Bearer unit-test-token", "Content-Type": "application/json"},
+            )
+            with redirect_stderr(fallback):
+                with urllib.request.urlopen(request, timeout=5) as response:
+                    response.read()
+                    audit_id = response.headers.get("X-Mcp-Audit-Id")
+
+            event = json.loads(fallback.getvalue().strip())
+            self.assertEqual(event["event"], "mcp_audit_write_failed")
+            self.assertEqual(event["audit_id"], audit_id)
+            self.assertNotIn("unit-test-token", fallback.getvalue())
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=5)
 
     def test_http_request_gets_audit_header_and_one_compact_log_line(self) -> None:
         stream = io.StringIO()

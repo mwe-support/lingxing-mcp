@@ -140,7 +140,8 @@ sed \
 
 systemctl daemon-reload
 systemctl enable "${SERVICE_NAME}.service"
-systemctl try-restart "systemd-journald@${SERVICE_NAME}.service" || true
+systemctl restart "systemd-journald@${SERVICE_NAME}.service"
+systemctl is-active --quiet "systemd-journald@${SERVICE_NAME}.service"
 systemctl restart "${SERVICE_NAME}.service"
 systemctl is-active --quiet "${SERVICE_NAME}.service"
 

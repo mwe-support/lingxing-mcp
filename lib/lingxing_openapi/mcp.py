@@ -15,7 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 
 from .ad_management import AD_MANAGEMENT_TOOL_SPECS, AD_OPERATION_LOGS_ENDPOINT, AdManagementRequest, AdManagementToolSpec
-from .audit import MCPAuditLogger, build_audit_event, should_emit_audit_event
+from .audit import MCPAuditLogger, build_audit_event, report_audit_write_failure, should_emit_audit_event
 from .auth import AuthMatch, BearerAuthConfig, load_bearer_auth_config
 from .client import rate_limit_policy_for_endpoint, rate_limit_runtime_settings
 from .endpoint_specs import ALL_ENDPOINT_SPECS
@@ -1577,7 +1577,8 @@ def _build_http_handler(
                 delivered=delivered,
             )
             if should_emit_audit_event(event):
-                logger.emit(event)
+                if not logger.emit(event):
+                    report_audit_write_failure(audit_id)
 
         def do_OPTIONS(self) -> None:  # noqa: N802
             status, _ = process_http_request(

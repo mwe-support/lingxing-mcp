@@ -74,6 +74,22 @@ def _recent_events(namespace: str, service: str, audit_ids: set[str]) -> list[di
     return events
 
 
+def _wait_for_events(
+    namespace: str,
+    service: str,
+    required_ids: set[str],
+    all_ids: set[str],
+) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    for _ in range(20):
+        events = _recent_events(namespace, service, all_ids)
+        found = {str(event.get("audit_id") or "") for event in events}
+        if required_ids <= found:
+            return events
+        time.sleep(0.25)
+    return events
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="验证 MCP 审计日志，不输出令牌、参数值或业务响应。")
     parser.add_argument("--url", default="http://127.0.0.1:8099/mcp")
@@ -108,8 +124,12 @@ def main() -> int:
         token,
         {"jsonrpc": "2.0", "id": 3, "method": "ping", "params": {}},
     )
-    time.sleep(0.5)
-    events = _recent_events(args.namespace, args.service, {list_audit, call_audit, ping_audit})
+    events = _wait_for_events(
+        args.namespace,
+        args.service,
+        {list_audit, call_audit},
+        {list_audit, call_audit, ping_audit},
+    )
     tool_count = len(list_payload["result"]["tools"])
 
     if list_status != 200 or call_status != 200 or ping_status != 200:

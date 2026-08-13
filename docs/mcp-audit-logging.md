@@ -4,6 +4,8 @@ HTTP MCP 默认启用紧凑结构化审计日志。每个有审计价值的 POST
 
 为控制日志量，成功的 `ping` 和 `notifications/initialized` 不写审计日志；这两类请求发生错误或断连时仍会记录。`initialize`、`tools/list`、所有 `tools/call`、认证失败和异常请求均记录。
 
+未经认证的请求只记录 `mcp_method=unauthenticated`，不会从请求体提取工具名或参数键。主审计流写入失败时，服务只向标准错误输出 `mcp_audit_write_failed` 和 `audit_id`，不输出请求值或业务响应。
+
 ## 记录范围
 
 审计日志记录以下必要元数据：
@@ -65,6 +67,8 @@ python3 scripts/verify_mcp_audit.py --expected-tool-count 75
 - 始终为文件系统保留至少 1GB 空间
 
 30 天是最长保留时间；达到约 256MB 或磁盘保留空间限制时，已归档的旧日志会更早清理。生产环境不要取消容量上限。
+
+部署脚本要求独立 journald namespace 成功启动；namespace 启动失败会中止部署，避免服务在缺少审计日志的状态下被误判为成功。
 
 ## 断连处理
 
