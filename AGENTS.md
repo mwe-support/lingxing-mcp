@@ -57,6 +57,7 @@ Deployment paths used by the current gateway:
 - Public examples under `mcp-servers/lingxing-openapi/examples/public/` must remain sanitized placeholders only. Never replace example values with real credentials, real tokens, real server addresses, or internal URLs.
 - Treat `manage_tokens.py list --show-token` output as secret material; do not paste it into chat or logs.
 - Cloudflare Tunnel credentials must use a root-owned `0600` token file mounted read-only into the container. Never pass the token value in Docker `command`, environment output, process arguments, or Compose files.
+- The MCP bootstrap Bearer may remain in the root-owned service EnvironmentFile but must not be expanded into `ExecStart` arguments; the HTTP server reads it from the environment by default.
 
 ## Current MCP Tool Policy
 

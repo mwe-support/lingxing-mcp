@@ -22,6 +22,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Changed the deployment contract from command-line/environment token exposure to a root-owned read-only token file.
 - Fixed Tunnel transport to HTTP/2 after repeated QUIC idle-timeout and reconnect errors in production logs.
 - Limited Tunnel JSON logs to 10MB x 3 and added memory/PID limits.
+- Removed the MCP bootstrap Bearer from systemd `ExecStart` arguments; the server now reads it only from the root-owned EnvironmentFile.
 
 ### Tool Surface And Roles
 - Added tools: None.
@@ -33,7 +34,15 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Local Python compile passed.
 - OpenAPI/service/export tests passed: 42 tests.
 - MCP/auth/audit tests passed: 15 tests.
-- Production deployment and live audit verification: Pending.
+- Remote Python compile passed.
+- Remote OpenAPI/service/export tests passed: 42 tests.
+- Remote MCP/auth/audit tests passed: 15 tests.
+- Production `lingxing-mcp.service` and `systemd-journald@lingxing-mcp.service` are active. The service uses `LogNamespace=lingxing-mcp` with the documented retention settings loaded.
+- Live `tools/list` returned 75 operations tools and a matching audit event. A local `lingxing_rate_limit_policy` call returned successfully with token ID, role, tool name, bounded argument names, duration, and byte counts in one JSON line.
+- Live successful `ping` suppression verified; errors and disconnects remain logged by policy and tests.
+- cloudflared `2026.7.3` registered four HTTP/2 connections with zero restarts. The running command uses `--token-file`, the old `.env` is empty, and the token file is root-owned mode `0600`.
+- Tunnel Docker logs are limited to 10MB x 3; no Tunnel request or transport errors appeared after cutover.
+- Backup created at `/root/lingxing-mcp-backups/20260813155225` before production files were changed.
 
 ## 2026-07-13
 

@@ -103,11 +103,16 @@ def main() -> int:
             },
         },
     )
+    ping_status, ping_audit, _, ping_bytes = _call(
+        args.url,
+        token,
+        {"jsonrpc": "2.0", "id": 3, "method": "ping", "params": {}},
+    )
     time.sleep(0.5)
-    events = _recent_events(args.namespace, args.service, {list_audit, call_audit})
+    events = _recent_events(args.namespace, args.service, {list_audit, call_audit, ping_audit})
     tool_count = len(list_payload["result"]["tools"])
 
-    if list_status != 200 or call_status != 200:
+    if list_status != 200 or call_status != 200 or ping_status != 200:
         raise RuntimeError("MCP HTTP 验证失败")
     if args.expected_tool_count is not None and tool_count != args.expected_tool_count:
         raise RuntimeError(f"工具数量不匹配: {tool_count} != {args.expected_tool_count}")
@@ -115,6 +120,8 @@ def main() -> int:
         raise RuntimeError("本地限流策略工具调用失败")
     if len(events) != 2 or any(event.get("outcome") != "ok" for event in events):
         raise RuntimeError("没有找到两条成功的审计事件")
+    if any(event.get("audit_id") == ping_audit for event in events):
+        raise RuntimeError("成功 ping 不应占用审计日志")
 
     safe_fields = (
         "event",
@@ -148,6 +155,13 @@ def main() -> int:
                     "status": call_status,
                     "audit_id": call_audit,
                     "response_bytes": call_bytes,
+                },
+                "routine_suppression": {
+                    "method": "ping",
+                    "status": ping_status,
+                    "audit_id": ping_audit,
+                    "response_bytes": ping_bytes,
+                    "logged": False,
                 },
                 "audit_events": safe_events,
             },

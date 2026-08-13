@@ -51,6 +51,8 @@ journalctl --namespace=lingxing-mcp -u lingxing-mcp.service -o cat \
 python3 scripts/verify_mcp_audit.py --expected-tool-count 75
 ```
 
+验证脚本还会调用一次成功的 `ping` 并确认该审计 ID 未写入 journal，用于验证低价值保活日志抑制实际生效。
+
 ## 保留策略
 
 `mcp-servers/lingxing-openapi/deploy/journald-retention.conf` 对独立 namespace 设置：
