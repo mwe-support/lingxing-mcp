@@ -214,7 +214,7 @@ For MCP tool changes, refresh or update the tool snapshot documents under `docs/
 
 ## MCP Audit Logging
 
-- Production HTTP MCP requests must emit one compact `mcp_audit` JSON line per POST request.
+- Production HTTP MCP requests with audit value must emit one compact `mcp_audit` JSON line. Successful `ping` and `notifications/initialized` calls are suppressed to control volume; their errors and disconnects must still be logged.
 - Record only identity and execution metadata needed for audit: audit ID, token ID, role, MCP method, tool name, argument names/counts, safe control flags, outcome, duration, byte counts, record counts, and error code.
 - Never log Authorization headers, credentials, argument values, response bodies, upstream request bodies, business records, or full exception messages.
 - Keep `X-Mcp-Audit-Id` in HTTP responses so client reports can be correlated with server logs.

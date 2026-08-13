@@ -8,6 +8,7 @@ import json
 import subprocess
 import time
 import urllib.request
+import urllib.error
 from pathlib import Path
 from typing import Any
 
@@ -31,14 +32,21 @@ def _call(url: str, token: str, payload: dict[str, Any]) -> tuple[int, str, dict
             "Accept": "application/json",
         },
     )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        raw = response.read()
-        return (
-            response.status,
-            str(response.headers.get("X-Mcp-Audit-Id") or ""),
-            json.loads(raw),
-            len(raw),
-        )
+    for attempt in range(20):
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                raw = response.read()
+                return (
+                    response.status,
+                    str(response.headers.get("X-Mcp-Audit-Id") or ""),
+                    json.loads(raw),
+                    len(raw),
+                )
+        except urllib.error.URLError:
+            if attempt == 19:
+                raise
+            time.sleep(0.5)
+    raise RuntimeError("MCP 服务未就绪")
 
 
 def _recent_events(namespace: str, service: str, audit_ids: set[str]) -> list[dict[str, Any]]:

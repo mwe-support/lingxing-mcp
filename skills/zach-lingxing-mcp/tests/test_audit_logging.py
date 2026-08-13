@@ -15,12 +15,19 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from lib.lingxing_openapi.audit import MCPAuditLogger, build_audit_event  # noqa: E402
+from lib.lingxing_openapi.audit import MCPAuditLogger, build_audit_event, should_emit_audit_event  # noqa: E402
 from lib.lingxing_openapi.auth import AuthMatch  # noqa: E402
 from lib.lingxing_openapi.mcp import LingxingMCPApplication, _send_json_response, create_http_server  # noqa: E402
 
 
 class LingxingMCPAuditTests(unittest.TestCase):
+    def test_successful_routine_messages_are_suppressed_but_errors_are_not(self) -> None:
+        routine = {"mcp_method": "ping", "outcome": "ok"}
+        failed = {"mcp_method": "ping", "outcome": "client_disconnected"}
+
+        self.assertFalse(should_emit_audit_event(routine))
+        self.assertTrue(should_emit_audit_event(failed))
+
     def test_send_json_response_handles_broken_pipe(self) -> None:
         class BrokenWriter:
             def write(self, body: bytes) -> None:

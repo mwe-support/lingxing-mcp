@@ -15,7 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 
 from .ad_management import AD_MANAGEMENT_TOOL_SPECS, AD_OPERATION_LOGS_ENDPOINT, AdManagementRequest, AdManagementToolSpec
-from .audit import MCPAuditLogger, build_audit_event
+from .audit import MCPAuditLogger, build_audit_event, should_emit_audit_event
 from .auth import AuthMatch, BearerAuthConfig, load_bearer_auth_config
 from .client import rate_limit_policy_for_endpoint, rate_limit_runtime_settings
 from .endpoint_specs import ALL_ENDPOINT_SPECS
@@ -1566,18 +1566,18 @@ def _build_http_handler(
                 payload = {"error": "internal_server_error"}
 
             status, payload, response_bytes, delivered = self._send_json(status, payload, audit_id=audit_id)
-            logger.emit(
-                build_audit_event(
-                    audit_id=audit_id,
-                    auth_match=match,
-                    body=body,
-                    status=status,
-                    payload=payload,
-                    duration_ms=(time.monotonic() - started) * 1000,
-                    response_bytes=response_bytes,
-                    delivered=delivered,
-                )
+            event = build_audit_event(
+                audit_id=audit_id,
+                auth_match=match,
+                body=body,
+                status=status,
+                payload=payload,
+                duration_ms=(time.monotonic() - started) * 1000,
+                response_bytes=response_bytes,
+                delivered=delivered,
             )
+            if should_emit_audit_event(event):
+                logger.emit(event)
 
         def do_OPTIONS(self) -> None:  # noqa: N802
             status, _ = process_http_request(

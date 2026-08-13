@@ -11,6 +11,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - `BrokenPipeError` and `ConnectionResetError` during response delivery are now recorded as `client_disconnected` without Python traceback noise.
 - Malformed JSON, invalid content lengths, serialization failures, and unexpected dispatcher failures receive an audit ID and bounded error event instead of bypassing audit logging.
 - Audit writes are serialized across HTTP worker threads; log write failures do not crash request handlers.
+- Successful `ping` and `notifications/initialized` events are suppressed to prevent routine keepalives from consuming the 30-day audit budget; failures for those methods remain auditable.
 - Added a dedicated systemd journal namespace with a maximum 30-day retention, an approximately 256MB target cap, 32MB file cap, daily rotation, compression, and 1GB filesystem free-space reserve. Namespace rate dropping is disabled so authorized request bursts remain auditable.
 - Added `docs/mcp-audit-logging.md` and synchronized deployment/admin instructions.
 - Added `scripts/verify_mcp_audit.py` for credential-safe live verification of audit headers and journal events.
@@ -31,7 +32,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 ### Validation
 - Local Python compile passed.
 - OpenAPI/service/export tests passed: 42 tests.
-- MCP/auth/audit tests passed: 14 tests.
+- MCP/auth/audit tests passed: 15 tests.
 - Production deployment and live audit verification: Pending.
 
 ## 2026-07-13

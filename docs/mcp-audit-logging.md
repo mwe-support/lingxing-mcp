@@ -1,6 +1,8 @@
 # MCP 审计日志
 
-HTTP MCP 默认启用紧凑结构化审计日志。每个 POST 请求最多写入一行 JSON，事件名为 `mcp_audit`。
+HTTP MCP 默认启用紧凑结构化审计日志。每个有审计价值的 POST 请求最多写入一行 JSON，事件名为 `mcp_audit`。
+
+为控制日志量，成功的 `ping` 和 `notifications/initialized` 不写审计日志；这两类请求发生错误或断连时仍会记录。`initialize`、`tools/list`、所有 `tools/call`、认证失败和异常请求均记录。
 
 ## 记录范围
 

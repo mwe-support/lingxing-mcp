@@ -17,6 +17,7 @@ MAX_ARGUMENT_KEYS = 32
 MAX_LIST_SIZE_FIELDS = 16
 MAX_TEXT_LENGTH = 128
 MAX_AUDIT_BODY_BYTES = 1024 * 1024
+ROUTINE_SUCCESS_METHODS = {"ping", "notifications/initialized"}
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -146,6 +147,13 @@ def build_audit_event(
     if not delivered:
         event["outcome"] = "client_disconnected"
     return event
+
+
+def should_emit_audit_event(event: dict[str, Any]) -> bool:
+    return not (
+        event.get("outcome") == "ok"
+        and event.get("mcp_method") in ROUTINE_SUCCESS_METHODS
+    )
 
 
 class MCPAuditLogger:
