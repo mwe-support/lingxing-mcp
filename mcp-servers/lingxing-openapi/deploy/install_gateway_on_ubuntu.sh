@@ -115,6 +115,7 @@ LINGXING_MCP_TOKENS_FILE=${TOKENS_FILE}
 LINGXING_MCP_HOST=${DEFAULT_HOST}
 LINGXING_MCP_PORT=${DEFAULT_PORT}
 LINGXING_MCP_ROLE_TOOLS=${LINGXING_MCP_ROLE_TOOLS:-}
+LINGXING_MCP_AUDIT_ENABLED=${LINGXING_MCP_AUDIT_ENABLED:-1}
 LINGXING_OPENAPI_RATE_LIMIT_ENABLED=${LINGXING_OPENAPI_RATE_LIMIT_ENABLED:-1}
 LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS=${LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_RPS:-1}
 LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST=${LINGXING_OPENAPI_RATE_LIMIT_DEFAULT_BURST:-1}
@@ -125,8 +126,14 @@ EOF
 chmod 600 "$ENV_FILE"
 
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
+JOURNAL_CONFIG_DIR="/etc/systemd/journald@${SERVICE_NAME}.conf.d"
+install -d -m 755 "$JOURNAL_CONFIG_DIR"
+install -m 644 \
+  "$REPO_DIR/mcp-servers/lingxing-openapi/deploy/journald-retention.conf" \
+  "$JOURNAL_CONFIG_DIR/retention.conf"
 sed \
   -e "s#__SERVICE_USER__#${SERVICE_USER}#g" \
+  -e "s#__SERVICE_NAME__#${SERVICE_NAME}#g" \
   -e "s#__REPO_DIR__#${REPO_DIR}#g" \
   -e "s#__ENV_FILE__#${ENV_FILE}#g" \
   "$REPO_DIR/$TEMPLATE_PATH" >"$SERVICE_FILE"
@@ -137,6 +144,7 @@ systemctl enable --now "${SERVICE_NAME}.service"
 echo
 echo "部署完成。"
 echo "服务名: ${SERVICE_NAME}.service"
+echo "审计日志: journalctl --namespace=${SERVICE_NAME} -u ${SERVICE_NAME}.service"
 echo "环境文件: ${ENV_FILE}"
 echo "仓库目录: ${REPO_DIR}"
 echo

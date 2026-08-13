@@ -62,7 +62,7 @@ def _connection(args: argparse.Namespace) -> tuple[str, dict[str, str]]:
     return url, headers
 
 
-def _call_tool(url: str, headers: dict[str, str], tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+def _call_tool(url: str, headers: dict[str, str], tool_name: str, arguments: dict[str, Any]) -> tuple[dict[str, Any], str]:
     request_body = json.dumps(
         {
             "jsonrpc": "2.0",
@@ -75,6 +75,7 @@ def _call_tool(url: str, headers: dict[str, str], tool_name: str, arguments: dic
     request = urllib.request.Request(url, data=request_body, headers=headers, method="POST")
     try:
         with urllib.request.urlopen(request, timeout=600) as response:
+            audit_id = str(response.headers.get("X-Mcp-Audit-Id") or "").strip()
             payload = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         detail = exc.read(500).decode("utf-8", errors="replace")
@@ -85,7 +86,7 @@ def _call_tool(url: str, headers: dict[str, str], tool_name: str, arguments: dic
     structured = result.get("structuredContent") or {}
     if result.get("isError") or not structured.get("ok"):
         raise RuntimeError(json.dumps(structured.get("error") or structured, ensure_ascii=False))
-    return structured
+    return structured, audit_id
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -136,7 +137,7 @@ def main() -> int:
     arguments = _build_arguments(args, extra)
 
     url, headers = _connection(args)
-    result = _call_tool(url, headers, args.tool, arguments)
+    result, audit_id = _call_tool(url, headers, args.tool, arguments)
     data = result.get("data") or {}
     records = data.get("records") or []
     if data.get("truncated") or int(data.get("returned_count") or 0) != int(data.get("record_count") or 0):
@@ -153,6 +154,7 @@ def main() -> int:
             "tool": args.tool,
             "store_scope": (result.get("meta") or {}).get("store_scope"),
             "page_count": (result.get("meta") or {}).get("page_count"),
+            "mcp_audit_id": audit_id or None,
         }
     )
     print(json.dumps(summary, ensure_ascii=False))

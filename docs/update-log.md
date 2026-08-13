@@ -2,6 +2,34 @@
 
 This log records MCP tool-surface changes. Each entry must list added tools, removed tools, built-in role allowlist changes, production `LINGXING_MCP_ROLE_TOOLS` changes when touched, and validation results.
 
+## 2026-08-13
+
+### Runtime And Audit Logging
+- Added one-line JSON audit events for HTTP MCP POST requests, including audit ID, member token ID, role, MCP method, tool name, bounded argument metadata, outcome, duration, byte counts, record counts, and error code.
+- Audit events exclude credentials, Authorization headers, argument values, response bodies, business records, and full error messages.
+- Added `X-Mcp-Audit-Id` to HTTP responses for client/server correlation.
+- `BrokenPipeError` and `ConnectionResetError` during response delivery are now recorded as `client_disconnected` without Python traceback noise.
+- Added a dedicated systemd journal namespace with a maximum 30-day retention, 256MB total cap, 32MB file cap, daily rotation, compression, and 1GB filesystem free-space reserve.
+- Added `docs/mcp-audit-logging.md` and synchronized deployment/admin instructions.
+- Existing one-call XLSX export orchestration now returns `mcp_audit_id` in its compact terminal summary, linking large exports to server audit metadata without printing records.
+
+### Cloudflare Tunnel
+- Added a hardened Compose baseline pinned to cloudflared `2026.7.3`.
+- Changed the deployment contract from command-line/environment token exposure to a root-owned read-only token file.
+- Fixed Tunnel transport to HTTP/2 after repeated QUIC idle-timeout and reconnect errors in production logs.
+- Limited Tunnel JSON logs to 10MB x 3 and added memory/PID limits.
+
+### Tool Surface And Roles
+- Added tools: None.
+- Removed tools: None.
+- Built-in role allowlists: No change.
+- Production `LINGXING_MCP_ROLE_TOOLS`: No change.
+
+### Validation
+- Local Python compile passed.
+- MCP/auth/audit tests passed: 11 tests.
+- Production deployment and live audit verification: Pending.
+
 ## 2026-07-13
 
 ### Added Tools

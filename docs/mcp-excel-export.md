@@ -4,6 +4,8 @@
 
 需要完整 Excel 时，运行 `scripts/export_mcp_xlsx.py`。脚本通过一次 MCP `tools/call` 请求传入 `response_mode=full`，在本地进程内接收响应并写入 `.xlsx`，终端只输出文件路径、行列数、文件大小和 SHA-256，不输出明细。
 
+导出器还会在紧凑结果中返回 `mcp_audit_id`。管理员可以用该 ID 在服务端独立 journal namespace 中定位这次全量调用，核对成员、角色、耗时、响应字节数和记录数，而无需记录或查看业务明细。
+
 ## 连接配置
 
 脚本默认读取 `~/.codex/config.toml` 中的 `mcp_servers.lingxing_mcp`。也可通过以下环境变量覆盖：

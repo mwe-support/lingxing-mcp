@@ -108,6 +108,8 @@ python3 mcp-servers/lingxing-openapi/http_server.py --host 127.0.0.1 --port 8099
 - `deploy/deploy_gateway_via_ssh.sh`
 - `lingxing-mcp.service.template`
 
+如通过 Cloudflare Tunnel 对外提供服务，使用固定版本、HTTP/2 和 token-file 部署方式，参见 [cloudflare-tunnel.md](./cloudflare-tunnel.md)。
+
 ---
 
 ## 第 5 步：初始化成员令牌
@@ -143,6 +145,18 @@ Role notes:
 4. `lingxing_smoke_check`
 
 只要前两步没通，就不要急着排更高层的业务问题。
+
+---
+
+## 第 7 步：验证审计日志
+
+生产服务默认把紧凑审计日志写入独立的 `lingxing-mcp` journal namespace，最长保留 30 天且最多占用 256MB：
+
+```bash
+journalctl --namespace=lingxing-mcp -u lingxing-mcp.service --since "10 minutes ago" -o cat
+```
+
+调用一次 `tools/list` 或 `tools/call` 后，应出现一条 `event=mcp_audit` 的 JSON 日志。日志不应包含 token、参数值或响应正文。字段定义和查询方法见 [mcp-audit-logging.md](./mcp-audit-logging.md)。
 
 ---
 

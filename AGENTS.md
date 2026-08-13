@@ -56,6 +56,7 @@ Deployment paths used by the current gateway:
 - MCP tool descriptions must be written in Chinese. Tool names may remain English, but `description`, user-facing schema explanations, warnings, and business field notes should use Chinese unless an upstream API field name is being quoted.
 - Public examples under `mcp-servers/lingxing-openapi/examples/public/` must remain sanitized placeholders only. Never replace example values with real credentials, real tokens, real server addresses, or internal URLs.
 - Treat `manage_tokens.py list --show-token` output as secret material; do not paste it into chat or logs.
+- Cloudflare Tunnel credentials must use a root-owned `0600` token file mounted read-only into the container. Never pass the token value in Docker `command`, environment output, process arguments, or Compose files.
 
 ## Current MCP Tool Policy
 
@@ -210,6 +211,15 @@ Documentation is part of the implementation contract. Whenever source code chang
 Before every commit, scan the changed files and relevant documentation/configuration files to confirm their wording and behavior contracts are consistent, and remove conflicts between descriptions, examples, setup notes, and implementation details.
 
 For MCP tool changes, refresh or update the tool snapshot documents under `docs/` so they match the current registered tool names, descriptions, schemas, categories, and enablement rationale. Do not leave stale names such as old experimental tool names, removed parameters, or outdated output descriptions in docs. If a relevant document cannot be updated in the current turn, explicitly report the gap and the reason.
+
+## MCP Audit Logging
+
+- Production HTTP MCP requests must emit one compact `mcp_audit` JSON line per POST request.
+- Record only identity and execution metadata needed for audit: audit ID, token ID, role, MCP method, tool name, argument names/counts, safe control flags, outcome, duration, byte counts, record counts, and error code.
+- Never log Authorization headers, credentials, argument values, response bodies, upstream request bodies, business records, or full exception messages.
+- Keep `X-Mcp-Audit-Id` in HTTP responses so client reports can be correlated with server logs.
+- Treat `BrokenPipeError` and `ConnectionResetError` during response delivery as `client_disconnected`; do not emit traceback noise for expected disconnects.
+- Keep the service in a dedicated journald namespace with `MaxRetentionSec=30day` and a finite size cap. Thirty days is a maximum, not a minimum; capacity pressure may remove older entries sooner.
 
 ## Testing And Verification
 

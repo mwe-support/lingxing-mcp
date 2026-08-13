@@ -6,6 +6,8 @@ import argparse
 import json
 import os
 import sys
+import time
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
@@ -13,6 +15,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 
 from .ad_management import AD_MANAGEMENT_TOOL_SPECS, AD_OPERATION_LOGS_ENDPOINT, AdManagementRequest, AdManagementToolSpec
+from .audit import MCPAuditLogger, build_audit_event
 from .auth import AuthMatch, BearerAuthConfig, load_bearer_auth_config
 from .client import rate_limit_policy_for_endpoint, rate_limit_runtime_settings
 from .endpoint_specs import ALL_ENDPOINT_SPECS
@@ -153,6 +156,7 @@ CORS_ALLOW_HEADERS = ", ".join(
         "CF-Access-Client-Secret",
         "Mcp-Session-Id",
         "Last-Event-ID",
+        "X-Mcp-Audit-Id",
     ]
 )
 
@@ -1456,7 +1460,13 @@ def process_http_request(
     return HTTPStatus.METHOD_NOT_ALLOWED, {"error": "method_not_allowed"}
 
 
-def _build_http_handler(app: LingxingMCPApplication, auth: BearerAuthConfig) -> type[BaseHTTPRequestHandler]:
+def _build_http_handler(
+    app: LingxingMCPApplication,
+    auth: BearerAuthConfig,
+    audit_logger: MCPAuditLogger | None = None,
+) -> type[BaseHTTPRequestHandler]:
+    logger = audit_logger or MCPAuditLogger()
+
     class Handler(BaseHTTPRequestHandler):
         server_version = "LingxingMCP/1.0"
 
@@ -1464,16 +1474,22 @@ def _build_http_handler(app: LingxingMCPApplication, auth: BearerAuthConfig) -> 
             self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Access-Control-Allow-Headers", CORS_ALLOW_HEADERS)
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-            self.send_header("Access-Control-Expose-Headers", "Mcp-Session-Id")
+            self.send_header("Access-Control-Expose-Headers", "Mcp-Session-Id, X-Mcp-Audit-Id")
 
-        def _send_json(self, status: int, payload: dict[str, Any]) -> None:
+        def _send_json(self, status: int, payload: dict[str, Any], *, audit_id: str = "") -> tuple[int, bool]:
             body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-            self.send_response(status)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.send_header("Content-Length", str(len(body)))
-            self._send_cors_headers()
-            self.end_headers()
-            self.wfile.write(body)
+            try:
+                self.send_response(status)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                if audit_id:
+                    self.send_header("X-Mcp-Audit-Id", audit_id)
+                self._send_cors_headers()
+                self.end_headers()
+                self.wfile.write(body)
+                return len(body), True
+            except (BrokenPipeError, ConnectionResetError):
+                return len(body), False
 
         def do_GET(self) -> None:  # noqa: N802
             status, payload = process_http_request(
@@ -1486,16 +1502,33 @@ def _build_http_handler(app: LingxingMCPApplication, auth: BearerAuthConfig) -> 
             self._send_json(status, payload)
 
         def do_POST(self) -> None:  # noqa: N802
+            started = time.monotonic()
+            audit_id = uuid.uuid4().hex[:16]
             length = int(self.headers.get("Content-Length", "0"))
+            headers = {key: value for key, value in self.headers.items()}
+            body = self.rfile.read(length)
             status, payload = process_http_request(
                 app,
                 auth=auth,
                 method="POST",
                 path=self.path,
-                headers={key: value for key, value in self.headers.items()},
-                body=self.rfile.read(length),
+                headers=headers,
+                body=body,
             )
-            self._send_json(status, payload)
+            response_bytes, delivered = self._send_json(status, payload, audit_id=audit_id)
+            match = auth.authenticate_header(headers.get("Authorization", ""))
+            logger.emit(
+                build_audit_event(
+                    audit_id=audit_id,
+                    auth_match=match,
+                    body=body,
+                    status=status,
+                    payload=payload,
+                    duration_ms=(time.monotonic() - started) * 1000,
+                    response_bytes=response_bytes,
+                    delivered=delivered,
+                )
+            )
 
         def do_OPTIONS(self) -> None:  # noqa: N802
             status, _ = process_http_request(
@@ -1522,10 +1555,11 @@ def create_http_server(
     bearer_token: str = "",
     tokens_file: str = "",
     app: LingxingMCPApplication | None = None,
+    audit_logger: MCPAuditLogger | None = None,
 ) -> ThreadingHTTPServer:
     application = app or LingxingMCPApplication()
     auth = load_bearer_auth_config(bootstrap_token=bearer_token, tokens_file=tokens_file)
-    return ThreadingHTTPServer((host, port), _build_http_handler(application, auth))
+    return ThreadingHTTPServer((host, port), _build_http_handler(application, auth, audit_logger))
 
 
 def run_http_server(
