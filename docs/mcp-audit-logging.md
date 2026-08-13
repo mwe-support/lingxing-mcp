@@ -43,17 +43,24 @@ journalctl --namespace=lingxing-mcp -u lingxing-mcp.service -o cat \
   | grep 'AUDIT_ID'
 ```
 
+部署后可运行不输出凭证和业务数据的自动验证：
+
+```bash
+python3 scripts/verify_mcp_audit.py --expected-tool-count 75
+```
+
 ## 保留策略
 
 `mcp-servers/lingxing-openapi/deploy/journald-retention.conf` 对独立 namespace 设置：
 
 - 最长保留 30 天
-- 最大占用 256MB
+- 目标占用上限约 256MB；journald 只删除已归档文件，轮换期间可能短时略高
 - 单个 journal 文件最大 32MB
 - 每天至少轮换一次并启用压缩
+- 关闭 namespace 的日志速率丢弃，确保授权请求突发时审计记录不被默认限流丢弃
 - 始终为文件系统保留至少 1GB 空间
 
-30 天是最长保留时间；达到 256MB 或磁盘保留空间限制时，旧日志会更早清理。生产环境不要取消容量上限。
+30 天是最长保留时间；达到约 256MB 或磁盘保留空间限制时，已归档的旧日志会更早清理。生产环境不要取消容量上限。
 
 ## 断连处理
 

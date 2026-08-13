@@ -139,7 +139,10 @@ sed \
   "$REPO_DIR/$TEMPLATE_PATH" >"$SERVICE_FILE"
 
 systemctl daemon-reload
-systemctl enable --now "${SERVICE_NAME}.service"
+systemctl enable "${SERVICE_NAME}.service"
+systemctl try-restart "systemd-journald@${SERVICE_NAME}.service" || true
+systemctl restart "${SERVICE_NAME}.service"
+systemctl is-active --quiet "${SERVICE_NAME}.service"
 
 echo
 echo "部署完成。"

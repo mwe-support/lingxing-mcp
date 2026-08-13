@@ -159,6 +159,7 @@ CORS_ALLOW_HEADERS = ", ".join(
         "X-Mcp-Audit-Id",
     ]
 )
+MAX_HTTP_BODY_BYTES = 16 * 1024 * 1024
 
 
 MANUAL_TOOL_RATE_LIMIT_ENDPOINTS: dict[str, tuple[str, ...]] = {
@@ -1451,13 +1452,44 @@ def process_http_request(
     if method == "POST":
         try:
             request = json.loads((body or b"").decode("utf-8"))
-        except json.JSONDecodeError:
+        except (UnicodeDecodeError, json.JSONDecodeError):
             return HTTPStatus.BAD_REQUEST, {"error": "invalid_json"}
+        if not isinstance(request, dict):
+            return HTTPStatus.BAD_REQUEST, {"error": "invalid_request"}
         response = app.dispatch(request, auth_match=match)
         if response is None:
             return HTTPStatus.ACCEPTED, {"ok": True}
         return HTTPStatus.OK, response
     return HTTPStatus.METHOD_NOT_ALLOWED, {"error": "method_not_allowed"}
+
+
+def _send_json_response(
+    handler: BaseHTTPRequestHandler,
+    status: int,
+    payload: dict[str, Any],
+    *,
+    audit_id: str = "",
+) -> tuple[int, dict[str, Any], int, bool]:
+    actual_status = int(status)
+    actual_payload = payload
+    try:
+        body = json.dumps(actual_payload, ensure_ascii=False).encode("utf-8")
+    except (TypeError, ValueError):
+        actual_status = int(HTTPStatus.INTERNAL_SERVER_ERROR)
+        actual_payload = {"error": "response_serialization_failed"}
+        body = json.dumps(actual_payload).encode("utf-8")
+    try:
+        handler.send_response(actual_status)
+        handler.send_header("Content-Type", "application/json; charset=utf-8")
+        handler.send_header("Content-Length", str(len(body)))
+        if audit_id:
+            handler.send_header("X-Mcp-Audit-Id", audit_id)
+        handler._send_cors_headers()  # type: ignore[attr-defined]
+        handler.end_headers()
+        handler.wfile.write(body)
+        return actual_status, actual_payload, len(body), True
+    except OSError:
+        return actual_status, actual_payload, len(body), False
 
 
 def _build_http_handler(
@@ -1476,20 +1508,14 @@ def _build_http_handler(
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             self.send_header("Access-Control-Expose-Headers", "Mcp-Session-Id, X-Mcp-Audit-Id")
 
-        def _send_json(self, status: int, payload: dict[str, Any], *, audit_id: str = "") -> tuple[int, bool]:
-            body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-            try:
-                self.send_response(status)
-                self.send_header("Content-Type", "application/json; charset=utf-8")
-                self.send_header("Content-Length", str(len(body)))
-                if audit_id:
-                    self.send_header("X-Mcp-Audit-Id", audit_id)
-                self._send_cors_headers()
-                self.end_headers()
-                self.wfile.write(body)
-                return len(body), True
-            except (BrokenPipeError, ConnectionResetError):
-                return len(body), False
+        def _send_json(
+            self,
+            status: int,
+            payload: dict[str, Any],
+            *,
+            audit_id: str = "",
+        ) -> tuple[int, dict[str, Any], int, bool]:
+            return _send_json_response(self, status, payload, audit_id=audit_id)
 
         def do_GET(self) -> None:  # noqa: N802
             status, payload = process_http_request(
@@ -1504,19 +1530,42 @@ def _build_http_handler(
         def do_POST(self) -> None:  # noqa: N802
             started = time.monotonic()
             audit_id = uuid.uuid4().hex[:16]
-            length = int(self.headers.get("Content-Length", "0"))
             headers = {key: value for key, value in self.headers.items()}
-            body = self.rfile.read(length)
-            status, payload = process_http_request(
-                app,
-                auth=auth,
-                method="POST",
-                path=self.path,
-                headers=headers,
-                body=body,
-            )
-            response_bytes, delivered = self._send_json(status, payload, audit_id=audit_id)
             match = auth.authenticate_header(headers.get("Authorization", ""))
+            body = b""
+            status: int = int(HTTPStatus.INTERNAL_SERVER_ERROR)
+            payload: dict[str, Any] = {"error": "internal_server_error"}
+            response_bytes = 0
+            delivered = False
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if length < 0 or length > MAX_HTTP_BODY_BYTES:
+                    status = int(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                    payload = {"error": "request_too_large"}
+                else:
+                    body = self.rfile.read(length)
+                    if len(body) != length:
+                        status = int(HTTPStatus.BAD_REQUEST)
+                        payload = {"error": "incomplete_request_body"}
+                    else:
+                        status, payload = process_http_request(
+                            app,
+                            auth=auth,
+                            method="POST",
+                            path=self.path,
+                            headers=headers,
+                            body=body,
+                        )
+            except ValueError:
+                status = int(HTTPStatus.BAD_REQUEST)
+                payload = {"error": "invalid_content_length"}
+            except (BrokenPipeError, ConnectionResetError):
+                payload = {"error": "client_disconnected"}
+            except Exception:
+                status = int(HTTPStatus.INTERNAL_SERVER_ERROR)
+                payload = {"error": "internal_server_error"}
+
+            status, payload, response_bytes, delivered = self._send_json(status, payload, audit_id=audit_id)
             logger.emit(
                 build_audit_event(
                     audit_id=audit_id,

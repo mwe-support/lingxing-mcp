@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import sys
+import json
 import tempfile
 import unittest
 import zipfile
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 from xml.etree import ElementTree
 
 
@@ -14,10 +16,39 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lib.lingxing_openapi.xlsx_export import write_records_xlsx  # noqa: E402
-from scripts.export_mcp_xlsx import _build_arguments  # noqa: E402
+from scripts.export_mcp_xlsx import _build_arguments, _call_tool  # noqa: E402
 
 
 class XlsxExportTests(unittest.TestCase):
+    def test_exporter_propagates_http_audit_id(self) -> None:
+        class FakeResponse:
+            headers = {"X-Mcp-Audit-Id": "audit-123"}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self) -> bytes:
+                return json.dumps(
+                    {
+                        "result": {
+                            "structuredContent": {
+                                "ok": True,
+                                "data": {"records": []},
+                                "meta": {},
+                                "warnings": [],
+                            }
+                        }
+                    }
+                ).encode()
+
+        with patch("urllib.request.urlopen", return_value=FakeResponse()):
+            result, audit_id = _call_tool("https://example.invalid/mcp", {}, "tool", {})
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(audit_id, "audit-123")
     def test_exporter_rejects_scope_overrides_in_arguments_json(self) -> None:
         args = SimpleNamespace(
             start_date="2026-06-01",

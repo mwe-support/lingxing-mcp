@@ -9,8 +9,11 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Audit events exclude credentials, Authorization headers, argument values, response bodies, business records, and full error messages.
 - Added `X-Mcp-Audit-Id` to HTTP responses for client/server correlation.
 - `BrokenPipeError` and `ConnectionResetError` during response delivery are now recorded as `client_disconnected` without Python traceback noise.
-- Added a dedicated systemd journal namespace with a maximum 30-day retention, 256MB total cap, 32MB file cap, daily rotation, compression, and 1GB filesystem free-space reserve.
+- Malformed JSON, invalid content lengths, serialization failures, and unexpected dispatcher failures receive an audit ID and bounded error event instead of bypassing audit logging.
+- Audit writes are serialized across HTTP worker threads; log write failures do not crash request handlers.
+- Added a dedicated systemd journal namespace with a maximum 30-day retention, an approximately 256MB target cap, 32MB file cap, daily rotation, compression, and 1GB filesystem free-space reserve. Namespace rate dropping is disabled so authorized request bursts remain auditable.
 - Added `docs/mcp-audit-logging.md` and synchronized deployment/admin instructions.
+- Added `scripts/verify_mcp_audit.py` for credential-safe live verification of audit headers and journal events.
 - Existing one-call XLSX export orchestration now returns `mcp_audit_id` in its compact terminal summary, linking large exports to server audit metadata without printing records.
 
 ### Cloudflare Tunnel
@@ -27,7 +30,8 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ### Validation
 - Local Python compile passed.
-- MCP/auth/audit tests passed: 11 tests.
+- OpenAPI/service/export tests passed: 42 tests.
+- MCP/auth/audit tests passed: 14 tests.
 - Production deployment and live audit verification: Pending.
 
 ## 2026-07-13

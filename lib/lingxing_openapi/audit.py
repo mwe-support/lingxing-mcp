@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import threading
 from datetime import datetime, timezone
 from typing import Any, TextIO
 
@@ -15,6 +16,7 @@ AUDIT_EVENT = "mcp_audit"
 MAX_ARGUMENT_KEYS = 32
 MAX_LIST_SIZE_FIELDS = 16
 MAX_TEXT_LENGTH = 128
+MAX_AUDIT_BODY_BYTES = 1024 * 1024
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -25,10 +27,13 @@ def _env_bool(name: str, default: bool) -> bool:
 
 
 def _bounded_text(value: Any) -> str:
-    return str(value or "")[:MAX_TEXT_LENGTH]
+    text = str(value or "")[:MAX_TEXT_LENGTH]
+    return "".join(character if character.isalnum() or character in "._:/@-" else "?" for character in text)
 
 
 def _request_metadata(body: bytes) -> dict[str, Any]:
+    if len(body) > MAX_AUDIT_BODY_BYTES:
+        return {"mcp_method": "oversized_request"}
     try:
         request = json.loads(body.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError):
@@ -49,14 +54,15 @@ def _request_metadata(body: bytes) -> dict[str, Any]:
     if not isinstance(arguments, dict):
         return metadata
 
-    argument_keys = sorted(_bounded_text(key) for key in arguments)[:MAX_ARGUMENT_KEYS]
+    bounded_arguments = list(arguments.items())[:MAX_ARGUMENT_KEYS]
+    argument_keys = sorted(_bounded_text(key) for key, _ in bounded_arguments)
     metadata["argument_key_count"] = len(arguments)
     if argument_keys:
         metadata["argument_keys"] = argument_keys
 
     list_sizes = {
         _bounded_text(key): len(value)
-        for key, value in sorted(arguments.items(), key=lambda item: str(item[0]))
+        for key, value in bounded_arguments[:MAX_LIST_SIZE_FIELDS]
         if isinstance(value, list)
     }
     if list_sizes:
@@ -146,9 +152,17 @@ class MCPAuditLogger:
     def __init__(self, *, enabled: bool | None = None, stream: TextIO | None = None) -> None:
         self.enabled = _env_bool("LINGXING_MCP_AUDIT_ENABLED", True) if enabled is None else enabled
         self.stream = stream
+        self._lock = threading.Lock()
 
-    def emit(self, event: dict[str, Any]) -> None:
+    def emit(self, event: dict[str, Any]) -> bool:
         if not self.enabled:
-            return
+            return False
         stream = self.stream or sys.stdout
-        print(json.dumps(event, ensure_ascii=False, separators=(",", ":")), file=stream, flush=True)
+        line = json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
+        try:
+            with self._lock:
+                stream.write(line)
+                stream.flush()
+            return True
+        except (OSError, ValueError):
+            return False

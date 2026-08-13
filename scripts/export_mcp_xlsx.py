@@ -30,6 +30,11 @@ SUPPORTED_TOOLS = {
 RESERVED_ARGUMENTS = {"start_date", "end_date", "response_mode", "sids", "amazon_seller_ids"}
 
 
+def _audit_error(message: str, audit_id: str) -> RuntimeError:
+    suffix = f"；mcp_audit_id={audit_id}" if audit_id else ""
+    return RuntimeError(f"{message}{suffix}")
+
+
 def _load_codex_server(config_path: Path, server_name: str) -> tuple[str, dict[str, str]]:
     if not config_path.exists():
         return "", {}
@@ -73,19 +78,25 @@ def _call_tool(url: str, headers: dict[str, str], tool_name: str, arguments: dic
         ensure_ascii=False,
     ).encode("utf-8")
     request = urllib.request.Request(url, data=request_body, headers=headers, method="POST")
+    audit_id = ""
     try:
         with urllib.request.urlopen(request, timeout=600) as response:
             audit_id = str(response.headers.get("X-Mcp-Audit-Id") or "").strip()
-            payload = json.loads(response.read().decode("utf-8"))
+            raw = response.read().decode("utf-8")
     except urllib.error.HTTPError as exc:
+        audit_id = str(exc.headers.get("X-Mcp-Audit-Id") or "").strip() if exc.headers else ""
         detail = exc.read(500).decode("utf-8", errors="replace")
-        raise RuntimeError(f"MCP HTTP {exc.code}: {detail}") from exc
+        raise _audit_error(f"MCP HTTP {exc.code}: {detail}", audit_id) from exc
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise _audit_error("MCP 返回的不是合法 JSON", audit_id) from exc
     if payload.get("error"):
-        raise RuntimeError(str(payload["error"]))
+        raise _audit_error(str(payload["error"]), audit_id)
     result = payload.get("result") or {}
     structured = result.get("structuredContent") or {}
     if result.get("isError") or not structured.get("ok"):
-        raise RuntimeError(json.dumps(structured.get("error") or structured, ensure_ascii=False))
+        raise _audit_error(json.dumps(structured.get("error") or structured, ensure_ascii=False), audit_id)
     return structured, audit_id
 
 
