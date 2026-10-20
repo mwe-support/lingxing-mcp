@@ -189,6 +189,7 @@ Data source rules:
 - Query `/bd/productPerformance/openApi/asinList` once with the selected SID array, `summary_field=sku`, `is_recently_enum=false`, and the internal 30-day date window required by the upstream interface. Keep the official 200-store maximum.
 - Filter, rank, and truncate inside the service. Never return the unfiltered catalog to MCP clients. `limit` defaults to 20 and must not exceed 50.
 - Return ASINs with local name, Amazon title, SKU/MSKU, matched fields/terms, and store identity. Skip catalog rows without ASINs.
+- Keep each candidate's store details bounded to 10 entries and expose the full count plus a truncation flag.
 
 ## bdASIN / Finance Report Rules
 

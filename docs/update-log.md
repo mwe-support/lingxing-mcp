@@ -32,6 +32,8 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Live API research confirmed one product-performance request can batch stores across marketplaces; an AU + US sample returned rows for both SIDs.
 - Isolated branch smoke test for `query=广告机/LED` + `sids=[7787]` matched 22 products and returned ranked ASIN candidates from both `local_name` and `item_name`.
 - Isolated branch smoke test for `query=广告机` + `country_codes=[DE]` + `store_names=[MWE]` selected only MWE-DE and matched 16 products.
+- Case and spacing tests cover `360 photo booth`, `360 Photo Booth`, `iPad Photo Booth`, `3D扫描`, and `3D 扫描 Photo Booth`; the expected product ranks first in every case.
+- All-store research covered 146 active stores and 313 catalog rows in one page; `桌面广告机` matched 2 products and `触摸壁挂` matched 5 products despite inserted modifiers such as `款`, `式`, and `可`.
 - Production smoke testing remains pending deployment.
 
 ## 2026-08-13

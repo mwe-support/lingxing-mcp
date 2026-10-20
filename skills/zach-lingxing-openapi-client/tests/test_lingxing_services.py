@@ -356,8 +356,12 @@ class LingxingServiceTests(unittest.TestCase):
                 fuzzy_result = fuzzy_service.product_search(query=query, sids=[101], limit=10)
                 returned_asins = {asin for item in fuzzy_result["data"]["matches"] for asin in item["asins"]}
                 self.assertIn(expected_asin, returned_asins)
+                self.assertIn(expected_asin, fuzzy_result["data"]["matches"][0]["asins"])
                 self.assertTrue(
-                    {"score", "matched_terms", "matched_fields", "local_name", "item_name", "sku", "mskus", "asins", "stores"}
+                    {
+                        "score", "matched_terms", "matched_fields", "local_name", "item_name", "sku", "mskus", "asins",
+                        "store_count", "stores", "stores_truncated",
+                    }
                     .issubset(fuzzy_result["data"]["matches"][0])
                 )
 

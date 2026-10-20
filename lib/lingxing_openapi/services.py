@@ -76,6 +76,7 @@ REGION_CODE_MAP = {
 ASIN_PRODUCT_SNAPSHOT_MAX_ASINS = 50
 PRODUCT_SEARCH_MAX_STORES = 200
 PRODUCT_SEARCH_MAX_RESULTS = 50
+PRODUCT_SEARCH_MAX_STORES_PER_MATCH = 10
 
 
 def _normalize_search_text(value: Any) -> str:
@@ -453,7 +454,9 @@ class LingxingOpenAPIService:
                     "sku": next((value for value in skus if value), None),
                     "mskus": mskus,
                     "asins": asins,
-                    "stores": row_stores,
+                    "store_count": len(row_stores),
+                    "stores": row_stores[:PRODUCT_SEARCH_MAX_STORES_PER_MATCH],
+                    "stores_truncated": len(row_stores) > PRODUCT_SEARCH_MAX_STORES_PER_MATCH,
                 }
             )
 
