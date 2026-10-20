@@ -104,6 +104,66 @@ class LingxingHTTPHeaderCaseTests(unittest.TestCase):
         self.assertNotIn("case-test-member", stream.getvalue())
         self.assertNotIn("case-test-revoked", stream.getvalue())
 
+    def test_duplicate_authorization_headers_are_rejected_for_get_and_post(self) -> None:
+        stream = io.StringIO()
+        logger = MCPAuditLogger(enabled=True, stream=stream)
+        audit_ready = threading.Event()
+        original_emit = logger.emit
+
+        def emit(event):
+            result = original_emit(event)
+            audit_ready.set()
+            return result
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            tokens_file = Path(temp_dir) / "tokens.json"
+            tokens_file.write_text(json.dumps({"version": 1, "tokens": [
+                {"id": "member", "token": "case-test-member", "status": "active", "role": "operations"},
+            ]}), encoding="utf-8")
+            server = create_http_server(
+                "127.0.0.1", 0, tokens_file=str(tokens_file),
+                audit_logger=logger,
+            )
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            with patch.object(logger, "emit", side_effect=emit):
+                thread.start()
+                try:
+                    body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/list"}).encode()
+                    connection = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+                    connection.putrequest("POST", "/mcp")
+                    connection.putheader("Authorization", "Bearer invalid-first")
+                    connection.putheader("authorization", "Bearer case-test-member")
+                    connection.putheader("Content-Type", "application/json")
+                    connection.putheader("Content-Length", str(len(body)))
+                    connection.endheaders(body)
+                    response = connection.getresponse()
+                    payload = json.loads(response.read())
+                    connection.close()
+
+                    self.assertTrue(audit_ready.wait(5))
+                    event = json.loads(stream.getvalue().strip())
+                    self.assertEqual(response.status, 400)
+                    self.assertEqual(payload["error"], "multiple_authorization_headers")
+                    self.assertIsNone(event["token_id"])
+                    self.assertIsNone(event["role"])
+                    self.assertEqual(event["mcp_method"], "unauthenticated")
+                    self.assertEqual(event["error_code"], "multiple_authorization_headers")
+
+                    connection = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=5)
+                    connection.putrequest("GET", "/mcp")
+                    connection.putheader("Authorization", "Bearer invalid-first")
+                    connection.putheader("authorization", "Bearer case-test-member")
+                    connection.endheaders()
+                    response = connection.getresponse()
+                    payload = json.loads(response.read())
+                    connection.close()
+                    self.assertEqual(response.status, 400)
+                    self.assertEqual(payload["error"], "multiple_authorization_headers")
+                finally:
+                    server.shutdown()
+                    server.server_close()
+                    thread.join(timeout=5)
+
 
 if __name__ == "__main__":
     unittest.main()

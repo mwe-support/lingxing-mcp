@@ -59,6 +59,7 @@ python3 mcp-servers/lingxing-openapi/http_server.py --host 127.0.0.1 --port 8099
 
 HTTP 认证请求头名称不区分大小写，`Authorization`、`authorization` 和混合大小写均可使用。
 客户端（包括 Codex app-server）将请求头名称转为小写时，仍应正常认证；Token 值校验、成员撤销状态和角色权限不变。
+每个请求只能包含一个 Authorization 头；重复认证头会返回 `400 multiple_authorization_headers`，避免认证身份和审计身份产生歧义。
 
 可使用合成 Token 在本地验证认证和审计回归，无需真实凭据或调用业务接口：
 

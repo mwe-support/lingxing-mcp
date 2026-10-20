@@ -27,6 +27,7 @@ HTTP 响应头 `X-Mcp-Audit-Id` 可用于将客户端错误与服务端日志关
 
 认证头名称不区分大小写。使用小写 `authorization` 的合法成员请求也会记录正确的 token ID 和角色；
 缺失、无效或已撤销的 Token 仍按未经认证的请求记录，不输出请求头或 Token 值。
+重复 Authorization 头会在业务分发前返回 `400 multiple_authorization_headers`，并按未认证请求记录，防止实际执行身份与审计身份不一致。
 
 ## 查询
 

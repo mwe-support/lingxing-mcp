@@ -1518,6 +1518,9 @@ def _build_http_handler(
             return _send_json_response(self, status, payload, audit_id=audit_id)
 
         def do_GET(self) -> None:  # noqa: N802
+            if len(self.headers.get_all("Authorization", [])) > 1:
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": "multiple_authorization_headers"})
+                return
             status, payload = process_http_request(
                 app,
                 auth=auth,
@@ -1531,7 +1534,8 @@ def _build_http_handler(
             started = time.monotonic()
             audit_id = uuid.uuid4().hex[:16]
             headers = {key: value for key, value in self.headers.items()}
-            match = auth.authenticate_header(self.headers.get("Authorization", ""))
+            authorization_values = self.headers.get_all("Authorization", [])
+            match = auth.authenticate_header(authorization_values[0]) if len(authorization_values) == 1 else None
             body = b""
             status: int = int(HTTPStatus.INTERNAL_SERVER_ERROR)
             payload: dict[str, Any] = {"error": "internal_server_error"}
@@ -1547,6 +1551,9 @@ def _build_http_handler(
                     if len(body) != length:
                         status = int(HTTPStatus.BAD_REQUEST)
                         payload = {"error": "incomplete_request_body"}
+                    elif len(authorization_values) > 1:
+                        status = int(HTTPStatus.BAD_REQUEST)
+                        payload = {"error": "multiple_authorization_headers"}
                     else:
                         status, payload = process_http_request(
                             app,
