@@ -1417,8 +1417,8 @@ def process_http_request(
     headers: dict[str, str] | None = None,
     body: bytes | None = None,
 ) -> tuple[int, dict[str, Any]]:
-    normalized_headers = {str(key): str(value) for key, value in (headers or {}).items()}
-    authorization = normalized_headers.get("Authorization", "")
+    normalized_headers = {str(key).lower(): str(value) for key, value in (headers or {}).items()}
+    authorization = normalized_headers.get("authorization", "")
 
     if method == "GET" and path == "/healthz":
         return HTTPStatus.OK, {
@@ -1518,6 +1518,9 @@ def _build_http_handler(
             return _send_json_response(self, status, payload, audit_id=audit_id)
 
         def do_GET(self) -> None:  # noqa: N802
+            if len(self.headers.get_all("Authorization", [])) > 1:
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": "multiple_authorization_headers"})
+                return
             status, payload = process_http_request(
                 app,
                 auth=auth,
@@ -1531,31 +1534,36 @@ def _build_http_handler(
             started = time.monotonic()
             audit_id = uuid.uuid4().hex[:16]
             headers = {key: value for key, value in self.headers.items()}
-            match = auth.authenticate_header(headers.get("Authorization", ""))
+            authorization_values = self.headers.get_all("Authorization", [])
+            match = auth.authenticate_header(authorization_values[0]) if len(authorization_values) == 1 else None
             body = b""
             status: int = int(HTTPStatus.INTERNAL_SERVER_ERROR)
             payload: dict[str, Any] = {"error": "internal_server_error"}
             response_bytes = 0
             delivered = False
             try:
-                length = int(self.headers.get("Content-Length", "0"))
-                if length < 0 or length > MAX_HTTP_BODY_BYTES:
-                    status = int(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    payload = {"error": "request_too_large"}
+                if len(authorization_values) > 1:
+                    status = int(HTTPStatus.BAD_REQUEST)
+                    payload = {"error": "multiple_authorization_headers"}
                 else:
-                    body = self.rfile.read(length)
-                    if len(body) != length:
-                        status = int(HTTPStatus.BAD_REQUEST)
-                        payload = {"error": "incomplete_request_body"}
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length < 0 or length > MAX_HTTP_BODY_BYTES:
+                        status = int(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                        payload = {"error": "request_too_large"}
                     else:
-                        status, payload = process_http_request(
-                            app,
-                            auth=auth,
-                            method="POST",
-                            path=self.path,
-                            headers=headers,
-                            body=body,
-                        )
+                        body = self.rfile.read(length)
+                        if len(body) != length:
+                            status = int(HTTPStatus.BAD_REQUEST)
+                            payload = {"error": "incomplete_request_body"}
+                        else:
+                            status, payload = process_http_request(
+                                app,
+                                auth=auth,
+                                method="POST",
+                                path=self.path,
+                                headers=headers,
+                                body=body,
+                            )
             except ValueError:
                 status = int(HTTPStatus.BAD_REQUEST)
                 payload = {"error": "invalid_content_length"}
