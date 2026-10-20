@@ -2,6 +2,36 @@
 
 This log records MCP tool-surface changes. Each entry must list added tools, removed tools, built-in role allowlist changes, production `LINGXING_MCP_ROLE_TOOLS` changes when touched, and validation results.
 
+## 2026-10-20
+
+### Added Tools
+- `lingxing_product_search`
+  - Searches partial product-name terms against `local_name` and `item_name`, ranks all-term matches first, and returns compact ASIN candidates without exposing the full catalog.
+  - Supports intersecting filters for `country_codes`, `sids`, and partial `store_names`; searches all active stores when no store filter is supplied.
+  - Uses one batched, paginated `/bd/productPerformance/openApi/asinList` query for up to 200 selected stores with `summary_field=sku` and `is_recently_enum=false`.
+  - Defaults to 20 results and caps output at 50.
+
+### Removed Tools
+- None.
+
+### Built-In Role Allowlist Changes
+- `minimal`: 13 -> 14; added `lingxing_product_search`.
+- `operations`: 75 -> 76; added `lingxing_product_search`.
+- `finance`: no change.
+
+### Production Role Override
+- Pending deployment: add `lingxing_product_search` to the active `operations` allowlist. Other production role overrides remain unchanged.
+
+### Validation
+- Local compile passed.
+- OpenAPI/service tests passed: 43 tests.
+- MCP/auth/audit tests passed: 21 tests.
+- Role validation passed with `minimal=14`, `operations=76`, and `finance=22`.
+- Tool snapshot regenerated with 113 registered tools.
+- Live API research confirmed SKU-dimension product results include Chinese `local_name` and ASIN mappings; SID 7787 returned 80 catalog rows in one page.
+- Live API research confirmed one product-performance request can batch stores across marketplaces; an AU + US sample returned rows for both SIDs.
+- Production smoke testing remains pending deployment.
+
 ## 2026-08-13
 
 ### Runtime And Audit Logging

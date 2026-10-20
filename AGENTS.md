@@ -178,6 +178,18 @@ Data source rules:
 - Do not infer FBA/FBM from SKU names, MSKU suffixes, or `productPerformance.price_list`.
 - Do not include raw upstream API objects such as `raw_refs` in the MCP output unless the user explicitly asks for raw debugging.
 
+## Product Search Rules
+
+`lingxing_product_search` is the compact product-name-to-ASIN lookup tool.
+
+- Require a non-empty `query`; split multiple terms on slash, whitespace, comma, semicolon, or Chinese punctuation.
+- Match normalized terms only against `local_name` and `item_name`. Local product name matches rank above Amazon title matches.
+- Treat terms as OR candidates and rank products matching every term first. Do not add semantic translation, embeddings, or hard-coded product aliases without an explicit new requirement.
+- Apply `country_codes`, `sids`, and partial `store_names` filters to active sellers before querying products. Combined filters use intersection semantics.
+- Query `/bd/productPerformance/openApi/asinList` once with the selected SID array, `summary_field=sku`, `is_recently_enum=false`, and the internal 30-day date window required by the upstream interface. Keep the official 200-store maximum.
+- Filter, rank, and truncate inside the service. Never return the unfiltered catalog to MCP clients. `limit` defaults to 20 and must not exceed 50.
+- Return ASINs with local name, Amazon title, SKU/MSKU, matched fields/terms, and store identity. Skip catalog rows without ASINs.
+
 ## bdASIN / Finance Report Rules
 
 The ASIN finance report endpoint is the authoritative source for FBA/FBM split in this project:

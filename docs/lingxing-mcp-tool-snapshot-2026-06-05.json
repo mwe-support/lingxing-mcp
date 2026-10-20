@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-13 23:32:28",
+  "generated_at": "2026-10-20 18:39:55",
   "source": "LingxingMCPApplication built-in role defaults",
-  "tool_count": 112,
+  "tool_count": 113,
   "roles": {
     "finance": [
       "lingxing_exp_finance_report_seller",
@@ -38,6 +38,7 @@
       "lingxing_order_details",
       "lingxing_order_lists",
       "lingxing_product_performance",
+      "lingxing_product_search",
       "lingxing_rate_limit_policy",
       "lingxing_seller_lists",
       "lingxing_smoke_check"
@@ -104,6 +105,7 @@
       "lingxing_order_details",
       "lingxing_order_lists",
       "lingxing_product_performance",
+      "lingxing_product_search",
       "lingxing_profit_report_order_list",
       "lingxing_rate_limit_policy",
       "lingxing_refund_orders",
@@ -4895,6 +4897,101 @@
           "sid",
           "start_date",
           "end_date"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "lingxing_product_search",
+      "origin": "manual",
+      "category": "manual",
+      "description": "按领星中文品名关键词模糊筛选 ASIN。query 支持用斜杠、空格或逗号分隔多个词，例如 广告机/LED；可按国家代码、店铺 SID 或店铺名缩小范围。服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。",
+      "required_args": [
+        "query"
+      ],
+      "optional_args": [
+        "country_codes",
+        "sids",
+        "store_names",
+        "limit"
+      ],
+      "endpoint": null,
+      "docs_path": null,
+      "rate_limit_endpoints": [
+        "/erp/sc/data/seller/lists",
+        "/erp/sc/data/seller/allMarketplace",
+        "/bd/productPerformance/openApi/asinList"
+      ],
+      "rate_limit_description": "限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。",
+      "rate_limit_policies": [
+        {
+          "endpoint": "/erp/sc/data/seller/lists",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/erp/sc/data/seller/allMarketplace",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        },
+        {
+          "endpoint": "/bd/productPerformance/openApi/asinList",
+          "rate_per_second": 1.0,
+          "burst": 1,
+          "source": "openapi_docs",
+          "enabled": true,
+          "wait_timeout_seconds": 60.0,
+          "client_guidance": "该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。"
+        }
+      ],
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "模糊品名或关键词，例如 广告机/LED。"
+          },
+          "country_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "可选；国家/站点代码，例如 US、DE。"
+          },
+          "sids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "可选；领星店铺 SID。"
+          },
+          "store_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "可选；店铺名关键词，采用包含匹配。"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 20,
+            "description": "最多返回候选数，默认 20。"
+          }
+        },
+        "required": [
+          "query"
         ],
         "additionalProperties": false
       }

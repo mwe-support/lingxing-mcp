@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -72,6 +74,22 @@ REGION_CODE_MAP = {
 }
 
 ASIN_PRODUCT_SNAPSHOT_MAX_ASINS = 50
+PRODUCT_SEARCH_MAX_STORES = 200
+PRODUCT_SEARCH_MAX_RESULTS = 50
+
+
+def _normalize_search_text(value: Any) -> str:
+    text = unicodedata.normalize("NFKC", str(value or "")).casefold()
+    return "".join(character for character in text if character.isalnum())
+
+
+def _product_search_terms(query: str) -> list[str]:
+    terms: list[str] = []
+    for part in re.split(r"[\s/|,，、;；]+", unicodedata.normalize("NFKC", query).casefold()):
+        normalized = _normalize_search_text(part)
+        if normalized and normalized not in terms:
+            terms.append(normalized)
+    return terms
 
 
 def _parse_iso_date(value: str) -> datetime.date:
@@ -296,6 +314,154 @@ class LingxingOpenAPIService:
             data=filtered,
             endpoint=endpoint,
             extra_meta={"marketplace_filter": marketplace_filter or None},
+        )
+
+    def product_search(
+        self,
+        *,
+        query: str,
+        country_codes: list[str] | None = None,
+        sids: list[int] | None = None,
+        store_names: list[str] | None = None,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        endpoint = "/bd/productPerformance/openApi/asinList"
+        normalized_query = str(query or "").strip()
+        if not normalized_query:
+            raise LingxingConfigError("product_search requires a non-empty query")
+        if len(normalized_query) > 100:
+            raise LingxingConfigError("product_search query must be 100 characters or fewer")
+        search_terms = _product_search_terms(normalized_query)
+        if not search_terms:
+            raise LingxingConfigError("product_search query must contain searchable letters or numbers")
+
+        sid_filter = set(_listify_ints(sids))
+        country_filter = {str(value).strip().upper() for value in _listify_strings(country_codes) if str(value).strip()}
+        store_name_filter = [_normalize_search_text(value) for value in _listify_strings(store_names) if _normalize_search_text(value)]
+        sellers = self.seller_lists(status=1)["data"]
+        selected: list[dict[str, Any]] = []
+        for seller in sellers:
+            sid = int(seller.get("sid") or 0)
+            country_code = str(seller.get("marketplace_code") or "").strip().upper()
+            store_name = str(seller.get("name") or "").strip()
+            if not sid:
+                continue
+            if sid_filter and sid not in sid_filter:
+                continue
+            if country_filter and country_code not in country_filter:
+                continue
+            if store_name_filter and not any(value in _normalize_search_text(store_name) for value in store_name_filter):
+                continue
+            selected.append({"sid": sid, "store_name": store_name, "country_code": country_code})
+
+        normalized_limit = max(1, min(int(limit or 20), PRODUCT_SEARCH_MAX_RESULTS))
+        if not selected:
+            return self._result(
+                data={"query": normalized_query, "search_terms": search_terms, "match_count": 0, "returned_count": 0, "matches": []},
+                endpoint=endpoint,
+                page_count=0,
+                warnings=["没有符合国家、店铺或启用状态筛选条件的店铺。"],
+                extra_meta={"selected_store_count": 0, "catalog_row_count": 0, "limit": normalized_limit},
+            )
+        if len(selected) > PRODUCT_SEARCH_MAX_STORES:
+            raise LingxingConfigError(f"product_search supports at most {PRODUCT_SEARCH_MAX_STORES} stores per call")
+
+        end_date = datetime.now().date() - timedelta(days=1)
+        start_date = end_date - timedelta(days=29)
+        page = self.client.paged_post_detailed(
+            endpoint,
+            {
+                "sid": [item["sid"] for item in selected],
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "summary_field": "sku",
+                "sort_field": "volume",
+                "sort_type": "desc",
+                "is_recently_enum": False,
+                "purchase_status": 0,
+                "offset": 0,
+                "length": 1000,
+            },
+            page_size=1000,
+            data_path="data.list",
+            total_path="data.total",
+        )
+        stores_by_sid = {item["sid"]: item for item in selected}
+        field_weights = {"local_name": 5, "item_name": 4}
+        matches: list[dict[str, Any]] = []
+        for row in page.rows:
+            price_list = [item for item in (row.get("price_list") or []) if isinstance(item, dict)]
+            asin_rows = [item for item in (row.get("asins") or []) if isinstance(item, dict)]
+            asins = sorted({str(item.get("asin") or "").strip().upper() for item in asin_rows if str(item.get("asin") or "").strip()})
+            if not asins:
+                continue
+            local_names = [str(row.get("local_name") or "").strip()] + [str(item.get("local_name") or "").strip() for item in price_list]
+            item_names = [str(row.get("item_name") or "").strip()]
+            skus = [str(row.get("sku") or "").strip()]
+            mskus = sorted({str(item.get("seller_sku") or "").strip() for item in price_list if str(item.get("seller_sku") or "").strip()})
+            values_by_field = {
+                "local_name": local_names,
+                "item_name": item_names,
+            }
+            matched_terms: list[str] = []
+            matched_fields: set[str] = set()
+            score = 0
+            for term in search_terms:
+                term_score = 0
+                for field, values in values_by_field.items():
+                    if any(term in _normalize_search_text(value) for value in values if value):
+                        matched_fields.add(field)
+                        term_score = max(term_score, field_weights[field])
+                if term_score:
+                    matched_terms.append(term)
+                    score += term_score
+            if not matched_terms:
+                continue
+            if len(matched_terms) == len(search_terms):
+                score += 2
+
+            row_sids = {int(value) for value in (row.get("sids") or []) if str(value).isdigit()}
+            row_sids.update(int(item["sid"]) for item in asin_rows if str(item.get("sid") or "").isdigit())
+            row_sids.update(int(item["sid"]) for item in price_list if str(item.get("sid") or "").isdigit())
+            row_stores = [stores_by_sid[sid] for sid in sorted(row_sids) if sid in stores_by_sid]
+            matches.append(
+                {
+                    "score": score,
+                    "matched_terms": matched_terms,
+                    "matched_fields": [field for field in field_weights if field in matched_fields],
+                    "local_name": next((value for value in local_names if value), None),
+                    "item_name": next((value for value in item_names if value), None),
+                    "sku": next((value for value in skus if value), None),
+                    "mskus": mskus,
+                    "asins": asins,
+                    "stores": row_stores,
+                }
+            )
+
+        matches.sort(key=lambda item: (-int(item["score"]), str(item.get("local_name") or ""), str(item.get("sku") or "")))
+        warnings = []
+        if len(matches) > normalized_limit:
+            warnings.append(f"共匹配 {len(matches)} 个产品，已按相关度返回前 {normalized_limit} 个。")
+        return self._result(
+            data={
+                "query": normalized_query,
+                "search_terms": search_terms,
+                "match_count": len(matches),
+                "returned_count": min(len(matches), normalized_limit),
+                "matches": matches[:normalized_limit],
+            },
+            endpoint=endpoint,
+            page_count=page.page_count,
+            warnings=warnings,
+            date_range=f"{start_date.isoformat()}~{end_date.isoformat()}",
+            extra_meta={
+                "selected_store_count": len(selected),
+                "catalog_row_count": len(page.rows),
+                "country_codes": sorted(country_filter),
+                "sids": sorted(sid_filter),
+                "store_names": _listify_strings(store_names),
+                "limit": normalized_limit,
+            },
         )
 
     def store_sales(self, sid: int, start_date: str, end_date: str) -> dict[str, Any]:

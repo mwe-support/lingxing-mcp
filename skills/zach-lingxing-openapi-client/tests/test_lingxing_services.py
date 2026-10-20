@@ -255,6 +255,83 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertEqual(result["data"][0]["marketplace_code"], "US")
         self.assertEqual(result["data"][0]["timezone"], "America/Los_Angeles")
 
+    def test_product_search_filters_stores_and_ranks_partial_name_matches(self) -> None:
+        class ProductSearchClient:
+            def __init__(self) -> None:
+                self.post_calls: list[tuple[str, dict, dict]] = []
+
+            def get_json(self, path: str, query_params: dict | None = None) -> dict:  # noqa: ARG002
+                if path == "/erp/sc/data/seller/allMarketplace":
+                    return {"code": 0, "data": [{"mid": 1, "code": "US"}, {"mid": 2, "code": "DE"}]}
+                if path == "/erp/sc/data/seller/lists":
+                    return {
+                        "code": 0,
+                        "data": [
+                            {"sid": 101, "mid": 1, "name": "MWE美国", "status": 1},
+                            {"sid": 202, "mid": 2, "name": "MWE德国", "status": 1},
+                            {"sid": 303, "mid": 1, "name": "暂停店铺", "status": 0},
+                        ],
+                    }
+                raise AssertionError(f"unexpected get_json path: {path}")
+
+            def paged_post_detailed(self, path: str, body: dict, *, page_size: int, **kwargs) -> PagedRows:  # noqa: ARG002
+                self.post_calls.append((path, body, kwargs))
+                self.assert_product_request(path, body, page_size)
+                return PagedRows(
+                    rows=[
+                        {
+                            "local_name": "43寸一体背光站立式带触摸广告机（黑色）",
+                            "item_name": "43 Inch LED Poster Screen",
+                            "sku": "SKU-AD-43",
+                            "asins": [{"asin": "B0AD43", "sid": 101}],
+                            "sids": [101],
+                            "price_list": [{"seller_sku": "MSKU-AD-43", "sid": 101}],
+                        },
+                        {
+                            "local_name": "商用显示屏",
+                            "item_name": "Portable LED Display",
+                            "sku": "SKU-LED",
+                            "asins": [{"asin": "B0LED", "sid": 101}],
+                            "sids": [101],
+                            "price_list": [{"seller_sku": "MSKU-LED", "sid": 101}],
+                        },
+                        {
+                            "local_name": "iPad Photo Booth灯箱款黑色",
+                            "item_name": "Photo Booth",
+                            "sku": "SKU-PB",
+                            "asins": [{"asin": "B0PHOTO", "sid": 101}],
+                            "sids": [101],
+                        },
+                    ],
+                    page_count=1,
+                    total=3,
+                )
+
+            @staticmethod
+            def assert_product_request(path: str, body: dict, page_size: int) -> None:
+                if path != "/bd/productPerformance/openApi/asinList":
+                    raise AssertionError(f"unexpected paged_post_detailed path: {path}")
+                if body["sid"] != [101] or body["summary_field"] != "sku" or page_size != 1000:
+                    raise AssertionError(f"unexpected product search request: {body}")
+
+        client = ProductSearchClient()
+        service = LingxingOpenAPIService(client=client)
+        result = service.product_search(
+            query="广告机/LED",
+            country_codes=["us"],
+            store_names=["mwe"],
+            limit=10,
+        )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["search_terms"], ["广告机", "led"])
+        self.assertEqual(result["data"]["match_count"], 2)
+        self.assertEqual(result["data"]["matches"][0]["asins"], ["B0AD43"])
+        self.assertEqual(result["data"]["matches"][0]["matched_terms"], ["广告机", "led"])
+        self.assertEqual(result["data"]["matches"][1]["asins"], ["B0LED"])
+        self.assertEqual(result["meta"]["selected_store_count"], 1)
+        self.assertEqual(result["meta"]["catalog_row_count"], 3)
+
     def test_store_sales_keeps_page_count_in_meta(self) -> None:
         result = self.service.store_sales(101, "2026-03-20", "2026-03-20")
         self.assertEqual(result["meta"]["page_count"], 2)
