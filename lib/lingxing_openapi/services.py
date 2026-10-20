@@ -377,7 +377,7 @@ class LingxingOpenAPIService:
         normalized_limit = max(1, min(int(limit or 20), PRODUCT_SEARCH_MAX_RESULTS))
         if not selected:
             return self._result(
-                data={"query": normalized_query, "search_terms": search_terms, "match_count": 0, "returned_count": 0, "matches": []},
+                data={"query": normalized_query, "match_count": 0, "returned_count": 0, "matches": []},
                 endpoint=endpoint,
                 page_count=0,
                 warnings=["没有符合国家、店铺或启用状态筛选条件的店铺。"],
@@ -417,8 +417,6 @@ class LingxingOpenAPIService:
                 continue
             local_names = [str(row.get("local_name") or "").strip()] + [str(item.get("local_name") or "").strip() for item in price_list]
             item_names = [str(row.get("item_name") or "").strip()]
-            skus = [str(row.get("sku") or "").strip()]
-            mskus = sorted({str(item.get("seller_sku") or "").strip() for item in price_list if str(item.get("seller_sku") or "").strip()})
             values_by_field = {
                 "local_name": local_names,
                 "item_name": item_names,
@@ -450,27 +448,26 @@ class LingxingOpenAPIService:
                     "matched_terms": matched_terms,
                     "matched_fields": [field for field in field_weights if field in matched_fields],
                     "local_name": next((value for value in local_names if value), None),
-                    "item_name": next((value for value in item_names if value), None),
-                    "sku": next((value for value in skus if value), None),
-                    "mskus": mskus,
                     "asins": asins,
                     "store_count": len(row_stores),
                     "stores": row_stores[:PRODUCT_SEARCH_MAX_STORES_PER_MATCH],
-                    "stores_truncated": len(row_stores) > PRODUCT_SEARCH_MAX_STORES_PER_MATCH,
                 }
             )
 
-        matches.sort(key=lambda item: (-int(item["score"]), str(item.get("local_name") or ""), str(item.get("sku") or "")))
+        matches.sort(key=lambda item: (-int(item["score"]), str(item.get("local_name") or "")))
         warnings = []
         if len(matches) > normalized_limit:
             warnings.append(f"共匹配 {len(matches)} 个产品，已按相关度返回前 {normalized_limit} 个。")
+        public_matches = [
+            {key: item[key] for key in ("local_name", "asins", "store_count", "stores")}
+            for item in matches[:normalized_limit]
+        ]
         return self._result(
             data={
                 "query": normalized_query,
-                "search_terms": search_terms,
                 "match_count": len(matches),
                 "returned_count": min(len(matches), normalized_limit),
-                "matches": matches[:normalized_limit],
+                "matches": public_matches,
             },
             endpoint=endpoint,
             page_count=page.page_count,

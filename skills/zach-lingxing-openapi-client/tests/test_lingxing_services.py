@@ -326,10 +326,8 @@ class LingxingServiceTests(unittest.TestCase):
         )
 
         self.assertTrue(result["ok"])
-        self.assertEqual(result["data"]["search_terms"], ["广告机", "led"])
         self.assertEqual(result["data"]["match_count"], 2)
         self.assertEqual(result["data"]["matches"][0]["asins"], ["B0AD43"])
-        self.assertEqual(result["data"]["matches"][0]["matched_terms"], ["广告机", "led"])
         self.assertEqual(result["data"]["matches"][1]["asins"], ["B0LED"])
         self.assertEqual(result["meta"]["selected_store_count"], 1)
         self.assertEqual(result["meta"]["catalog_row_count"], 3)
@@ -357,12 +355,9 @@ class LingxingServiceTests(unittest.TestCase):
                 returned_asins = {asin for item in fuzzy_result["data"]["matches"] for asin in item["asins"]}
                 self.assertIn(expected_asin, returned_asins)
                 self.assertIn(expected_asin, fuzzy_result["data"]["matches"][0]["asins"])
-                self.assertTrue(
-                    {
-                        "score", "matched_terms", "matched_fields", "local_name", "item_name", "sku", "mskus", "asins",
-                        "store_count", "stores", "stores_truncated",
-                    }
-                    .issubset(fuzzy_result["data"]["matches"][0])
+                self.assertEqual(
+                    set(fuzzy_result["data"]["matches"][0]),
+                    {"local_name", "asins", "store_count", "stores"},
                 )
 
     def test_store_sales_keeps_page_count_in_meta(self) -> None:
