@@ -257,8 +257,9 @@ class LingxingServiceTests(unittest.TestCase):
 
     def test_product_search_filters_stores_and_ranks_partial_name_matches(self) -> None:
         class ProductSearchClient:
-            def __init__(self) -> None:
+            def __init__(self, rows: list[dict] | None = None) -> None:
                 self.post_calls: list[tuple[str, dict, dict]] = []
+                self.rows = rows
 
             def get_json(self, path: str, query_params: dict | None = None) -> dict:  # noqa: ARG002
                 if path == "/erp/sc/data/seller/allMarketplace":
@@ -277,8 +278,7 @@ class LingxingServiceTests(unittest.TestCase):
             def paged_post_detailed(self, path: str, body: dict, *, page_size: int, **kwargs) -> PagedRows:  # noqa: ARG002
                 self.post_calls.append((path, body, kwargs))
                 self.assert_product_request(path, body, page_size)
-                return PagedRows(
-                    rows=[
+                rows = self.rows if self.rows is not None else [
                         {
                             "local_name": "43寸一体背光站立式带触摸广告机（黑色）",
                             "item_name": "43 Inch LED Poster Screen",
@@ -302,9 +302,11 @@ class LingxingServiceTests(unittest.TestCase):
                             "asins": [{"asin": "B0PHOTO", "sid": 101}],
                             "sids": [101],
                         },
-                    ],
+                    ]
+                return PagedRows(
+                    rows=rows,
                     page_count=1,
-                    total=3,
+                    total=len(rows),
                 )
 
             @staticmethod
@@ -331,6 +333,33 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertEqual(result["data"]["matches"][1]["asins"], ["B0LED"])
         self.assertEqual(result["meta"]["selected_store_count"], 1)
         self.assertEqual(result["meta"]["catalog_row_count"], 3)
+
+        fuzzy_rows = [
+            {"local_name": "360 Photo Booth经典款", "item_name": "360 Photo Booth", "sku": "SKU-360", "asins": [{"asin": "B0360", "sid": 101}], "sids": [101]},
+            {"local_name": "iPad Photo Booth灯箱款黑色", "item_name": "iPad Photo Booth", "sku": "SKU-IPAD", "asins": [{"asin": "B0IPAD", "sid": 101}], "sids": [101]},
+            {"local_name": "桌面款广告机", "item_name": "Desktop Digital Signage", "sku": "SKU-DESK", "asins": [{"asin": "B0DESK", "sid": 101}], "sids": [101]},
+            {"local_name": "触摸式壁挂广告机", "item_name": "Touch Wall Display", "sku": "SKU-WALL", "asins": [{"asin": "B0WALL", "sid": 101}], "sids": [101]},
+            {"local_name": "3D扫描 Photo Booth", "item_name": "3D Body Scanner Photo Booth", "sku": "SKU-3D", "asins": [{"asin": "B03D", "sid": 101}], "sids": [101]},
+        ]
+        fuzzy_service = LingxingOpenAPIService(client=ProductSearchClient(rows=fuzzy_rows))
+        cases = {
+            "360 photo booth": "B0360",
+            "360 Photo Booth": "B0360",
+            "iPad Photo Booth": "B0IPAD",
+            "桌面广告机": "B0DESK",
+            "触摸壁挂": "B0WALL",
+            "3D扫描": "B03D",
+            "3D 扫描 Photo Booth": "B03D",
+        }
+        for query, expected_asin in cases.items():
+            with self.subTest(query=query):
+                fuzzy_result = fuzzy_service.product_search(query=query, sids=[101], limit=10)
+                returned_asins = {asin for item in fuzzy_result["data"]["matches"] for asin in item["asins"]}
+                self.assertIn(expected_asin, returned_asins)
+                self.assertTrue(
+                    {"score", "matched_terms", "matched_fields", "local_name", "item_name", "sku", "mskus", "asins", "stores"}
+                    .issubset(fuzzy_result["data"]["matches"][0])
+                )
 
     def test_store_sales_keeps_page_count_in_meta(self) -> None:
         result = self.service.store_sales(101, "2026-03-20", "2026-03-20")

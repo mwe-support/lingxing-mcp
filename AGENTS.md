@@ -183,7 +183,7 @@ Data source rules:
 `lingxing_product_search` is the compact product-name-to-ASIN lookup tool.
 
 - Require a non-empty `query`; split multiple terms on slash, whitespace, comma, semicolon, or Chinese punctuation.
-- Match normalized terms only against `local_name` and `item_name`. Local product name matches rank above Amazon title matches.
+- Match normalized terms only against `local_name` and `item_name`. Remove spacing and case differences; if direct containment fails, allow an in-order match spanning at most four inserted characters. Local product name matches rank above Amazon title matches.
 - Treat terms as OR candidates and rank products matching every term first. Do not add semantic translation, embeddings, or hard-coded product aliases without an explicit new requirement.
 - Apply `country_codes`, `sids`, and partial `store_names` filters to active sellers before querying products. Combined filters use intersection semantics.
 - Query `/bd/productPerformance/openApi/asinList` once with the selected SID array, `summary_field=sku`, `is_recently_enum=false`, and the internal 30-day date window required by the upstream interface. Keep the official 200-store maximum.

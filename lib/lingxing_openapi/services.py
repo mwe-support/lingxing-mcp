@@ -92,6 +92,25 @@ def _product_search_terms(query: str) -> list[str]:
     return terms
 
 
+def _matches_search_term(term: str, value: Any) -> bool:
+    candidate = _normalize_search_text(value)
+    if not candidate:
+        return False
+    if term in candidate:
+        return True
+    if len(term) < 4:
+        return False
+    positions: list[int] = []
+    offset = 0
+    for character in term:
+        position = candidate.find(character, offset)
+        if position < 0:
+            return False
+        positions.append(position)
+        offset = position + 1
+    return positions[-1] - positions[0] + 1 <= len(term) + 4
+
+
 def _parse_iso_date(value: str) -> datetime.date:
     return datetime.strptime(value, "%Y-%m-%d").date()
 
@@ -409,7 +428,7 @@ class LingxingOpenAPIService:
             for term in search_terms:
                 term_score = 0
                 for field, values in values_by_field.items():
-                    if any(term in _normalize_search_text(value) for value in values if value):
+                    if any(_matches_search_term(term, value) for value in values if value):
                         matched_fields.add(field)
                         term_score = max(term_score, field_weights[field])
                 if term_score:

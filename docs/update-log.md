@@ -6,7 +6,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ### Added Tools
 - `lingxing_product_search`
-  - Searches partial product-name terms against `local_name` and `item_name`, ranks all-term matches first, and returns compact ASIN candidates without exposing the full catalog.
+  - Searches partial product-name terms against `local_name` and `item_name`, normalizes case and spacing, tolerates short inserted modifiers, ranks all-term matches first, and returns compact ASIN candidates without exposing the full catalog.
   - Supports intersecting filters for `country_codes`, `sids`, and partial `store_names`; searches all active stores when no store filter is supplied.
   - Uses one batched, paginated `/bd/productPerformance/openApi/asinList` query for up to 200 selected stores with `summary_field=sku` and `is_recently_enum=false`.
   - Defaults to 20 results and caps output at 50.

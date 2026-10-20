@@ -1,6 +1,6 @@
 # Lingxing MCP Tool Snapshot
 
-Generated: 2026-10-20 18:39:55
+Generated: 2026-10-20 18:43:23
 Source: LingxingMCPApplication built-in role defaults
 Registered tools: 113
 
@@ -213,7 +213,7 @@ Registered tools: 113
 | 80 | `lingxing_order_details` | `manual` | `manual` | None | order_id, order_ids | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/mws/orderDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按亚马逊订单号查询订单详情，支持单个或多个订单号；多个订单号会按领星接口上限每 200 个自动分批请求。 |
 | 81 | `lingxing_order_lists` | `manual` | `manual` | sid, start_date, end_date | date_type | `Manual` | 限流：endpoint /erp/sc/data/mws/orders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。 |
 | 82 | `lingxing_product_performance` | `endpoint_spec` | `source` | sid, start_date, end_date | search_field, search_value, summary_field, mid, currency_code, is_recently_enum, purchase_status, sort_field, sort_type | `/bd/productPerformance/openApi/asinList` | 限流：endpoint /bd/productPerformance/openApi/asinList，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。 |
-| 83 | `lingxing_product_search` | `manual` | `manual` | query | country_codes, sids, store_names, limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按领星中文品名关键词模糊筛选 ASIN。query 支持用斜杠、空格或逗号分隔多个词，例如 广告机/LED；可按国家代码、店铺 SID 或店铺名缩小范围。服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。 |
+| 83 | `lingxing_product_search` | `manual` | `manual` | query | country_codes, sids, store_names, limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按领星中文品名关键词模糊筛选 ASIN。query 支持用斜杠、空格或逗号分隔多个词，例如 广告机/LED；兼容大小写、空格和短修饰词差异。可按国家代码、店铺 SID 或店铺名缩小范围。服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。 |
 | 84 | `lingxing_profit_asin` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/asin/list` | 限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | ASIN 维度利润统计。 |
 | 85 | `lingxing_profit_parent_asin` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/parent/asin/list` | 限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 父 ASIN 维度利润统计。 |
 | 86 | `lingxing_profit_report_order_list` | `endpoint_spec` | `profit_report_order` | start_date, end_date | search_date_field, sids, mids, fee_type, listing_owner, currency_code, search_field, search_value, sort_field, sort_type, settlement_status, fund_transfer_status, account_type, fulfillment, product_developer_uids, order_status, gmt_modified_start_date, gmt_modified_end_date, response_mode, preview_limit | `/basicOpen/finance/profitReport/order/transcation/list` | 限流：endpoint /basicOpen/finance/profitReport/order/transcation/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询利润报表订单 Transaction 视图；默认返回摘要，full 仅供本地 Excel 导出器。fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。 |
@@ -3540,7 +3540,7 @@ Registered tools: 113
 
 - Origin: `manual`
 - Category: `manual`
-- Description: 按领星中文品名关键词模糊筛选 ASIN。query 支持用斜杠、空格或逗号分隔多个词，例如 广告机/LED；可按国家代码、店铺 SID 或店铺名缩小范围。服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。
+- Description: 按领星中文品名关键词模糊筛选 ASIN。query 支持用斜杠、空格或逗号分隔多个词，例如 广告机/LED；兼容大小写、空格和短修饰词差异。可按国家代码、店铺 SID 或店铺名缩小范围。服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。
 - Endpoint: `Manual`
 - Docs path: `None`
 - Rate-limit endpoints: /erp/sc/data/seller/lists, /erp/sc/data/seller/allMarketplace, /bd/productPerformance/openApi/asinList

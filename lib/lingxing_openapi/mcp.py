@@ -966,7 +966,8 @@ class LingxingMCPApplication:
                 name="lingxing_product_search",
                 description=(
                     "按领星中文品名关键词模糊筛选 ASIN。query 支持用斜杠、空格或逗号分隔多个词，例如 广告机/LED；"
-                    "可按国家代码、店铺 SID 或店铺名缩小范围。服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。"
+                    "兼容大小写、空格和短修饰词差异。可按国家代码、店铺 SID 或店铺名缩小范围。"
+                    "服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。"
                 ),
                 input_schema={
                     "type": "object",
