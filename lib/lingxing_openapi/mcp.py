@@ -1417,8 +1417,8 @@ def process_http_request(
     headers: dict[str, str] | None = None,
     body: bytes | None = None,
 ) -> tuple[int, dict[str, Any]]:
-    normalized_headers = {str(key): str(value) for key, value in (headers or {}).items()}
-    authorization = normalized_headers.get("Authorization", "")
+    normalized_headers = {str(key).lower(): str(value) for key, value in (headers or {}).items()}
+    authorization = normalized_headers.get("authorization", "")
 
     if method == "GET" and path == "/healthz":
         return HTTPStatus.OK, {
@@ -1531,7 +1531,7 @@ def _build_http_handler(
             started = time.monotonic()
             audit_id = uuid.uuid4().hex[:16]
             headers = {key: value for key, value in self.headers.items()}
-            match = auth.authenticate_header(headers.get("Authorization", ""))
+            match = auth.authenticate_header(self.headers.get("Authorization", ""))
             body = b""
             status: int = int(HTTPStatus.INTERNAL_SERVER_ERROR)
             payload: dict[str, Any] = {"error": "internal_server_error"}

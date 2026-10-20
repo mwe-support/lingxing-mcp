@@ -57,6 +57,15 @@ python3 mcp-servers/lingxing-openapi/http_server.py --host 127.0.0.1 --port 8099
 3. 用示例配置把客户端接到 HTTP 入口：
    - `mcp-servers/lingxing-openapi/examples/public/claude_desktop_http_config.json`
 
+HTTP 认证请求头名称不区分大小写，`Authorization`、`authorization` 和混合大小写均可使用。
+客户端（包括 Codex app-server）将请求头名称转为小写时，仍应正常认证；Token 值校验、成员撤销状态和角色权限不变。
+
+可使用合成 Token 在本地验证认证和审计回归，无需真实凭据或调用业务接口：
+
+```bash
+python3 -m unittest skills.zach-lingxing-mcp.tests.test_http_header_case
+```
+
 如果你还没有服务器，直接看：
 
 - [./tencent-cloud-buying-guide.md](./tencent-cloud-buying-guide.md)

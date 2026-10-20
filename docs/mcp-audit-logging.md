@@ -25,6 +25,9 @@ HTTP MCP 默认启用紧凑结构化审计日志。每个有审计价值的 POST
 
 HTTP 响应头 `X-Mcp-Audit-Id` 可用于将客户端错误与服务端日志关联。
 
+认证头名称不区分大小写。使用小写 `authorization` 的合法成员请求也会记录正确的 token ID 和角色；
+缺失、无效或已撤销的 Token 仍按未经认证的请求记录，不输出请求头或 Token 值。
+
 ## 查询
 
 生产 systemd 服务使用独立 journal namespace：
