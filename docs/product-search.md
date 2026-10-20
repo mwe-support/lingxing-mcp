@@ -29,7 +29,9 @@
 
 ## 数据和输出
 
-工具内部使用 `POST /bd/productPerformance/openApi/asinList`，按 SKU 维度批量查询选定店铺最近 30 天的产品目录，并自动合并分页。查询时设置 `is_recently_enum=false`，日期仅满足接口要求，不作为用户的产品搜索条件。
+工具内部使用 `POST /bd/productPerformance/openApi/asinList`，按 SKU 维度批量查询全部启用店铺最近 30 天的产品目录，并自动合并分页。查询时设置 `is_recently_enum=false`，日期仅满足接口要求，不作为用户的产品搜索条件。
+
+服务进程会缓存全部启用店铺的产品目录 60 秒。国家、SID 和店铺名筛选每次都在缓存目录上重新应用，因此连续修改搜索词或筛选条件不会重复请求领星产品表现接口。
 
 返回值只包含排序后的候选，不返回完整商品目录。每个候选包括：
 

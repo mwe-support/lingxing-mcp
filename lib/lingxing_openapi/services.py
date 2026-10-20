@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -12,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from .ad_management import AD_OPERATION_LOGS_ENDPOINT, AdManagementRequest
-from .client import DEFAULT_TOKEN_CACHE, LingxingOpenAPIClient, DownloadedFile, extract_path_value
+from .client import DEFAULT_TOKEN_CACHE, LingxingOpenAPIClient, DownloadedFile, PagedRows, extract_path_value
 from .endpoint_specs import ENDPOINT_SPECS_BY_NAME, EndpointSpec
 from .errors import LingxingClientError, LingxingConfigError
 from .multi_channel_orders import MultiChannelOrderQuery, query_multi_channel_orders
@@ -77,6 +78,7 @@ ASIN_PRODUCT_SNAPSHOT_MAX_ASINS = 50
 PRODUCT_SEARCH_MAX_STORES = 200
 PRODUCT_SEARCH_MAX_RESULTS = 50
 PRODUCT_SEARCH_MAX_STORES_PER_MATCH = 10
+PRODUCT_SEARCH_CACHE_SECONDS = 60
 
 
 def _normalize_search_text(value: Any) -> str:
@@ -183,6 +185,7 @@ class LingxingOpenAPIService:
 
     def __init__(self, client: LingxingOpenAPIClient | None = None) -> None:
         self._client = client
+        self._product_search_cache: tuple[float, tuple[Any, ...], PagedRows] | None = None
 
     @property
     def client(self) -> LingxingOpenAPIClient:
@@ -359,6 +362,7 @@ class LingxingOpenAPIService:
         country_filter = {str(value).strip().upper() for value in _listify_strings(country_codes) if str(value).strip()}
         store_name_filter = [_normalize_search_text(value) for value in _listify_strings(store_names) if _normalize_search_text(value)]
         sellers = self.seller_lists(status=1)["data"]
+        available: list[dict[str, Any]] = []
         selected: list[dict[str, Any]] = []
         for seller in sellers:
             sid = int(seller.get("sid") or 0)
@@ -366,13 +370,15 @@ class LingxingOpenAPIService:
             store_name = str(seller.get("name") or "").strip()
             if not sid:
                 continue
+            store = {"sid": sid, "store_name": store_name, "country_code": country_code}
+            available.append(store)
             if sid_filter and sid not in sid_filter:
                 continue
             if country_filter and country_code not in country_filter:
                 continue
             if store_name_filter and not any(value in _normalize_search_text(store_name) for value in store_name_filter):
                 continue
-            selected.append({"sid": sid, "store_name": store_name, "country_code": country_code})
+            selected.append(store)
 
         normalized_limit = max(1, min(int(limit or 20), PRODUCT_SEARCH_MAX_RESULTS))
         if not selected:
@@ -383,35 +389,56 @@ class LingxingOpenAPIService:
                 warnings=["没有符合国家、店铺或启用状态筛选条件的店铺。"],
                 extra_meta={"selected_store_count": 0, "catalog_row_count": 0, "limit": normalized_limit},
             )
-        if len(selected) > PRODUCT_SEARCH_MAX_STORES:
+        if len(available) > PRODUCT_SEARCH_MAX_STORES:
             raise LingxingConfigError(f"product_search supports at most {PRODUCT_SEARCH_MAX_STORES} stores per call")
 
         end_date = datetime.now().date() - timedelta(days=1)
         start_date = end_date - timedelta(days=29)
-        page = self.client.paged_post_detailed(
-            endpoint,
-            {
-                "sid": [item["sid"] for item in selected],
-                "start_date": start_date.isoformat(),
-                "end_date": end_date.isoformat(),
-                "summary_field": "sku",
-                "sort_field": "volume",
-                "sort_type": "desc",
-                "is_recently_enum": False,
-                "purchase_status": 0,
-                "offset": 0,
-                "length": 1000,
-            },
-            page_size=1000,
-            data_path="data.list",
-            total_path="data.total",
+        all_sids = tuple(sorted(item["sid"] for item in available))
+        cache_key = (all_sids, start_date.isoformat(), end_date.isoformat())
+        cache_hit = bool(
+            self._product_search_cache
+            and self._product_search_cache[1] == cache_key
+            and time.monotonic() - self._product_search_cache[0] < PRODUCT_SEARCH_CACHE_SECONDS
         )
+        if cache_hit:
+            page = self._product_search_cache[2]
+        else:
+            page = self.client.paged_post_detailed(
+                endpoint,
+                {
+                    "sid": list(all_sids),
+                    "start_date": start_date.isoformat(),
+                    "end_date": end_date.isoformat(),
+                    "summary_field": "sku",
+                    "sort_field": "volume",
+                    "sort_type": "desc",
+                    "is_recently_enum": False,
+                    "purchase_status": 0,
+                    "offset": 0,
+                    "length": 1000,
+                },
+                page_size=1000,
+                data_path="data.list",
+                total_path="data.total",
+            )
+            self._product_search_cache = (time.monotonic(), cache_key, page)
         stores_by_sid = {item["sid"]: item for item in selected}
+        selected_sids = set(stores_by_sid)
         field_weights = {"local_name": 5, "item_name": 4}
         matches: list[dict[str, Any]] = []
         for row in page.rows:
-            price_list = [item for item in (row.get("price_list") or []) if isinstance(item, dict)]
-            asin_rows = [item for item in (row.get("asins") or []) if isinstance(item, dict)]
+            row_sid_values = {int(value) for value in (row.get("sids") or []) if str(value).isdigit()}
+            if row_sid_values and row_sid_values.isdisjoint(selected_sids):
+                continue
+            price_list = [
+                item for item in (row.get("price_list") or [])
+                if isinstance(item, dict) and (not str(item.get("sid") or "").isdigit() or int(item["sid"]) in selected_sids)
+            ]
+            asin_rows = [
+                item for item in (row.get("asins") or [])
+                if isinstance(item, dict) and (not str(item.get("sid") or "").isdigit() or int(item["sid"]) in selected_sids)
+            ]
             asins = sorted({str(item.get("asin") or "").strip().upper() for item in asin_rows if str(item.get("asin") or "").strip()})
             if not asins:
                 continue
@@ -438,7 +465,7 @@ class LingxingOpenAPIService:
             if len(matched_terms) == len(search_terms):
                 score += 2
 
-            row_sids = {int(value) for value in (row.get("sids") or []) if str(value).isdigit()}
+            row_sids = row_sid_values.intersection(selected_sids)
             row_sids.update(int(item["sid"]) for item in asin_rows if str(item.get("sid") or "").isdigit())
             row_sids.update(int(item["sid"]) for item in price_list if str(item.get("sid") or "").isdigit())
             row_stores = [stores_by_sid[sid] for sid in sorted(row_sids) if sid in stores_by_sid]
@@ -476,6 +503,7 @@ class LingxingOpenAPIService:
             extra_meta={
                 "selected_store_count": len(selected),
                 "catalog_row_count": len(page.rows),
+                "catalog_cache_hit": cache_hit,
                 "country_codes": sorted(country_filter),
                 "sids": sorted(sid_filter),
                 "store_names": _listify_strings(store_names),
