@@ -30,6 +30,8 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Tool snapshot regenerated with 113 registered tools.
 - Live API research confirmed SKU-dimension product results include Chinese `local_name` and ASIN mappings; SID 7787 returned 80 catalog rows in one page.
 - Live API research confirmed one product-performance request can batch stores across marketplaces; an AU + US sample returned rows for both SIDs.
+- Isolated branch smoke test for `query=广告机/LED` + `sids=[7787]` matched 22 products and returned ranked ASIN candidates from both `local_name` and `item_name`.
+- Isolated branch smoke test for `query=广告机` + `country_codes=[DE]` + `store_names=[MWE]` selected only MWE-DE and matched 16 products.
 - Production smoke testing remains pending deployment.
 
 ## 2026-08-13
