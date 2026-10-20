@@ -1542,27 +1542,28 @@ def _build_http_handler(
             response_bytes = 0
             delivered = False
             try:
-                length = int(self.headers.get("Content-Length", "0"))
-                if length < 0 or length > MAX_HTTP_BODY_BYTES:
-                    status = int(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
-                    payload = {"error": "request_too_large"}
+                if len(authorization_values) > 1:
+                    status = int(HTTPStatus.BAD_REQUEST)
+                    payload = {"error": "multiple_authorization_headers"}
                 else:
-                    body = self.rfile.read(length)
-                    if len(body) != length:
-                        status = int(HTTPStatus.BAD_REQUEST)
-                        payload = {"error": "incomplete_request_body"}
-                    elif len(authorization_values) > 1:
-                        status = int(HTTPStatus.BAD_REQUEST)
-                        payload = {"error": "multiple_authorization_headers"}
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length < 0 or length > MAX_HTTP_BODY_BYTES:
+                        status = int(HTTPStatus.REQUEST_ENTITY_TOO_LARGE)
+                        payload = {"error": "request_too_large"}
                     else:
-                        status, payload = process_http_request(
-                            app,
-                            auth=auth,
-                            method="POST",
-                            path=self.path,
-                            headers=headers,
-                            body=body,
-                        )
+                        body = self.rfile.read(length)
+                        if len(body) != length:
+                            status = int(HTTPStatus.BAD_REQUEST)
+                            payload = {"error": "incomplete_request_body"}
+                        else:
+                            status, payload = process_http_request(
+                                app,
+                                auth=auth,
+                                method="POST",
+                                path=self.path,
+                                headers=headers,
+                                body=body,
+                            )
             except ValueError:
                 status = int(HTTPStatus.BAD_REQUEST)
                 payload = {"error": "invalid_content_length"}
