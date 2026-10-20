@@ -43,6 +43,22 @@ def _write_message(stream, payload: dict) -> None:
 
 
 class LingxingMCPTests(unittest.TestCase):
+    def test_product_search_is_visible_to_minimal_and_operations(self) -> None:
+        app = LingxingMCPApplication()
+        for role in ("minimal", "operations"):
+            tools = app.list_tools(AuthMatch(mode="test", token_id=role, description="test", role=role))
+            tool = next(item for item in tools if item["name"] == "lingxing_product_search")
+            schema = tool["inputSchema"]
+            self.assertEqual(schema["required"], ["query"])
+            self.assertEqual(
+                set(schema["properties"]),
+                {"query", "country_codes", "sids", "store_names", "limit"},
+            )
+            self.assertEqual(schema["properties"]["limit"]["maximum"], 50)
+
+        finance_tools = app.list_tools(AuthMatch(mode="test", token_id="finance", description="test", role="finance"))
+        self.assertNotIn("lingxing_product_search", {tool["name"] for tool in finance_tools})
+
     def test_full_report_result_does_not_duplicate_records_in_text_content(self) -> None:
         app = LingxingMCPApplication()
         payload = {

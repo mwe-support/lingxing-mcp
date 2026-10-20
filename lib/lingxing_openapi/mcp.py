@@ -91,6 +91,7 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_order_details",
         "lingxing_order_lists",
         "lingxing_asin_product_snapshot",
+        "lingxing_product_search",
         "lingxing_fba_warehouse_detail",
         "lingxing_amazon_listing",
         "lingxing_local_product_costs",
@@ -104,6 +105,7 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_order_details",
         "lingxing_order_lists",
         "lingxing_asin_product_snapshot",
+        "lingxing_product_search",
         "lingxing_fba_warehouse_detail",
         "lingxing_amazon_listing",
         "lingxing_local_product_costs",
@@ -204,6 +206,11 @@ MANUAL_TOOL_RATE_LIMIT_ENDPOINTS: dict[str, tuple[str, ...]] = {
         "/basicOpen/openapi/storage/fbaWarehouseDetail",
         "/bd/productPerformance/openApi/asinList",
         "/erp/sc/routing/data/local_inventory/productList",
+    ),
+    "lingxing_product_search": (
+        "/erp/sc/data/seller/lists",
+        "/erp/sc/data/seller/allMarketplace",
+        "/bd/productPerformance/openApi/asinList",
     ),
     "lingxing_local_product_costs": ("/erp/sc/routing/data/local_inventory/productList",),
     "lingxing_smoke_check": (
@@ -953,6 +960,33 @@ class LingxingMCPApplication:
                     asins=_listify_strings(args.get("asins")),
                     start_date=str(args.get("start_date") or "").strip() or None,
                     end_date=str(args.get("end_date") or "").strip() or None,
+                ),
+            ),
+            "lingxing_product_search": ToolDefinition(
+                name="lingxing_product_search",
+                description=(
+                    "按领星中文品名关键词模糊筛选 ASIN。query 支持用斜杠、空格或逗号分隔多个词，例如 广告机/LED；"
+                    "兼容大小写、空格和短修饰词差异。可按国家代码、店铺 SID 或店铺名缩小范围。"
+                    "服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "minLength": 1, "maxLength": 100, "description": "模糊品名或关键词，例如 广告机/LED。"},
+                        "country_codes": {"type": "array", "items": {"type": "string"}, "description": "可选；国家/站点代码，例如 US、DE。"},
+                        "sids": {"type": "array", "items": {"type": "integer"}, "description": "可选；领星店铺 SID。"},
+                        "store_names": {"type": "array", "items": {"type": "string"}, "description": "可选；店铺名关键词，采用包含匹配。"},
+                        "limit": {"type": "integer", "minimum": 1, "maximum": 50, "default": 20, "description": "最多返回候选数，默认 20。"},
+                    },
+                    "required": ["query"],
+                    "additionalProperties": False,
+                },
+                handler=lambda args: self.service.product_search(
+                    query=_required_text(args, "query"),
+                    country_codes=_listify_strings(args.get("country_codes")),
+                    sids=_list_of_ints(args, "sids"),
+                    store_names=_listify_strings(args.get("store_names")),
+                    limit=_optional_int(args, "limit") or 20,
                 ),
             ),
             "lingxing_local_product_costs": ToolDefinition(
