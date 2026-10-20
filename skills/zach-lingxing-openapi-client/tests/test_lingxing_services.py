@@ -313,7 +313,7 @@ class LingxingServiceTests(unittest.TestCase):
             def assert_product_request(path: str, body: dict, page_size: int) -> None:
                 if path != "/bd/productPerformance/openApi/asinList":
                     raise AssertionError(f"unexpected paged_post_detailed path: {path}")
-                if body["sid"] != [101] or body["summary_field"] != "sku" or page_size != 1000:
+                if body["sid"] != [101, 202] or body["summary_field"] != "sku" or page_size != 1000:
                     raise AssertionError(f"unexpected product search request: {body}")
 
         client = ProductSearchClient()
@@ -359,6 +359,17 @@ class LingxingServiceTests(unittest.TestCase):
                     set(fuzzy_result["data"]["matches"][0]),
                     {"local_name", "asins", "store_count", "stores"},
                 )
+
+        cache_client = ProductSearchClient(rows=[
+            {"local_name": "美国广告机", "item_name": "US Display", "asins": [{"asin": "B0US", "sid": 101}], "sids": [101]},
+            {"local_name": "德国广告机", "item_name": "DE Display", "asins": [{"asin": "B0DE", "sid": 202}], "sids": [202]},
+        ])
+        cache_service = LingxingOpenAPIService(client=cache_client)
+        us_result = cache_service.product_search(query="广告机", country_codes=["US"])
+        de_result = cache_service.product_search(query="广告机", country_codes=["DE"])
+        self.assertEqual(us_result["data"]["matches"][0]["asins"], ["B0US"])
+        self.assertEqual(de_result["data"]["matches"][0]["asins"], ["B0DE"])
+        self.assertEqual(len(cache_client.post_calls), 1)
 
     def test_store_sales_keeps_page_count_in_meta(self) -> None:
         result = self.service.store_sales(101, "2026-03-20", "2026-03-20")
