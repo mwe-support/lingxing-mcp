@@ -10,7 +10,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
   - Supports intersecting filters for `country_codes`, `sids`, and partial `store_names`; searches all active stores when no store filter is supplied.
   - Uses one batched, paginated `/bd/productPerformance/openApi/asinList` query for up to 200 active stores with `summary_field=sku` and `is_recently_enum=false`.
   - Defaults to 20 results and caps output at 50.
-  - Returns only `local_name`, `asins`, `store_count`, and up to 10 store summaries per candidate; ranking diagnostics remain internal.
+  - Returns only `local_name`, `asins`, `store_count`, up to 10 `stores_preview` entries, and an explicit `stores_truncated` flag; ranking diagnostics remain internal.
   - Caches the all-active-store catalog for 60 seconds so consecutive search/filter changes do not repeatedly hit the capacity-1 product-performance endpoint.
 
 ### Removed Tools

@@ -189,8 +189,8 @@ Data source rules:
 - Query `/bd/productPerformance/openApi/asinList` once with the all-active-store SID array, `summary_field=sku`, `is_recently_enum=false`, and the internal 30-day date window required by the upstream interface. Keep the official 200-store maximum.
 - Cache the all-active-store catalog for 60 seconds and reapply country/SID/store filters to cached rows. Do not cache final query results or reuse ASIN/store rows outside the selected store set.
 - Filter, rank, and truncate inside the service. Never return the unfiltered catalog to MCP clients. `limit` defaults to 20 and must not exceed 50.
-- Return only core candidate fields: `local_name`, `asins`, `store_count`, and bounded `stores`. Keep title, SKU/MSKU, scores, and match diagnostics internal. Skip catalog rows without ASINs.
-- Keep each candidate's store details bounded to 10 entries; `store_count > len(stores)` indicates truncation.
+- Return only core candidate fields: `local_name`, `asins`, `store_count`, bounded `stores_preview`, and `stores_truncated`. Keep title, SKU/MSKU, scores, and match diagnostics internal. Skip catalog rows without ASINs.
+- Keep each candidate's store preview bounded to 10 entries and set `stores_truncated` explicitly; never expose a partial list under a name that implies completeness.
 
 ## bdASIN / Finance Report Rules
 

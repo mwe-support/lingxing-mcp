@@ -486,7 +486,13 @@ class LingxingOpenAPIService:
         if len(matches) > normalized_limit:
             warnings.append(f"共匹配 {len(matches)} 个产品，已按相关度返回前 {normalized_limit} 个。")
         public_matches = [
-            {key: item[key] for key in ("local_name", "asins", "store_count", "stores")}
+            {
+                "local_name": item["local_name"],
+                "asins": item["asins"],
+                "store_count": item["store_count"],
+                "stores_preview": item["stores"],
+                "stores_truncated": item["store_count"] > len(item["stores"]),
+            }
             for item in matches[:normalized_limit]
         ]
         return self._result(
