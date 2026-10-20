@@ -8,7 +8,7 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - `lingxing_product_search`
   - Searches partial product-name terms against `local_name` and `item_name`, normalizes case and spacing, tolerates short inserted modifiers, ranks all-term matches first, and returns compact ASIN candidates without exposing the full catalog.
   - Supports intersecting filters for `country_codes`, `sids`, and partial `store_names`; searches all active stores when no store filter is supplied.
-  - Uses one batched, paginated `/bd/productPerformance/openApi/asinList` query for up to 200 selected stores with `summary_field=sku` and `is_recently_enum=false`.
+  - Uses one batched, paginated `/bd/productPerformance/openApi/asinList` query for up to 200 active stores with `summary_field=sku` and `is_recently_enum=false`.
   - Defaults to 20 results and caps output at 50.
   - Returns only `local_name`, `asins`, `store_count`, and up to 10 store summaries per candidate; ranking diagnostics remain internal.
   - Caches the all-active-store catalog for 60 seconds so consecutive search/filter changes do not repeatedly hit the capacity-1 product-performance endpoint.
@@ -22,7 +22,8 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - `finance`: no change.
 
 ### Production Role Override
-- Pending deployment: add `lingxing_product_search` to the active `operations` allowlist. Other production role overrides remain unchanged.
+- Added `lingxing_product_search` to the active `operations` allowlist, increasing its visible tool count from 75 to 76.
+- Left the existing `codex_ads_test` override unchanged.
 
 ### Validation
 - Local compile passed.
@@ -36,7 +37,14 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Isolated branch smoke test for `query=广告机` + `country_codes=[DE]` + `store_names=[MWE]` selected only MWE-DE and matched 16 products.
 - Case and spacing tests cover `360 photo booth`, `360 Photo Booth`, `iPad Photo Booth`, `3D扫描`, and `3D 扫描 Photo Booth`; the expected product ranks first in every case.
 - All-store research covered 146 active stores and 313 catalog rows in one page; `桌面广告机` matched 2 products and `触摸壁挂` matched 5 products despite inserted modifiers such as `款`, `式`, and `可`.
-- Production smoke testing remains pending deployment.
+- Production deployed through merged commits `14e32fa`, `183c73e`, and `a01c13e`; final source HEAD is `a01c13ee69afa2563a5607413fb27779b5f440a1`.
+- Production `tools/list` returned 76 operations tools and included `lingxing_product_search` with visible rate-limit guidance.
+- Seven consecutive production MCP calls covered `360 photo booth`, `360 Photo Booth`, `iPad Photo Booth`, `桌面广告机`, `触摸壁挂`, `3D扫描`, and `3D 扫描 Photo Booth`. Every call returned the expected first candidate with only `local_name`, `asins`, `store_count`, and `stores`.
+- The first production call populated the catalog cache; the following six calls reported `catalog_cache_hit=true` and did not trigger upstream code 103.
+- Cloudflare public MCP returned the same four-field structure for `3D 扫描 Photo Booth`.
+- Service and audit journal are active with zero service restarts and zero new tracebacks, disconnect errors, or audit write failures.
+- Production backup: `/root/lingxing-mcp-backups/20261020184559-pre-product-search`.
+- Release audit was not run because neither repository nor template `release_audit.py` exists.
 
 ## 2026-08-13
 
