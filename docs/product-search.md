@@ -38,8 +38,9 @@
 - 本地品名 `local_name`
 - ASIN 列表 `asins`
 - 关联店铺总数 `store_count`
-- 命中的店铺 SID、店铺名和国家代码
+- 店铺预览 `stores_preview`，包含 SID、店铺名和国家代码
+- 店铺预览是否截断 `stores_truncated`
 
-每个候选最多展开 10 条店铺明细；当 `store_count` 大于 `stores` 数量时表示店铺明细已截断。内部相关度、命中词、标题、SKU 和 MSKU 仅用于筛选与排序，不进入 MCP 响应。
+每个候选最多展开 10 条店铺预览；`stores_truncated=true` 明确表示还有店铺未展开。内部相关度、命中词、标题、SKU 和 MSKU 仅用于筛选与排序，不进入 MCP 响应。
 
 本工具不做语义翻译或向量检索。中文简称应能包含在领星本地品名中；英文缩写可匹配亚马逊标题。

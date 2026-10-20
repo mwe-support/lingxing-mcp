@@ -257,22 +257,20 @@ class LingxingServiceTests(unittest.TestCase):
 
     def test_product_search_filters_stores_and_ranks_partial_name_matches(self) -> None:
         class ProductSearchClient:
-            def __init__(self, rows: list[dict] | None = None) -> None:
+            def __init__(self, rows: list[dict] | None = None, sellers: list[dict] | None = None) -> None:
                 self.post_calls: list[tuple[str, dict, dict]] = []
                 self.rows = rows
+                self.sellers = sellers if sellers is not None else [
+                    {"sid": 101, "mid": 1, "name": "MWE美国", "status": 1},
+                    {"sid": 202, "mid": 2, "name": "MWE德国", "status": 1},
+                    {"sid": 303, "mid": 1, "name": "暂停店铺", "status": 0},
+                ]
 
             def get_json(self, path: str, query_params: dict | None = None) -> dict:  # noqa: ARG002
                 if path == "/erp/sc/data/seller/allMarketplace":
                     return {"code": 0, "data": [{"mid": 1, "code": "US"}, {"mid": 2, "code": "DE"}]}
                 if path == "/erp/sc/data/seller/lists":
-                    return {
-                        "code": 0,
-                        "data": [
-                            {"sid": 101, "mid": 1, "name": "MWE美国", "status": 1},
-                            {"sid": 202, "mid": 2, "name": "MWE德国", "status": 1},
-                            {"sid": 303, "mid": 1, "name": "暂停店铺", "status": 0},
-                        ],
-                    }
+                    return {"code": 0, "data": self.sellers}
                 raise AssertionError(f"unexpected get_json path: {path}")
 
             def paged_post_detailed(self, path: str, body: dict, *, page_size: int, **kwargs) -> PagedRows:  # noqa: ARG002
@@ -309,11 +307,11 @@ class LingxingServiceTests(unittest.TestCase):
                     total=len(rows),
                 )
 
-            @staticmethod
-            def assert_product_request(path: str, body: dict, page_size: int) -> None:
+            def assert_product_request(self, path: str, body: dict, page_size: int) -> None:
                 if path != "/bd/productPerformance/openApi/asinList":
                     raise AssertionError(f"unexpected paged_post_detailed path: {path}")
-                if body["sid"] != [101, 202] or body["summary_field"] != "sku" or page_size != 1000:
+                expected_sids = sorted(int(item["sid"]) for item in self.sellers if int(item.get("status") or 0) == 1)
+                if body["sid"] != expected_sids or body["summary_field"] != "sku" or page_size != 1000:
                     raise AssertionError(f"unexpected product search request: {body}")
 
         client = ProductSearchClient()
@@ -357,7 +355,7 @@ class LingxingServiceTests(unittest.TestCase):
                 self.assertIn(expected_asin, fuzzy_result["data"]["matches"][0]["asins"])
                 self.assertEqual(
                     set(fuzzy_result["data"]["matches"][0]),
-                    {"local_name", "asins", "store_count", "stores"},
+                    {"local_name", "asins", "store_count", "stores_preview", "stores_truncated"},
                 )
 
         cache_client = ProductSearchClient(rows=[
@@ -370,6 +368,23 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertEqual(us_result["data"]["matches"][0]["asins"], ["B0US"])
         self.assertEqual(de_result["data"]["matches"][0]["asins"], ["B0DE"])
         self.assertEqual(len(cache_client.post_calls), 1)
+
+        many_sellers = [{"sid": sid, "mid": 1, "name": f"店铺-{sid}", "status": 1} for sid in range(1, 12)]
+        many_client = ProductSearchClient(
+            sellers=many_sellers,
+            rows=[{
+                "local_name": "多店铺广告机",
+                "item_name": "Multi Store Display",
+                "asins": [{"asin": f"B0{sid:02d}", "sid": sid} for sid in range(1, 12)],
+                "sids": list(range(1, 12)),
+            }],
+        )
+        many_result = LingxingOpenAPIService(client=many_client).product_search(query="广告机")
+        candidate = many_result["data"]["matches"][0]
+        self.assertEqual(candidate["store_count"], 11)
+        self.assertEqual(len(candidate["stores_preview"]), 10)
+        self.assertTrue(candidate["stores_truncated"])
+        self.assertNotIn("stores", candidate)
 
     def test_store_sales_keeps_page_count_in_meta(self) -> None:
         result = self.service.store_sales(101, "2026-03-20", "2026-03-20")
