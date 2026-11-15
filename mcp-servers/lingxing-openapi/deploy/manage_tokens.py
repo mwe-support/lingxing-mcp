@@ -37,7 +37,7 @@ def build_parser() -> argparse.ArgumentParser:
     init_cmd.add_argument("--id", default="admin", help="First token ID, default admin")
     init_cmd.add_argument("--description", default="Gateway admin bootstrap token", help="Token description")
     init_cmd.add_argument("--token", default="", help="Custom token value; generated automatically when omitted")
-    init_cmd.add_argument("--role", default="minimal", help="Member role, default minimal; recommended values: minimal, operations, finance")
+    init_cmd.add_argument("--role", default="minimal", help="Member role, default minimal; recommended values: minimal, operations, restricted_operations, finance")
 
     list_cmd = subparsers.add_parser("list", help="List tokens")
     list_cmd.add_argument("--show-token", action="store_true", help="Show full token values; default only shows masked previews")
@@ -46,7 +46,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_cmd.add_argument("--id", required=True, help="Member token ID, for example alice-mac")
     add_cmd.add_argument("--description", default="", help="Member description")
     add_cmd.add_argument("--token", default="", help="Custom token value; generated automatically when omitted")
-    add_cmd.add_argument("--role", default="minimal", help="Member role, default minimal; recommended values: minimal, operations, finance")
+    add_cmd.add_argument("--role", default="minimal", help="Member role, default minimal; recommended values: minimal, operations, restricted_operations, finance")
 
     revoke_cmd = subparsers.add_parser("revoke", help="Revoke a member token")
     revoke_cmd.add_argument("--id", required=True, help="Member token ID")
@@ -57,7 +57,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     role_cmd = subparsers.add_parser("set-role", help="Change member role without rotating the token")
     role_cmd.add_argument("--id", required=True, help="Member token ID")
-    role_cmd.add_argument("--role", required=True, help="Member role; recommended values: minimal, operations, finance")
+    role_cmd.add_argument("--role", required=True, help="Member role; recommended values: minimal, operations, restricted_operations, finance")
 
     return parser
 

@@ -325,6 +325,7 @@ Current built-in roles:
 
 - `minimal`: least-privilege baseline with the prior default business tools plus health check, smoke check, and rate-limit policy discovery.
 - `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, product performance, buyer voice, daily advertising reports, advertising base data, Amazon source transaction, report export, and gated SP advertising management.
+- `restricted_operations`: operations surface constrained to the Lingxing ERP account's exact store SIDs and advertising Profile IDs. It excludes order detail, local product cost, return analysis, and report-task query/download tools because those resources cannot yet be safely attributed to a store before access.
 - `finance`: finance-facing sales, profit, settlement, cost, FBA stock, order-detail, warehouse-status, transaction-trace, and Amazon report-export tools recommended by finance users.
 
 Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`, even when `LINGXING_MCP_ROLE_TOOLS` overrides a role.
@@ -350,6 +351,8 @@ Validate role visibility offline:
 ```bash
 python3 mcp-servers/lingxing-openapi/deploy/validate_role_permissions.py
 ```
+
+Restricted member records additionally require `lingxing_uid`, `allowed_sids`, and `allowed_profile_ids`. Missing or empty store scope fails closed. Requested `sid`/`sids` and `profile_id` values must be authorized; omitted plural store filters are replaced with the authorized SID list, and seller/advertising account lists are filtered before return. These arrays are a point-in-time permission snapshot and must be refreshed after Lingxing ERP account permissions change. The tokens file is loaded at service start, so restart the gateway after changing scope fields.
 
 ### OpenAPI rate limiting
 

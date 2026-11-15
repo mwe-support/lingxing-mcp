@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import secrets
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -39,6 +39,9 @@ class AuthTokenRecord:
     updated_at: str
     revoked_at: str | None = None
     role: str | None = None
+    lingxing_uid: int | None = None
+    allowed_sids: tuple[int, ...] = ()
+    allowed_profile_ids: tuple[int, ...] = ()
 
     @property
     def is_active(self) -> bool:
@@ -53,6 +56,9 @@ class AuthTokenRecord:
             "updated_at": self.updated_at,
             "revoked_at": self.revoked_at,
             "role": self.role or "minimal",
+            "lingxing_uid": self.lingxing_uid,
+            "allowed_sid_count": len(self.allowed_sids),
+            "allowed_profile_id_count": len(self.allowed_profile_ids),
             "token_preview": _mask_token(self.token),
         }
 
@@ -63,6 +69,9 @@ class AuthMatch:
     token_id: str
     description: str
     role: str | None = None
+    lingxing_uid: int | None = None
+    allowed_sids: tuple[int, ...] = ()
+    allowed_profile_ids: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -93,7 +102,15 @@ class BearerAuthConfig:
             return AuthMatch(mode="single", token_id="bootstrap", description="bootstrap", role=None)
         for record in self.records:
             if record.is_active and secrets.compare_digest(token, record.token):
-                return AuthMatch(mode="multi", token_id=record.token_id, description=record.description, role=record.role)
+                return AuthMatch(
+                    mode="multi",
+                    token_id=record.token_id,
+                    description=record.description,
+                    role=record.role,
+                    lingxing_uid=record.lingxing_uid,
+                    allowed_sids=record.allowed_sids,
+                    allowed_profile_ids=record.allowed_profile_ids,
+                )
         return None
 
     def summary(self) -> dict[str, Any]:
@@ -117,6 +134,10 @@ def _record_to_file_dict(record: AuthTokenRecord) -> dict[str, Any]:
     }
     if record.role:
         payload["role"] = record.role
+    if record.lingxing_uid is not None:
+        payload["lingxing_uid"] = record.lingxing_uid
+        payload["allowed_sids"] = list(record.allowed_sids)
+        payload["allowed_profile_ids"] = list(record.allowed_profile_ids)
     return payload
 
 
@@ -125,6 +146,20 @@ def build_tokens_payload(records: list[AuthTokenRecord]) -> dict[str, Any]:
         "version": TOKENS_FILE_VERSION,
         "tokens": [_record_to_file_dict(record) for record in records],
     }
+
+
+def _parse_positive_ints(value: Any, field_name: str) -> tuple[int, ...]:
+    if value in (None, ""):
+        return ()
+    if not isinstance(value, list):
+        raise LingxingConfigError(f"令牌字段 {field_name} 必须是整数数组")
+    try:
+        normalized = sorted({int(item) for item in value})
+    except (TypeError, ValueError) as exc:
+        raise LingxingConfigError(f"令牌字段 {field_name} 必须是整数数组") from exc
+    if any(item <= 0 for item in normalized):
+        raise LingxingConfigError(f"令牌字段 {field_name} 只能包含正整数")
+    return tuple(normalized)
 
 
 def _parse_record(raw: dict[str, Any], index: int) -> AuthTokenRecord:
@@ -136,6 +171,15 @@ def _parse_record(raw: dict[str, Any], index: int) -> AuthTokenRecord:
     updated_at = str(raw.get("updated_at") or "").strip() or created_at
     revoked_at = str(raw.get("revoked_at") or "").strip() or None
     role = str(raw.get("role") or "").strip() or None
+    lingxing_uid_raw = raw.get("lingxing_uid")
+    try:
+        lingxing_uid = int(lingxing_uid_raw) if lingxing_uid_raw not in (None, "") else None
+    except (TypeError, ValueError) as exc:
+        raise LingxingConfigError("令牌字段 lingxing_uid 必须是正整数") from exc
+    if lingxing_uid is not None and lingxing_uid <= 0:
+        raise LingxingConfigError("令牌字段 lingxing_uid 必须是正整数")
+    allowed_sids = _parse_positive_ints(raw.get("allowed_sids"), "allowed_sids")
+    allowed_profile_ids = _parse_positive_ints(raw.get("allowed_profile_ids"), "allowed_profile_ids")
     enabled = raw.get("enabled")
     if enabled is False and status == "active":
         status = "disabled"
@@ -148,6 +192,9 @@ def _parse_record(raw: dict[str, Any], index: int) -> AuthTokenRecord:
         updated_at=updated_at,
         revoked_at=revoked_at,
         role=role,
+        lingxing_uid=lingxing_uid,
+        allowed_sids=allowed_sids,
+        allowed_profile_ids=allowed_profile_ids,
     )
 
 
@@ -231,14 +278,14 @@ def upsert_token(
     replaced = False
     for index, record in enumerate(existing):
         if record.token_id == token_id:
-            existing[index] = AuthTokenRecord(
-                token_id=record.token_id,
+            existing[index] = replace(
+                record,
                 token=value,
                 description=description or record.description,
                 status="active",
-                created_at=record.created_at,
                 updated_at=now,
                 role=normalized_role if role is not None else record.role,
+                revoked_at=None,
             )
             replaced = True
             break
@@ -265,15 +312,11 @@ def revoke_token(tokens_file: str | Path, *, token_id: str) -> bool:
     changed = False
     for index, record in enumerate(existing):
         if record.token_id == token_id and record.status != "revoked":
-            existing[index] = AuthTokenRecord(
-                token_id=record.token_id,
-                token=record.token,
-                description=record.description,
+            existing[index] = replace(
+                record,
                 status="revoked",
-                created_at=record.created_at,
                 updated_at=now,
                 revoked_at=now,
-                role=record.role,
             )
             changed = True
             break
@@ -289,14 +332,12 @@ def rotate_token(tokens_file: str | Path, *, token_id: str, token: str | None = 
     value = token or generate_member_token()
     for index, record in enumerate(existing):
         if record.token_id == token_id:
-            existing[index] = AuthTokenRecord(
-                token_id=record.token_id,
+            existing[index] = replace(
+                record,
                 token=value,
-                description=record.description,
                 status="active",
-                created_at=record.created_at,
                 updated_at=now,
-                role=record.role,
+                revoked_at=None,
             )
             path.write_text(json.dumps(build_tokens_payload(existing), ensure_ascii=False, indent=2), encoding="utf-8")
             return value
@@ -311,14 +352,9 @@ def set_token_role(tokens_file: str | Path, *, token_id: str, role: str | None) 
     changed = False
     for index, record in enumerate(existing):
         if record.token_id == token_id:
-            existing[index] = AuthTokenRecord(
-                token_id=record.token_id,
-                token=record.token,
-                description=record.description,
-                status=record.status,
-                created_at=record.created_at,
+            existing[index] = replace(
+                record,
                 updated_at=now,
-                revoked_at=record.revoked_at,
                 role=normalized_role,
             )
             changed = True

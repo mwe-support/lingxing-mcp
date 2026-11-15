@@ -19,6 +19,7 @@ from lib.lingxing_openapi.auth import (  # noqa: E402
     rotate_token,
     upsert_token,
 )
+from lib.lingxing_openapi.errors import LingxingConfigError  # noqa: E402
 
 
 class LingxingTokenAuthTests(unittest.TestCase):
@@ -81,6 +82,63 @@ class LingxingTokenAuthTests(unittest.TestCase):
             self.assertIsNotNone(match)
             self.assertEqual(match.token_id, "alice")
             self.assertIsNone(config.authenticate_header("Bearer bob-token"))
+
+    def test_restricted_scope_is_parsed_and_preserved_by_token_updates(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            tokens_file = Path(temp_dir) / "tokens.json"
+            tokens_file.write_text(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "tokens": [
+                            {
+                                "id": "jennifer",
+                                "description": "Jennifer",
+                                "token": "member-token",
+                                "status": "active",
+                                "role": "restricted_operations",
+                                "lingxing_uid": 10544743,
+                                "allowed_sids": [7789, 7787, 7787],
+                                "allowed_profile_ids": [2002, 2001],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            match = load_bearer_auth_config(tokens_file=str(tokens_file)).authenticate_header("Bearer member-token")
+            self.assertEqual(match.lingxing_uid, 10544743)
+            self.assertEqual(match.allowed_sids, (7787, 7789))
+            self.assertEqual(match.allowed_profile_ids, (2001, 2002))
+
+            rotated = rotate_token(tokens_file, token_id="jennifer")
+            rotated_match = load_bearer_auth_config(tokens_file=str(tokens_file)).authenticate_header(f"Bearer {rotated}")
+            self.assertEqual(rotated_match.allowed_sids, (7787, 7789))
+            self.assertEqual(rotated_match.allowed_profile_ids, (2001, 2002))
+
+    def test_restricted_scope_rejects_malformed_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            tokens_file = Path(temp_dir) / "tokens.json"
+            tokens_file.write_text(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "tokens": [
+                            {
+                                "id": "bad",
+                                "token": "bad-token",
+                                "status": "active",
+                                "lingxing_uid": "not-an-integer",
+                                "allowed_sids": [7787],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(LingxingConfigError, "lingxing_uid"):
+                load_tokens_file(tokens_file)
 
 
 if __name__ == "__main__":

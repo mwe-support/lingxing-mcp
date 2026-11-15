@@ -13,7 +13,12 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lib.lingxing_openapi.auth import AuthMatch, load_bearer_auth_config  # noqa: E402
-from lib.lingxing_openapi.mcp import LingxingMCPApplication, process_http_request  # noqa: E402
+from lib.lingxing_openapi.errors import LingxingConfigError  # noqa: E402
+from lib.lingxing_openapi.mcp import (  # noqa: E402
+    LingxingMCPApplication,
+    RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES,
+    process_http_request,
+)
 
 
 STDIO_SERVER = ROOT / "mcp-servers" / "lingxing-openapi" / "server.py"
@@ -43,6 +48,85 @@ def _write_message(stream, payload: dict) -> None:
 
 
 class LingxingMCPTests(unittest.TestCase):
+    def test_restricted_operations_filters_tools_and_enforces_store_scope(self) -> None:
+        app = LingxingMCPApplication()
+        match = AuthMatch(
+            mode="test",
+            token_id="jennifer",
+            description="Jennifer",
+            role="restricted_operations",
+            lingxing_uid=10544743,
+            allowed_sids=(7787, 7789),
+            allowed_profile_ids=(1001, 1002),
+        )
+        visible = {tool["name"] for tool in app.list_tools(match)}
+        self.assertFalse(RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES & visible)
+        self.assertIn("lingxing_product_search", visible)
+
+        captured = {}
+        app.tools["lingxing_product_search"].handler = lambda args: captured.update(args) or {
+            "ok": True,
+            "data": [],
+            "meta": {},
+            "warnings": [],
+        }
+        app.call_tool("lingxing_product_search", {"query": "广告机"}, match)
+        self.assertEqual(captured["sids"], [7787, 7789])
+
+        with self.assertRaisesRegex(LingxingConfigError, "无权访问店铺 SID"):
+            app.call_tool("lingxing_product_search", {"query": "广告机", "sids": [7787, 9999]}, match)
+        with self.assertRaisesRegex(LingxingConfigError, "无权访问广告 Profile ID"):
+            app.call_tool("lingxing_ad_accounts", {"profile_id": 9999}, match)
+        with self.assertRaisesRegex(LingxingConfigError, "请改用已授权的 sid/sids"):
+            app.call_tool(
+                "lingxing_sales_outbound_orders",
+                {"start_date": "2026-11-01", "end_date": "2026-11-02", "amazon_seller_ids": ["seller"]},
+                match,
+            )
+
+        no_scope = AuthMatch(
+            mode="test",
+            token_id="unbound",
+            description="Unbound",
+            role="restricted_operations",
+            lingxing_uid=123,
+        )
+        with self.assertRaisesRegex(LingxingConfigError, "没有可访问的店铺 SID"):
+            app.call_tool("lingxing_product_search", {"query": "广告机"}, no_scope)
+
+    def test_restricted_operations_filters_store_and_ad_account_results(self) -> None:
+        app = LingxingMCPApplication()
+        match = AuthMatch(
+            mode="test",
+            token_id="sienna",
+            description="Sienna",
+            role="restricted_operations",
+            lingxing_uid=11575880,
+            allowed_sids=(7787,),
+            allowed_profile_ids=(1001,),
+        )
+        app.tools["lingxing_seller_lists"].handler = lambda _: {
+            "ok": True,
+            "data": [{"sid": 7787}, {"sid": 7789}],
+            "meta": {},
+            "warnings": [],
+        }
+        sellers = app.call_tool("lingxing_seller_lists", {}, match)
+        self.assertEqual(sellers["data"], [{"sid": 7787}])
+        self.assertTrue(sellers["meta"]["scope_filtered"])
+
+        app.tools["lingxing_ad_accounts"].handler = lambda _: {
+            "ok": True,
+            "data": [
+                {"sid": 7787, "profile_id": 1001},
+                {"sid": 7787, "profile_id": 1002},
+                {"sid": 7789, "profile_id": 1001},
+            ],
+            "meta": {},
+            "warnings": [],
+        }
+        accounts = app.call_tool("lingxing_ad_accounts", {}, match)
+        self.assertEqual(accounts["data"], [{"sid": 7787, "profile_id": 1001}])
     def test_product_search_is_visible_to_minimal_and_operations(self) -> None:
         app = LingxingMCPApplication()
         for role in ("minimal", "operations"):
