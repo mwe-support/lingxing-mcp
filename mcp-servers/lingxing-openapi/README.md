@@ -137,7 +137,7 @@ Current built-in roles:
 
 - `minimal`: least-privilege baseline with the prior default business tools plus health check, smoke check, and rate-limit policy discovery.
 - `operations`: operational tools for store, order, ASIN snapshot, inventory, local cost, product performance, buyer voice, daily advertising reports, advertising base data, Amazon source transaction, report export, and gated SP advertising management. Hourly advertising reports, `lingxing_asin_weekly_rollup`, and `lingxing_exp_ads_aba_report` are not included by default.
-- `restricted_operations`: the operations surface restricted to explicitly configured Lingxing ERP account store SIDs and advertising Profile IDs. Store filters are enforced in `tools/call`, and tools without a safe store-ownership check are not exposed.
+- `restricted_operations`: the operations surface restricted to explicitly configured Lingxing ERP account store SIDs and advertising Profile IDs. Order detail and local product cost are treated as shared enterprise information; other store-bound tools are enforced in `tools/call`, and unresolved report/return tools remain hidden.
 - `finance`: finance-facing sales, profit, settlement, cost, FBA stock, order-detail, warehouse-status, transaction-trace, and Amazon report-export tools recommended by finance users.
 
 Every role always includes `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`, even when `LINGXING_MCP_ROLE_TOOLS` overrides a role.

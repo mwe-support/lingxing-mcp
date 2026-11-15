@@ -63,7 +63,7 @@ Deployment paths used by the current gateway:
 
 The default member-token role is `minimal`. Tokens without a `role` field are treated as `minimal`. Role-specific visibility must be enforced in both `tools/list` and `tools/call`; hiding a tool from the list is not sufficient. Current built-in roles are `minimal`, `operations`, `restricted_operations`, and `finance`. Every role must include `lingxing_health_check`, `lingxing_smoke_check`, and `lingxing_rate_limit_policy`; code should enforce these base tools even when role mappings are overridden.
 
-`restricted_operations` tokens must bind a confirmed Lingxing ERP `lingxing_uid` and exact `allowed_sids` / `allowed_profile_ids`. Enforce those scopes centrally before business handlers run, filter all-store account lists before return, and fail closed for missing, unresolved, or out-of-scope identifiers. Do not restore unsafe tools through `LINGXING_MCP_ROLE_TOOLS`; tools without a reliable pre-call store ownership check remain unavailable to this role.
+`restricted_operations` tokens must bind a confirmed Lingxing ERP `lingxing_uid` and exact `allowed_sids` / `allowed_profile_ids`. Enforce those scopes centrally before business handlers run, filter all-store account lists before return, and fail closed for missing, unresolved, or out-of-scope identifiers. Order detail and local product cost are explicitly treated as shared enterprise information. Do not restore other unsafe tools through `LINGXING_MCP_ROLE_TOOLS`; tools without an enforced store field remain unavailable to this role.
 
 The production service should expose role-based allowlists, not all registered tools. The current expected `minimal` role set is:
 
