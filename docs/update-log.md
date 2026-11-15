@@ -8,7 +8,10 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - Restored `lingxing_order_details` and `lingxing_local_product_costs` to `restricted_operations` as shared enterprise information, increasing the role from 70 to 72 visible tools.
 - The remaining restricted-role exclusions are `lingxing_return_analysis`, `lingxing_report_export_query`, `lingxing_report_export_download`, and `lingxing_report_export_refresh_url`.
 - Confirmed from current MCP schemas and Lingxing documentation that report task query and URL refresh accept store context through `sid` locally, which resolves to the upstream-required `seller_id` and `region`. Report download also accepts `sid`, but its direct `url` mode has no store binding; the report tools remain excluded until restricted callers are required to use an authorized SID and direct URL mode is blocked.
-- Compile and 59 focused tests passed; role validation passed with `restricted_operations=72`. Production verification is pending deployment.
+- Compile and 59 focused tests passed; role validation passed with `restricted_operations=72`.
+- Production deployed from merged PR #10 at commit `c560c05`. A temporary restricted token returned 72 tools, included both restored tools, excluded all four remaining restricted tools, and successfully called `lingxing_local_product_costs` with a non-existent test SKU.
+- The temporary token was removed after verification. Its old value, Jennifer, and Sienna returned HTTP 401; the admin token returned HTTP 200 and the service remained active.
+- Production backup: `/root/lingxing-mcp-backups/20261115171412-pre-restricted-common-tools`.
 
 ### Added Tools
 - None.
