@@ -103,8 +103,6 @@ OPERATIONS_TOOL_NAMES = BASE_ROLE_TOOL_NAMES | {
     "lingxing_voice_of_buyer",
 } | OPERATIONS_AD_TOOL_NAMES | REPORT_ACCESS_TOOL_NAMES
 RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES = {
-    "lingxing_order_details",
-    "lingxing_local_product_costs",
     "lingxing_return_analysis",
     "lingxing_report_export_query",
     "lingxing_report_export_download",

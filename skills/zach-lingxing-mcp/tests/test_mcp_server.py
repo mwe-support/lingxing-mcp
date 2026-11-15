@@ -62,6 +62,8 @@ class LingxingMCPTests(unittest.TestCase):
         visible = {tool["name"] for tool in app.list_tools(match)}
         self.assertFalse(RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES & visible)
         self.assertIn("lingxing_product_search", visible)
+        self.assertIn("lingxing_order_details", visible)
+        self.assertIn("lingxing_local_product_costs", visible)
 
         captured = {}
         app.tools["lingxing_product_search"].handler = lambda args: captured.update(args) or {

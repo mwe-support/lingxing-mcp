@@ -4,6 +4,12 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ## 2026-11-15
 
+### Restricted Role Follow-Up
+- Restored `lingxing_order_details` and `lingxing_local_product_costs` to `restricted_operations` as shared enterprise information, increasing the role from 70 to 72 visible tools.
+- The remaining restricted-role exclusions are `lingxing_return_analysis`, `lingxing_report_export_query`, `lingxing_report_export_download`, and `lingxing_report_export_refresh_url`.
+- Confirmed from current MCP schemas and Lingxing documentation that report task query and URL refresh accept store context through `sid` locally, which resolves to the upstream-required `seller_id` and `region`. Report download also accepts `sid`, but its direct `url` mode has no store binding; the report tools remain excluded until restricted callers are required to use an authorized SID and direct URL mode is blocked.
+- Compile and 59 focused tests passed; role validation passed with `restricted_operations=72`. Production verification is pending deployment.
+
 ### Added Tools
 - None.
 
@@ -11,8 +17,8 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - None globally.
 
 ### Built-In Role Allowlist Changes
-- Added `restricted_operations` with 70 visible tools: the `operations` set minus `lingxing_order_details`, `lingxing_local_product_costs`, `lingxing_return_analysis`, `lingxing_report_export_query`, `lingxing_report_export_download`, and `lingxing_report_export_refresh_url`.
-- The six excluded tools do not yet provide a reliable pre-call store-ownership check for direct resource identifiers or enterprise-wide data.
+- Added `restricted_operations`; after the follow-up above, it has 72 visible tools and excludes `lingxing_return_analysis`, `lingxing_report_export_query`, `lingxing_report_export_download`, and `lingxing_report_export_refresh_url`.
+- The four excluded tools do not yet enforce their available store fields for restricted callers or safely constrain direct report URLs.
 - Existing `minimal`, `operations`, and `finance` allowlists are unchanged.
 
 ### Permission Enforcement
