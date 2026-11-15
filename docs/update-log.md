@@ -31,7 +31,11 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 - The focused OpenAPI, service, MCP, token-auth, audit, and HTTP-header suites passed: 59 tests.
 - Role validation passed with `minimal=14`, `operations=76`, `restricted_operations=70`, and `finance=22`.
 - The registered tool surface remains 113; no tool snapshot regeneration was needed because no tool definition or schema changed.
-- Production HTTP verification is pending deployment.
+- Production deployed from merged PR #8 at commit `382d689`.
+- Jennifer is bound to Lingxing UID `10544743` with 145 exact Amazon SIDs and 140 advertising Profile IDs; 15 unmatched permission names remain denied. Sienna is bound to UID `11575880` with 148 exact Amazon SIDs and 143 advertising Profile IDs, with no unmatched names. Both member tokens remain disabled.
+- A temporary restricted production token returned 70 tools, excluded all six unsafe tools, returned only its one authorized seller row, and rejected an out-of-scope product-search SID before the business handler ran.
+- The temporary token was removed after verification. Its old value, Jennifer, and Sienna all returned HTTP 401; the admin token returned HTTP 200 and the service remained active.
+- Production backup: `/root/lingxing-mcp-backups/20261115162949-pre-restricted-operations`.
 - Release audit was unavailable because the repository and adjacent template directory do not contain `release_audit.py`.
 
 ## 2026-10-20
