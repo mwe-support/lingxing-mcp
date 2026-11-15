@@ -13,7 +13,12 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lib.lingxing_openapi.auth import AuthMatch  # noqa: E402
-from lib.lingxing_openapi.mcp import LingxingMCPApplication, OPERATIONS_AD_TOOL_NAMES, REPORT_ACCESS_TOOL_NAMES  # noqa: E402
+from lib.lingxing_openapi.mcp import (  # noqa: E402
+    LingxingMCPApplication,
+    OPERATIONS_AD_TOOL_NAMES,
+    REPORT_ACCESS_TOOL_NAMES,
+    RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES,
+)
 
 BASE_TOOLS = {"lingxing_health_check", "lingxing_smoke_check", "lingxing_rate_limit_policy"}
 EXPECTED_MINIMAL = BASE_TOOLS | {
@@ -48,6 +53,7 @@ EXPECTED_OPERATIONS = BASE_TOOLS | {
     "lingxing_return_analysis",
     "lingxing_voice_of_buyer",
 } | OPERATIONS_AD_TOOL_NAMES | REPORT_ACCESS_TOOL_NAMES
+EXPECTED_RESTRICTED_OPERATIONS = EXPECTED_OPERATIONS - RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES
 EXPECTED_FINANCE = BASE_TOOLS | {
     "lingxing_store_sales",
     "lingxing_profit_seller",
@@ -85,9 +91,14 @@ def main() -> int:
     assert_equal("default/minimal tools", tool_names(app, None), EXPECTED_MINIMAL)
     assert_equal("minimal tools", tool_names(app, "minimal"), EXPECTED_MINIMAL)
     assert_equal("operations tools", tool_names(app, "operations"), EXPECTED_OPERATIONS)
+    assert_equal(
+        "restricted operations tools",
+        tool_names(app, "restricted_operations"),
+        EXPECTED_RESTRICTED_OPERATIONS,
+    )
     assert_equal("finance tools", tool_names(app, "finance"), EXPECTED_FINANCE)
 
-    for role in ["minimal", "operations", "finance"]:
+    for role in ["minimal", "operations", "restricted_operations", "finance"]:
         names = tool_names(app, role)
         if not BASE_TOOLS.issubset(names):
             raise AssertionError(f"{role} missing base tools: {sorted(BASE_TOOLS - names)}")
@@ -122,12 +133,23 @@ def main() -> int:
     override_app = LingxingMCPApplication()
     assert_equal("custom override includes base tools", tool_names(override_app, "custom"), BASE_TOOLS | {"lingxing_seller_lists"})
 
+    os.environ["LINGXING_MCP_ROLE_TOOLS"] = json.dumps(
+        {"restricted_operations": ["lingxing_seller_lists", "lingxing_order_details"]}
+    )
+    restricted_override_app = LingxingMCPApplication()
+    assert_equal(
+        "restricted override cannot restore unsafe tools",
+        tool_names(restricted_override_app, "restricted_operations"),
+        BASE_TOOLS | {"lingxing_seller_lists"},
+    )
+
     print(
         json.dumps(
             {
                 "ok": True,
                 "minimal_count": len(EXPECTED_MINIMAL),
                 "operations_count": len(EXPECTED_OPERATIONS),
+                "restricted_operations_count": len(EXPECTED_RESTRICTED_OPERATIONS),
                 "finance_count": len(EXPECTED_FINANCE),
                 "base_tools": sorted(BASE_TOOLS),
             },

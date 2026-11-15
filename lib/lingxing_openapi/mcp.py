@@ -83,6 +83,34 @@ REPORT_ACCESS_TOOL_NAMES = {
     "lingxing_report_export_download",
     "lingxing_report_export_refresh_url",
 }
+OPERATIONS_TOOL_NAMES = BASE_ROLE_TOOL_NAMES | {
+    "lingxing_seller_lists",
+    "lingxing_marketplaces",
+    "lingxing_order_details",
+    "lingxing_order_lists",
+    "lingxing_asin_product_snapshot",
+    "lingxing_product_search",
+    "lingxing_fba_warehouse_detail",
+    "lingxing_amazon_listing",
+    "lingxing_local_product_costs",
+    "lingxing_product_performance",
+    "lingxing_profit_report_order_list",
+    "lingxing_multi_channel_orders",
+    "lingxing_shipment_settlement_report",
+    "lingxing_sales_outbound_orders",
+    "lingxing_refund_orders",
+    "lingxing_return_analysis",
+    "lingxing_voice_of_buyer",
+} | OPERATIONS_AD_TOOL_NAMES | REPORT_ACCESS_TOOL_NAMES
+RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES = {
+    "lingxing_order_details",
+    "lingxing_local_product_costs",
+    "lingxing_return_analysis",
+    "lingxing_report_export_query",
+    "lingxing_report_export_download",
+    "lingxing_report_export_refresh_url",
+}
+RESTRICTED_OPERATIONS_TOOL_NAMES = OPERATIONS_TOOL_NAMES - RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES
 DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
     "minimal": BASE_ROLE_TOOL_NAMES
     | {
@@ -98,28 +126,8 @@ DEFAULT_ROLE_TOOL_NAMES: dict[str, set[str]] = {
         "lingxing_product_performance",
         "lingxing_finance_report_asin",
     },
-    "operations": BASE_ROLE_TOOL_NAMES
-    | {
-        "lingxing_seller_lists",
-        "lingxing_marketplaces",
-        "lingxing_order_details",
-        "lingxing_order_lists",
-        "lingxing_asin_product_snapshot",
-        "lingxing_product_search",
-        "lingxing_fba_warehouse_detail",
-        "lingxing_amazon_listing",
-        "lingxing_local_product_costs",
-        "lingxing_product_performance",
-        "lingxing_profit_report_order_list",
-        "lingxing_multi_channel_orders",
-        "lingxing_shipment_settlement_report",
-        "lingxing_sales_outbound_orders",
-        "lingxing_refund_orders",
-        "lingxing_return_analysis",
-        "lingxing_voice_of_buyer",
-    }
-    | OPERATIONS_AD_TOOL_NAMES
-    | REPORT_ACCESS_TOOL_NAMES,
+    "operations": OPERATIONS_TOOL_NAMES,
+    "restricted_operations": RESTRICTED_OPERATIONS_TOOL_NAMES,
     "finance": BASE_ROLE_TOOL_NAMES
     | {
         "lingxing_store_sales",
@@ -147,6 +155,9 @@ ROLE_ALIASES = {
     "minimum": "minimal",
     "operation": "operations",
     "ops": "operations",
+    "restricted_ops": "restricted_operations",
+    "limited_operations": "restricted_operations",
+    "limited_ops": "restricted_operations",
     "financial": "finance",
 }
 CORS_ALLOW_HEADERS = ", ".join(
@@ -1236,6 +1247,8 @@ class LingxingMCPApplication:
         allowed_names = self.role_tool_names.get(role)
         if allowed_names is None:
             return {}
+        if role == "restricted_operations":
+            allowed_names = allowed_names - RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES
         unknown_names = sorted(allowed_names.difference(self.tools))
         if unknown_names:
             sys.stderr.write(f"Ignoring unknown MCP tool names for role {role}: {', '.join(unknown_names)}\n")
@@ -1249,7 +1262,77 @@ class LingxingMCPApplication:
         if tool is None:
             role = _normalize_role(auth_match.role if auth_match else None) or "minimal"
             raise LingxingConfigError(f"Tool is not available for this role or does not exist: {name} (role={role})")
-        return tool.handler(arguments or {})
+        scoped_arguments = self._restricted_operations_arguments(name, arguments or {}, auth_match)
+        result = tool.handler(scoped_arguments)
+        return self._filter_restricted_operations_result(name, result, auth_match)
+
+    def _restricted_operations_arguments(
+        self,
+        name: str,
+        arguments: dict[str, Any],
+        auth_match: AuthMatch | None,
+    ) -> dict[str, Any]:
+        role = _normalize_role(auth_match.role if auth_match else None) or "minimal"
+        if role != "restricted_operations":
+            return arguments
+        if auth_match is None or auth_match.lingxing_uid is None:
+            raise LingxingConfigError("受限运营账号未绑定领星 ERP UID")
+        allowed_sids = set(auth_match.allowed_sids)
+        if not allowed_sids:
+            raise LingxingConfigError("受限运营账号没有可访问的店铺 SID")
+
+        scoped = dict(arguments)
+        properties = set((self.tools[name].input_schema.get("properties") or {}).keys())
+        if "sid" in properties:
+            sid = _optional_int(scoped, "sid")
+            if sid is not None and sid not in allowed_sids:
+                raise LingxingConfigError(f"当前账号无权访问店铺 SID: {sid}")
+            if sid is None and name == "lingxing_smoke_check":
+                scoped["sid"] = min(allowed_sids)
+        if "sids" in properties:
+            requested_sids = set(_list_of_ints(scoped, "sids") or [])
+            denied_sids = sorted(requested_sids - allowed_sids)
+            if denied_sids:
+                raise LingxingConfigError(f"当前账号无权访问店铺 SID: {denied_sids}")
+            scoped["sids"] = sorted(requested_sids or allowed_sids)
+
+        if scoped.get("profile_id") not in (None, ""):
+            profile_id = int(scoped["profile_id"])
+            if profile_id not in set(auth_match.allowed_profile_ids):
+                raise LingxingConfigError(f"当前账号无权访问广告 Profile ID: {profile_id}")
+        for key in ("seller_id", "seller_ids", "amazon_seller_ids"):
+            if scoped.get(key) not in (None, "", []):
+                raise LingxingConfigError(f"受限运营账号不接受 {key}，请改用已授权的 sid/sids")
+        return scoped
+
+    def _filter_restricted_operations_result(
+        self,
+        name: str,
+        result: dict[str, Any],
+        auth_match: AuthMatch | None,
+    ) -> dict[str, Any]:
+        role = _normalize_role(auth_match.role if auth_match else None) or "minimal"
+        if role != "restricted_operations" or name not in {"lingxing_seller_lists", "lingxing_ad_accounts"}:
+            return result
+        allowed_sids = set(auth_match.allowed_sids if auth_match else ())
+        allowed_profiles = set(auth_match.allowed_profile_ids if auth_match else ())
+        data = result.get("data")
+        if not isinstance(data, list):
+            return result
+        filtered = []
+        for row in data:
+            if not isinstance(row, dict) or int(row.get("sid") or 0) not in allowed_sids:
+                continue
+            if name == "lingxing_ad_accounts" and int(row.get("profile_id") or 0) not in allowed_profiles:
+                continue
+            filtered.append(row)
+        scoped_result = dict(result)
+        scoped_result["data"] = filtered
+        meta = dict(result.get("meta") or {})
+        meta["scope_filtered"] = True
+        meta["lingxing_uid"] = auth_match.lingxing_uid if auth_match else None
+        scoped_result["meta"] = meta
+        return scoped_result
 
     def rate_limit_policy(self, tool_name: str | None = None) -> dict[str, Any]:
         selected_tools: dict[str, ToolDefinition]

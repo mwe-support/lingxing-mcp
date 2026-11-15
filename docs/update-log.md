@@ -2,6 +2,38 @@
 
 This log records MCP tool-surface changes. Each entry must list added tools, removed tools, built-in role allowlist changes, production `LINGXING_MCP_ROLE_TOOLS` changes when touched, and validation results.
 
+## 2026-11-15
+
+### Added Tools
+- None.
+
+### Removed Tools
+- None globally.
+
+### Built-In Role Allowlist Changes
+- Added `restricted_operations` with 70 visible tools: the `operations` set minus `lingxing_order_details`, `lingxing_local_product_costs`, `lingxing_return_analysis`, `lingxing_report_export_query`, `lingxing_report_export_download`, and `lingxing_report_export_refresh_url`.
+- The six excluded tools do not yet provide a reliable pre-call store-ownership check for direct resource identifiers or enterprise-wide data.
+- Existing `minimal`, `operations`, and `finance` allowlists are unchanged.
+
+### Permission Enforcement
+- Member token records can bind `lingxing_uid`, `allowed_sids`, and `allowed_profile_ids`; token rotation, revocation, and role changes preserve this scope.
+- Restricted calls reject out-of-scope SID and advertising Profile IDs before invoking business handlers.
+- Omitted plural `sids` filters are replaced with the authorized SID list; seller and advertising account results are filtered before return.
+- Seller-ID-only filters are rejected for restricted users until they have an explicit SID ownership mapping.
+- Missing or empty restricted scope fails closed.
+
+### Production Role Override
+- No `LINGXING_MCP_ROLE_TOOLS` override change is required; the new built-in role is used directly.
+- Existing production overrides remain `operations=76` and `codex_ads_test=28`.
+
+### Validation
+- Python compile passed for `lib` and `mcp-servers`.
+- The focused OpenAPI, service, MCP, token-auth, audit, and HTTP-header suites passed: 59 tests.
+- Role validation passed with `minimal=14`, `operations=76`, `restricted_operations=70`, and `finance=22`.
+- The registered tool surface remains 113; no tool snapshot regeneration was needed because no tool definition or schema changed.
+- Production HTTP verification is pending deployment.
+- Release audit was unavailable because the repository and adjacent template directory do not contain `release_audit.py`.
+
 ## 2026-10-20
 
 ### Added Tools
