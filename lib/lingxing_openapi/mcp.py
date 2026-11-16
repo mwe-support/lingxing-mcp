@@ -103,7 +103,6 @@ OPERATIONS_TOOL_NAMES = BASE_ROLE_TOOL_NAMES | {
     "lingxing_voice_of_buyer",
 } | OPERATIONS_AD_TOOL_NAMES | REPORT_ACCESS_TOOL_NAMES
 RESTRICTED_OPERATIONS_UNSAFE_TOOL_NAMES = {
-    "lingxing_return_analysis",
     "lingxing_report_export_query",
     "lingxing_report_export_download",
     "lingxing_report_export_refresh_url",
@@ -1293,6 +1292,12 @@ class LingxingMCPApplication:
             if denied_sids:
                 raise LingxingConfigError(f"当前账号无权访问店铺 SID: {denied_sids}")
             scoped["sids"] = sorted(requested_sids or allowed_sids)
+        if "storeId" in properties:
+            requested_sids = set(_list_of_ints(scoped, "storeId") or [])
+            denied_sids = sorted(requested_sids - allowed_sids)
+            if denied_sids:
+                raise LingxingConfigError(f"当前账号无权访问店铺 SID: {denied_sids}")
+            scoped["storeId"] = sorted(requested_sids or allowed_sids)
 
         if scoped.get("profile_id") not in (None, ""):
             profile_id = int(scoped["profile_id"])
@@ -1310,9 +1315,33 @@ class LingxingMCPApplication:
         auth_match: AuthMatch | None,
     ) -> dict[str, Any]:
         role = _normalize_role(auth_match.role if auth_match else None) or "minimal"
-        if role != "restricted_operations" or name not in {"lingxing_seller_lists", "lingxing_ad_accounts"}:
+        if role != "restricted_operations":
             return result
         allowed_sids = set(auth_match.allowed_sids if auth_match else ())
+        if name == "lingxing_return_analysis":
+            returned_sids: set[int] = set()
+
+            def collect_sids(value: Any) -> None:
+                if isinstance(value, dict):
+                    for key, item in value.items():
+                        if key == "sid" and item not in (None, ""):
+                            try:
+                                returned_sids.add(int(item))
+                            except (TypeError, ValueError) as exc:
+                                raise LingxingConfigError("退货分析返回了无法验证的店铺 SID") from exc
+                        else:
+                            collect_sids(item)
+                elif isinstance(value, list):
+                    for item in value:
+                        collect_sids(item)
+
+            collect_sids(result.get("data"))
+            denied_sids = sorted(returned_sids - allowed_sids)
+            if denied_sids:
+                raise LingxingConfigError(f"退货分析返回了未授权店铺 SID: {denied_sids}")
+            return result
+        if name not in {"lingxing_seller_lists", "lingxing_ad_accounts"}:
+            return result
         allowed_profiles = set(auth_match.allowed_profile_ids if auth_match else ())
         data = result.get("data")
         if not isinstance(data, list):
