@@ -694,6 +694,8 @@ class LingxingServiceTests(unittest.TestCase):
         self.assertTrue(result["data"]["sp_product_ad_report_ok"])
         self.assertTrue(result["data"]["profit_seller_ok"])
         self.assertTrue(result["data"]["source_manage_inventory_ok"])
+        body = next(body for path, body, _ in self.service.client.post_calls if path == "/erp/sc/data/mws_report/allOrders")
+        self.assertEqual((body["start_date"], body["end_date"]), ("2026-03-20", "2026-03-21"))
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 import time
@@ -14,7 +15,10 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable
 
-from .ad_management import AD_MANAGEMENT_TOOL_SPECS, AD_OPERATION_LOGS_ENDPOINT, AdManagementRequest, AdManagementToolSpec
+from .ad_management import (
+    AD_MANAGEMENT_TOOL_SPECS, AD_MANAGEMENT_BATCH_LIMITS, AD_MANAGEMENT_ITEM_SCHEMAS,
+    AD_MANAGEMENT_PROFILE_FIELDS, AD_OPERATION_LOGS_ENDPOINT, AdManagementRequest, AdManagementToolSpec,
+)
 from .audit import MCPAuditLogger, build_audit_event, report_audit_write_failure, should_emit_audit_event
 from .auth import AuthMatch, BearerAuthConfig, load_bearer_auth_config
 from .client import rate_limit_policy_for_endpoint, rate_limit_runtime_settings
@@ -383,25 +387,62 @@ def _ad_management_schema(spec: AdManagementToolSpec) -> dict[str, Any]:
     properties: dict[str, Any] = {
         "sid": {"type": "integer", "description": "领星店铺 sid；sid 和 profile_id 至少传一个，建议传 sid。"},
         "profile_id": {"type": "integer", "description": "广告 Profile ID；传入时优先使用。"},
-        "dry_run": {"type": "boolean", "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"},
-        "confirm": {"type": "boolean", "description": "执行写入必须显式传 true；否则只返回计划。"},
+        "dry_run": {"type": "boolean", "default": True, "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"},
+        "confirm": {"type": "boolean", "default": False, "description": "执行写入必须显式传 true；否则只返回计划。"},
     }
     required: list[str] = []
     if spec.item_arg:
         properties[spec.item_arg] = {
             "type": "array",
-            "items": {"type": "object", "additionalProperties": True},
+            "items": AD_MANAGEMENT_ITEM_SCHEMAS[spec.tool_name],
+            "minItems": 1,
             "description": f"官方 {spec.body_key} 对象数组，字段按领星 API 文档传入。",
         }
+        if spec.tool_name in AD_MANAGEMENT_BATCH_LIMITS:
+            properties[spec.item_arg]["maxItems"] = AD_MANAGEMENT_BATCH_LIMITS[spec.tool_name]
         required.append(spec.item_arg)
     for arg_name in spec.required_args:
         properties[arg_name] = {
             "type": "array",
             "items": {"type": "string"},
+            "minItems": 1,
+            "maxItems": AD_MANAGEMENT_BATCH_LIMITS[spec.tool_name],
             "description": "官方必填数组字段，字段名保持领星 API 文档命名。",
         }
         required.append(arg_name)
     return {"type": "object", "properties": properties, "required": required, "additionalProperties": False}
+
+
+def _validate_ad_argument(value: Any, schema: dict[str, Any], path: str) -> None:
+    kind = schema.get("type")
+    valid = {
+        "object": isinstance(value, dict), "array": isinstance(value, list),
+        "string": isinstance(value, str), "integer": type(value) is int,
+        "number": type(value) in (int, float), "boolean": type(value) is bool,
+    }
+    if kind and not valid[kind]:
+        raise LingxingConfigError(f"{path} 必须为 {kind}")
+    if isinstance(value, float) and not math.isfinite(value):
+        raise LingxingConfigError(f"{path} 必须为有限数值")
+    if "enum" in schema and value not in schema["enum"]:
+        raise LingxingConfigError(f"{path} 不在官方允许的枚举范围内")
+    if kind == "string" and len(value.strip()) < schema.get("minLength", 0):
+        raise LingxingConfigError(f"{path} 不得为空")
+    if kind == "array":
+        if len(value) < schema.get("minItems", 0) or ("maxItems" in schema and len(value) > schema["maxItems"]):
+            raise LingxingConfigError(f"{path} 数组长度不符合官方限制")
+        for index, item in enumerate(value):
+            _validate_ad_argument(item, schema.get("items", {}), f"{path}[{index}]")
+    if kind == "object":
+        for name in schema.get("required", []):
+            if name not in value:
+                raise LingxingConfigError(f"缺少必要参数: {path}.{name}")
+        properties = schema.get("properties", {})
+        for name, item in value.items():
+            if name in properties:
+                _validate_ad_argument(item, properties[name], f"{path}.{name}")
+            elif schema.get("additionalProperties") is False:
+                raise LingxingConfigError(f"不支持的参数: {path}.{name}")
 
 
 def _operation_logs_schema() -> dict[str, Any]:
@@ -483,6 +524,7 @@ class LingxingMCPApplication:
         self.role_tool_names = _role_tool_names_from_env()
 
     def _run_ad_management_tool(self, spec: AdManagementToolSpec, args: dict[str, Any]) -> dict[str, Any]:
+        _validate_ad_argument(args, _ad_management_schema(spec), "参数")
         body: dict[str, Any] = {}
         sid = _optional_int(args, "sid")
         profile_id = _optional_int(args, "profile_id")
@@ -491,9 +533,14 @@ class LingxingMCPApplication:
         if sid is not None:
             body["sid"] = sid
         if profile_id is not None:
-            body["profileId"] = profile_id
+            body[AD_MANAGEMENT_PROFILE_FIELDS.get(spec.tool_name, "profileId")] = profile_id
         if spec.item_arg and spec.body_key:
             body[spec.body_key] = _listify_objects(args, spec.item_arg)
+            if spec.tool_name in {"lingxing_ads_update_sp_keyword", "lingxing_ads_update_sp_target"}:
+                if any(row.get("state") in (None, "") and row.get("bid") is None for row in body[spec.body_key]):
+                    raise LingxingConfigError("state 和 bid 不能同时为空")
+            if any(row.get("isBaseValue") == 1 and row.get("baseType") in (1, "1") and row.get("baseValue") in (None, "") for row in body[spec.body_key]):
+                raise LingxingConfigError("调整固定基准值时必须提供 baseValue")
         for arg_name in spec.required_args:
             values = _listify_strings(args.get(arg_name))
             if not values:

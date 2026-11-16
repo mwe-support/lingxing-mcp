@@ -56,10 +56,11 @@ KNOWN_RATE_LIMIT_RULES: dict[str, RateLimitRule] = {
     "/bd/productPerformance/openApi/asinList": RateLimitRule(1.0, 1, "openapi_docs"),
     "/basicOpen/finance/profitReport/order/transcation/list": RateLimitRule(1.0, 1, "openapi_docs"),
     "/basicOpen/openapi/salesOrder/multi-channel/list/transaction": RateLimitRule(1.0, 1, "openapi_docs"),
-    "/pb/openapi/newad/spNegativeTargetsOrKeywords": RateLimitRule(1.0, 1, "openapi_docs"),
-    "/pb/openapi/newad/hsaNegativeKeywords": RateLimitRule(1.0, 1, "openapi_docs"),
-    "/pb/openapi/newad/hsaNegativeTargets": RateLimitRule(1.0, 1, "openapi_docs"),
-    "/pb/openapi/newad/sdNegativeTargets": RateLimitRule(1.0, 1, "openapi_docs"),
+    # Official capacity is 10; retain the existing conservative production queue.
+    "/pb/openapi/newad/spNegativeTargetsOrKeywords": RateLimitRule(1.0, 1, "conservative"),
+    "/pb/openapi/newad/hsaNegativeKeywords": RateLimitRule(1.0, 1, "conservative"),
+    "/pb/openapi/newad/hsaNegativeTargets": RateLimitRule(1.0, 1, "conservative"),
+    "/pb/openapi/newad/sdNegativeTargets": RateLimitRule(1.0, 1, "conservative"),
     "/basicOpen/adReport/manage/putSpCampaign": RateLimitRule(1.0, 1, "openapi_docs"),
     "/basicOpen/adReport/manage/putSpAdGroup": RateLimitRule(1.0, 1, "openapi_docs"),
     "/basicOpen/adReport/manage/putSpKeyword": RateLimitRule(1.0, 1, "openapi_docs"),
@@ -482,6 +483,7 @@ class LingxingOpenAPIClient:
             method="POST",
             headers={"Content-Type": content_type},
         )
+        self._apply_rate_limit(endpoint)
         payload = self._request(request, endpoint=endpoint)
         bundle = self._token_bundle_from_payload(payload)
         self._write_token_cache(bundle)
@@ -501,6 +503,7 @@ class LingxingOpenAPIClient:
             method="POST",
             headers={"Content-Type": content_type},
         )
+        self._apply_rate_limit(endpoint)
         payload = self._request(request, endpoint=endpoint)
         bundle = self._token_bundle_from_payload(payload)
         self._write_token_cache(bundle)
@@ -632,9 +635,12 @@ class LingxingOpenAPIClient:
         total: int | None = None
         next_token: str | None = None
         if pagination_mode == "next_token":
+            seen_tokens: set[str] = set()
             while True:
                 page_count += 1
                 page_body = dict(body)
+                page_body.pop("offset", None)
+                page_body.pop("next_token", None)
                 page_body["length"] = page_size
                 if next_token:
                     page_body["next_token"] = next_token
@@ -650,10 +656,15 @@ class LingxingOpenAPIClient:
                 total_raw = extract_path_value(payload, total_path)
                 total = int(total_raw) if total_raw not in (None, "") else total
                 new_next_token = extract_path_value(payload, next_token_path)
-                if not new_next_token or str(new_next_token) == str(next_token or ""):
-                    next_token = str(new_next_token or "") or None
+                if not new_next_token:
+                    if total is not None and len(results) < total:
+                        raise LingxingRequestError("游标分页提前结束，返回记录数少于 total", endpoint=path)
+                    next_token = None
                     break
                 next_token = str(new_next_token)
+                if next_token in seen_tokens:
+                    raise LingxingRequestError("游标分页返回重复 next_token，停止以避免重复或不完整数据", endpoint=path)
+                seen_tokens.add(next_token)
             return PagedRows(rows=results, page_count=page_count, total=total, next_token=next_token)
 
         if pagination_mode == "page":
@@ -673,8 +684,8 @@ class LingxingOpenAPIClient:
                     )
                 results.extend(data)
                 total_raw = extract_path_value(payload, total_path)
-                total = int(total_raw) if total_raw not in (None, "") else len(results)
-                if not data or len(results) >= total:
+                total = int(total_raw) if total_raw not in (None, "") else total
+                if not data or (total is not None and len(results) >= total) or (total is None and len(data) < page_size):
                     break
                 page_number += 1
             return PagedRows(rows=results, page_count=page_count, total=total, next_token=None)
@@ -695,9 +706,9 @@ class LingxingOpenAPIClient:
                 )
             results.extend(data)
             total_raw = extract_path_value(payload, total_path)
-            total = int(total_raw) if total_raw not in (None, "") else len(results)
+            total = int(total_raw) if total_raw not in (None, "") else total
             offset += len(data)
-            if not data or offset >= total:
+            if not data or (total is not None and offset >= total) or (total is None and len(data) < page_size):
                 break
         return PagedRows(rows=results, page_count=page_count, total=total, next_token=None)
 

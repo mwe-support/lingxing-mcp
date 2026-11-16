@@ -1,6 +1,6 @@
 # Lingxing MCP Tool Snapshot
 
-Generated: 2026-10-20 18:43:23
+Generated: 2026-11-16 12:37:36
 Source: LingxingMCPApplication built-in role defaults
 Registered tools: 113
 
@@ -127,6 +127,82 @@ Registered tools: 113
 - `lingxing_source_transaction`
 - `lingxing_voice_of_buyer`
 
+### restricted_operations (73)
+
+- `lingxing_ad_accounts`
+- `lingxing_ads_add_sp_keywords`
+- `lingxing_ads_add_sp_negative_keywords`
+- `lingxing_ads_add_sp_negative_targets`
+- `lingxing_ads_archive_sp_negatives`
+- `lingxing_ads_operation_logs`
+- `lingxing_ads_portfolios`
+- `lingxing_ads_sb_ad_groups`
+- `lingxing_ads_sb_campaign_report`
+- `lingxing_ads_sb_campaigns`
+- `lingxing_ads_sb_creative_report`
+- `lingxing_ads_sb_creatives`
+- `lingxing_ads_sb_negative_keywords`
+- `lingxing_ads_sb_negative_targets`
+- `lingxing_ads_sb_purchased_asin_report`
+- `lingxing_ads_sb_targets`
+- `lingxing_ads_sd_ad_groups`
+- `lingxing_ads_sd_campaign_report`
+- `lingxing_ads_sd_campaigns`
+- `lingxing_ads_sd_negative_targets`
+- `lingxing_ads_sd_product_ad_report`
+- `lingxing_ads_sd_product_ads`
+- `lingxing_ads_sd_target_report`
+- `lingxing_ads_sd_targets`
+- `lingxing_ads_sp_ad_groups`
+- `lingxing_ads_sp_campaign_report`
+- `lingxing_ads_sp_campaigns`
+- `lingxing_ads_sp_keyword_report`
+- `lingxing_ads_sp_keywords`
+- `lingxing_ads_sp_negative_targets_or_keywords`
+- `lingxing_ads_sp_product_ad_report`
+- `lingxing_ads_sp_product_ads`
+- `lingxing_ads_sp_search_term_report`
+- `lingxing_ads_sp_target_report`
+- `lingxing_ads_sp_targets`
+- `lingxing_ads_update_sp_ad_group`
+- `lingxing_ads_update_sp_campaign`
+- `lingxing_ads_update_sp_keyword`
+- `lingxing_ads_update_sp_product_ads`
+- `lingxing_ads_update_sp_target`
+- `lingxing_amazon_listing`
+- `lingxing_asin_ads_daily_rollup`
+- `lingxing_asin_product_snapshot`
+- `lingxing_exp_ads_sb_ad_group_report`
+- `lingxing_exp_ads_sb_campaign_placement_report`
+- `lingxing_exp_ads_sb_keyword_placement_report`
+- `lingxing_exp_ads_sb_search_term_report`
+- `lingxing_exp_ads_sb_target_report`
+- `lingxing_exp_ads_sd_ad_group_report`
+- `lingxing_exp_ads_sd_match_target_report`
+- `lingxing_exp_ads_sp_ad_group_report`
+- `lingxing_exp_ads_sp_placement_report`
+- `lingxing_exp_ads_sp_purchased_asin_report`
+- `lingxing_fba_warehouse_detail`
+- `lingxing_health_check`
+- `lingxing_local_product_costs`
+- `lingxing_marketplaces`
+- `lingxing_multi_channel_orders`
+- `lingxing_order_details`
+- `lingxing_order_lists`
+- `lingxing_product_performance`
+- `lingxing_product_search`
+- `lingxing_profit_report_order_list`
+- `lingxing_rate_limit_policy`
+- `lingxing_refund_orders`
+- `lingxing_report_export_create`
+- `lingxing_return_analysis`
+- `lingxing_sales_outbound_orders`
+- `lingxing_seller_lists`
+- `lingxing_shipment_settlement_report`
+- `lingxing_smoke_check`
+- `lingxing_source_transaction`
+- `lingxing_voice_of_buyer`
+
 ## Tool Index
 
 | # | Tool | Origin | Category | Required args | Optional args | Endpoint | Rate limit | Description |
@@ -134,49 +210,49 @@ Registered tools: 113
 | 1 | `lingxing_ad_accounts` | `manual` | `manual` | None | type, sid, profile_id, country_code, status | `Manual` | 限流：endpoint /basicOpen/baseData/account/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询广告账号列表，可按 sid / profile_id / 国家 / 状态过滤。 |
 | 2 | `lingxing_ads_add_sp_keywords` | `manual` | `manual` | keywords | sid, profile_id, dry_run, confirm | `Manual` | 限流：endpoint /basicOpen/adReport/spTarget/addKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 添加 SP 关键词，单次最多 1000 个；默认 dry_run，不确认不执行。 |
 | 3 | `lingxing_ads_add_sp_negative_keywords` | `manual` | `manual` | negative_keywords | sid, profile_id, dry_run, confirm | `Manual` | 限流：endpoint /basicOpen/adReport/spTarget/addNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 添加 SP 否定关键词，支持活动层级和广告组层级；默认 dry_run，不确认不执行。 |
-| 4 | `lingxing_ads_add_sp_negative_targets` | `manual` | `manual` | asins | sid, profile_id, dry_run, confirm | `Manual` | 限流：endpoint /basicOpen/adReport/spTarget/addNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 添加 SP 否定 ASIN，支持活动层级和广告组层级；默认 dry_run，不确认不执行。 |
+| 4 | `lingxing_ads_add_sp_negative_targets` | `manual` | `manual` | asins | sid, profile_id, dry_run, confirm | `Manual` | 限流：endpoint /basicOpen/adReport/spTarget/addNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 添加 SP 否定 ASIN；按当前官方参数表传 campaignId 和 adGroupId；默认 dry_run，不确认不执行。 |
 | 5 | `lingxing_ads_archive_sp_negatives` | `manual` | `manual` | targetIds | sid, profile_id, dry_run, confirm | `Manual` | 限流：endpoint /basicOpen/adReport/spTarget/archiveNegatives，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 归档 SP 否定关键词或否定 ASIN，需传官方 target_id；默认 dry_run，不确认不执行。 |
 | 6 | `lingxing_ads_operation_logs` | `manual` | `manual` | sid, log_source, sponsored_type, operate_type, start_date, end_date | offset, length | `Manual` | 限流：endpoint /pb/openapi/newad/apiLogStandard，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。 | 查询广告操作日志，支持 SP/SB/SD、ERP/亚马逊后台来源和广告对象类型过滤。 |
 | 7 | `lingxing_ads_portfolios` | `endpoint_spec` | `ad_base` | sid | profile_id | `/pb/openapi/newad/portfolios` | 限流：endpoint /pb/openapi/newad/portfolios，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 广告组合列表。 |
-| 8 | `lingxing_ads_sb_ad_group_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sbAdGroupHourData` | 限流：endpoint /pb/openapi/newad/sbAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告组小时数据。 |
+| 8 | `lingxing_ads_sb_ad_group_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids | None | `/pb/openapi/newad/sbAdGroupHourData` | 限流：endpoint /pb/openapi/newad/sbAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告组小时数据。 |
 | 9 | `lingxing_ads_sb_ad_groups` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/hsaAdGroups` | 限流：endpoint /pb/openapi/newad/hsaAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告组基础数据。 |
-| 10 | `lingxing_ads_sb_campaign_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sbCampaignHourData` | 限流：endpoint /pb/openapi/newad/sbCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告活动小时数据。 |
-| 11 | `lingxing_ads_sb_campaign_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/hsaCampaignReports` | 限流：endpoint /pb/openapi/newad/hsaCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告活动日报。 |
+| 10 | `lingxing_ads_sb_campaign_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids | None | `/pb/openapi/newad/sbCampaignHourData` | 限流：endpoint /pb/openapi/newad/sbCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告活动小时数据。 |
+| 11 | `lingxing_ads_sb_campaign_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/hsaCampaignReports` | 限流：endpoint /pb/openapi/newad/hsaCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告活动日报。 |
 | 12 | `lingxing_ads_sb_campaigns` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/hsaCampaigns` | 限流：endpoint /pb/openapi/newad/hsaCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告活动基础数据。 |
-| 13 | `lingxing_ads_sb_creative_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/listHsaProductAdReport` | 限流：endpoint /pb/openapi/newad/listHsaProductAdReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告创意日报。 |
+| 13 | `lingxing_ads_sb_creative_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/listHsaProductAdReport` | 限流：endpoint /pb/openapi/newad/listHsaProductAdReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告创意日报。 |
 | 14 | `lingxing_ads_sb_creatives` | `endpoint_spec` | `ad_base` | sid | profile_id | `/pb/openapi/newad/hsaProductAds` | 限流：endpoint /pb/openapi/newad/hsaProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告创意基础数据。 |
-| 15 | `lingxing_ads_sb_negative_keywords` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/hsaNegativeKeywords` | 限流：endpoint /pb/openapi/newad/hsaNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 否定关键词基础数据，用于查看 SB 否定关键词。 |
-| 16 | `lingxing_ads_sb_negative_targets` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/hsaNegativeTargets` | 限流：endpoint /pb/openapi/newad/hsaNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 否定商品投放基础数据，用于查看 SB 否定商品投放。 |
-| 17 | `lingxing_ads_sb_placement_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sbAdPlacementHourData` | 限流：endpoint /pb/openapi/newad/sbAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告位小时数据。 |
+| 15 | `lingxing_ads_sb_negative_keywords` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/hsaNegativeKeywords` | 限流：endpoint /pb/openapi/newad/hsaNegativeKeywords，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 否定关键词基础数据，用于查看 SB 否定关键词。 |
+| 16 | `lingxing_ads_sb_negative_targets` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/hsaNegativeTargets` | 限流：endpoint /pb/openapi/newad/hsaNegativeTargets，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 否定商品投放基础数据，用于查看 SB 否定商品投放。 |
+| 17 | `lingxing_ads_sb_placement_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids | None | `/pb/openapi/newad/sbAdPlacementHourData` | 限流：endpoint /pb/openapi/newad/sbAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 广告位小时数据。 |
 | 18 | `lingxing_ads_sb_purchased_asin_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/hsaPurchasedAsinReports` | 限流：endpoint /pb/openapi/newad/hsaPurchasedAsinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 已购买 ASIN 报表，用于按 ASIN 归因销售/订单。 |
-| 19 | `lingxing_ads_sb_target_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sbTargetHourData` | 限流：endpoint /pb/openapi/newad/sbTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 投放小时数据。 |
-| 20 | `lingxing_ads_sb_targets` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/sbTargeting` | 限流：endpoint /pb/openapi/newad/sbTargeting，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 投放基础数据。 |
-| 21 | `lingxing_ads_sd_ad_group_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdAdGroupHourData` | 限流：endpoint /pb/openapi/newad/sdAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告组小时数据。 |
+| 19 | `lingxing_ads_sb_target_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids, agg_dimension | None | `/pb/openapi/newad/sbTargetHourData` | 限流：endpoint /pb/openapi/newad/sbTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 投放小时数据。 |
+| 20 | `lingxing_ads_sb_targets` | `endpoint_spec` | `ad_base` | sid | profile_id | `/pb/openapi/newad/sbTargeting` | 限流：endpoint /pb/openapi/newad/sbTargeting，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SB 投放基础数据。 |
+| 21 | `lingxing_ads_sd_ad_group_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids | None | `/pb/openapi/newad/sdAdGroupHourData` | 限流：endpoint /pb/openapi/newad/sdAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告组小时数据。 |
 | 22 | `lingxing_ads_sd_ad_groups` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/sdAdGroups` | 限流：endpoint /pb/openapi/newad/sdAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告组基础数据。 |
-| 23 | `lingxing_ads_sd_advertise_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdAdvertiseHourData` | 限流：endpoint /pb/openapi/newad/sdAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告小时数据。 |
-| 24 | `lingxing_ads_sd_campaign_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdCampaignHourData` | 限流：endpoint /pb/openapi/newad/sdCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告活动小时数据。 |
+| 23 | `lingxing_ads_sd_advertise_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids, agg_dimension | None | `/pb/openapi/newad/sdAdvertiseHourData` | 限流：endpoint /pb/openapi/newad/sdAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告小时数据。 |
+| 24 | `lingxing_ads_sd_campaign_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids | None | `/pb/openapi/newad/sdCampaignHourData` | 限流：endpoint /pb/openapi/newad/sdCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告活动小时数据。 |
 | 25 | `lingxing_ads_sd_campaign_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdCampaignReports` | 限流：endpoint /pb/openapi/newad/sdCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告活动日报。 |
 | 26 | `lingxing_ads_sd_campaigns` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/sdCampaigns` | 限流：endpoint /pb/openapi/newad/sdCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告活动基础数据。 |
-| 27 | `lingxing_ads_sd_negative_targets` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/sdNegativeTargets` | 限流：endpoint /pb/openapi/newad/sdNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 否定商品定位基础数据，用于查看 SD 否定投放对象。 |
+| 27 | `lingxing_ads_sd_negative_targets` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/sdNegativeTargets` | 限流：endpoint /pb/openapi/newad/sdNegativeTargets，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 否定商品定位基础数据，用于查看 SD 否定投放对象。 |
 | 28 | `lingxing_ads_sd_product_ad_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdProductAdReports` | 限流：endpoint /pb/openapi/newad/sdProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告商品日报，可直接按 ASIN 聚合。 |
 | 29 | `lingxing_ads_sd_product_ads` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/sdProductAds` | 限流：endpoint /pb/openapi/newad/sdProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 广告商品基础数据。 |
-| 30 | `lingxing_ads_sd_target_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdTargetHourData` | 限流：endpoint /pb/openapi/newad/sdTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 投放小时数据。 |
-| 31 | `lingxing_ads_sd_target_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdTargetReports` | 限流：endpoint /pb/openapi/newad/sdTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 商品定位日报。 |
+| 30 | `lingxing_ads_sd_target_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids, agg_dimension | None | `/pb/openapi/newad/sdTargetHourData` | 限流：endpoint /pb/openapi/newad/sdTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 投放小时数据。 |
+| 31 | `lingxing_ads_sd_target_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/sdTargetReports` | 限流：endpoint /pb/openapi/newad/sdTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 商品定位日报。 |
 | 32 | `lingxing_ads_sd_targets` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/sdTargets` | 限流：endpoint /pb/openapi/newad/sdTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SD 商品定位基础数据。 |
-| 33 | `lingxing_ads_sp_ad_group_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spAdGroupHourData` | 限流：endpoint /pb/openapi/newad/spAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告组小时数据。 |
+| 33 | `lingxing_ads_sp_ad_group_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids | None | `/pb/openapi/newad/spAdGroupHourData` | 限流：endpoint /pb/openapi/newad/spAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告组小时数据。 |
 | 34 | `lingxing_ads_sp_ad_groups` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/spAdGroups` | 限流：endpoint /pb/openapi/newad/spAdGroups，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告组基础数据。 |
-| 35 | `lingxing_ads_sp_advertise_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spAdvertiseHourData` | 限流：endpoint /pb/openapi/newad/spAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告小时数据。 |
-| 36 | `lingxing_ads_sp_campaign_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spCampaignHourData` | 限流：endpoint /pb/openapi/newad/spCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告活动小时数据。 |
+| 35 | `lingxing_ads_sp_advertise_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids, agg_dimension | None | `/pb/openapi/newad/spAdvertiseHourData` | 限流：endpoint /pb/openapi/newad/spAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告小时数据。 |
+| 36 | `lingxing_ads_sp_campaign_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids | None | `/pb/openapi/newad/spCampaignHourData` | 限流：endpoint /pb/openapi/newad/spCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告活动小时数据。 |
 | 37 | `lingxing_ads_sp_campaign_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spCampaignReports` | 限流：endpoint /pb/openapi/newad/spCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告活动日报。 |
 | 38 | `lingxing_ads_sp_campaigns` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/spCampaigns` | 限流：endpoint /pb/openapi/newad/spCampaigns，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告活动基础数据。 |
 | 39 | `lingxing_ads_sp_keyword_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spKeywordReports` | 限流：endpoint /pb/openapi/newad/spKeywordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 关键词日报。 |
 | 40 | `lingxing_ads_sp_keywords` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/spKeywords` | 限流：endpoint /pb/openapi/newad/spKeywords，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 关键词基础数据。 |
-| 41 | `lingxing_ads_sp_negative_targets_or_keywords` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/spNegativeTargetsOrKeywords` | 限流：endpoint /pb/openapi/newad/spNegativeTargetsOrKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 否定投放基础数据，返回否定关键词和否定商品投放，用于归档前查找 target_id。 |
-| 42 | `lingxing_ads_sp_placement_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spAdPlacementHourData` | 限流：endpoint /pb/openapi/newad/spAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告位小时数据。 |
+| 41 | `lingxing_ads_sp_negative_targets_or_keywords` | `endpoint_spec` | `ad_base` | sid | profile_id, target_type | `/pb/openapi/newad/spNegativeTargetsOrKeywords` | 限流：endpoint /pb/openapi/newad/spNegativeTargetsOrKeywords，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 否定投放基础数据，返回否定关键词和否定商品投放，用于归档前查找 target_id。 |
+| 42 | `lingxing_ads_sp_placement_hourly` | `endpoint_spec` | `ad_report` | report_date, campaign_id, campaign_ids | None | `/pb/openapi/newad/spAdPlacementHourData` | 限流：endpoint /pb/openapi/newad/spAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告位小时数据。 |
 | 43 | `lingxing_ads_sp_product_ad_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spProductAdReports` | 限流：endpoint /pb/openapi/newad/spProductAdReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告商品日报，可直接按 ASIN 聚合。 |
 | 44 | `lingxing_ads_sp_product_ads` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/spProductAds` | 限流：endpoint /pb/openapi/newad/spProductAds，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 广告商品基础数据。 |
 | 45 | `lingxing_ads_sp_search_term_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail, target_type | `/pb/openapi/newad/queryWordReports` | 限流：endpoint /pb/openapi/newad/queryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 用户搜索词日报。 |
-| 46 | `lingxing_ads_sp_target_hourly` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spTargetHourData` | 限流：endpoint /pb/openapi/newad/spTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 投放小时数据。 |
+| 46 | `lingxing_ads_sp_target_hourly` | `endpoint_spec` | `ad_report` | report_date, agg_dimension | campaign_id, campaign_ids | `/pb/openapi/newad/spTargetHourData` | 限流：endpoint /pb/openapi/newad/spTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 投放小时数据。 |
 | 47 | `lingxing_ads_sp_target_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spTargetReports` | 限流：endpoint /pb/openapi/newad/spTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 商品定位日报。 |
 | 48 | `lingxing_ads_sp_targets` | `endpoint_spec` | `ad_base` | sid | profile_id, state | `/pb/openapi/newad/spTargets` | 限流：endpoint /pb/openapi/newad/spTargets，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | SP 商品定位基础数据。 |
 | 49 | `lingxing_ads_update_sp_ad_group` | `manual` | `manual` | ad_groups | sid, profile_id, dry_run, confirm | `Manual` | 限流：endpoint /basicOpen/adReport/manage/putSpAdGroup，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 修改 SP 广告组，支持启停和默认竞价；默认 dry_run，不确认不执行。 |
@@ -190,21 +266,21 @@ Registered tools: 113
 | 57 | `lingxing_asin_product_snapshot` | `manual` | `manual` | sid, asins | start_date, end_date | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /basicOpen/openapi/storage/fbaWarehouseDetail 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按店铺 sid 查询 1 到 50 个 ASIN 的产品快照，返回产品名、采购成本、前台售价、FBA 实时库存、产品表现销量 volume 和产品链接。单个 ASIN 也使用 asins 数组传入，例如 ["B0..."]；超过 50 个时客户端 Agent 应自行按 50 个一批拆分并串行调用。 |
 | 58 | `lingxing_asin_weekly_rollup` | `manual` | `manual` | sid, asin, start_date, end_date | None | `Manual` | 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/sales_report/sales 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按周汇总 ASIN 的总销量、广告指标和促销标签。 |
 | 59 | `lingxing_exp_ads_aba_report` | `endpoint_spec` | `ad_report` | country, data_start_time | None | `/pb/openapi/newad/abaReport` | 限流：endpoint /pb/openapi/newad/abaReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：ABA 搜索词周报下载信息。 |
-| 60 | `lingxing_exp_ads_sb_ad_group_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/hsaAdGroupReports` | 限流：endpoint /pb/openapi/newad/hsaAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 广告组日报。 |
-| 61 | `lingxing_exp_ads_sb_campaign_placement_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/hsaCampaignPlacementReports` | 限流：endpoint /pb/openapi/newad/hsaCampaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 广告位日报。 |
-| 62 | `lingxing_exp_ads_sb_keyword_placement_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/listHsaKeywordPlacementReport` | 限流：endpoint /pb/openapi/newad/listHsaKeywordPlacementReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 关键词广告位日报。 |
-| 63 | `lingxing_exp_ads_sb_search_term_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/hsaQueryWordReports` | 限流：endpoint /pb/openapi/newad/hsaQueryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 用户搜索词日报。 |
-| 64 | `lingxing_exp_ads_sb_target_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/listHsaTargetingReport` | 限流：endpoint /pb/openapi/newad/listHsaTargetingReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 投放日报。 |
+| 60 | `lingxing_exp_ads_sb_ad_group_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/hsaAdGroupReports` | 限流：endpoint /pb/openapi/newad/hsaAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 广告组日报。 |
+| 61 | `lingxing_exp_ads_sb_campaign_placement_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/hsaCampaignPlacementReports` | 限流：endpoint /pb/openapi/newad/hsaCampaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 广告位日报。 |
+| 62 | `lingxing_exp_ads_sb_keyword_placement_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/listHsaKeywordPlacementReport` | 限流：endpoint /pb/openapi/newad/listHsaKeywordPlacementReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 关键词广告位日报。 |
+| 63 | `lingxing_exp_ads_sb_search_term_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/hsaQueryWordReports` | 限流：endpoint /pb/openapi/newad/hsaQueryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 用户搜索词日报。 |
+| 64 | `lingxing_exp_ads_sb_target_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id | `/pb/openapi/newad/listHsaTargetingReport` | 限流：endpoint /pb/openapi/newad/listHsaTargetingReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SB 投放日报。 |
 | 65 | `lingxing_exp_ads_sd_ad_group_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdAdGroupReports` | 限流：endpoint /pb/openapi/newad/sdAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SD 广告组日报。 |
 | 66 | `lingxing_exp_ads_sd_match_target_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/sdMatchTargetReports` | 限流：endpoint /pb/openapi/newad/sdMatchTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SD 匹配目标日报。 |
 | 67 | `lingxing_exp_ads_sp_ad_group_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/spAdGroupReports` | 限流：endpoint /pb/openapi/newad/spAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SP 广告组日报。 |
 | 68 | `lingxing_exp_ads_sp_placement_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/campaignPlacementReports` | 限流：endpoint /pb/openapi/newad/campaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SP 广告位日报。 |
 | 69 | `lingxing_exp_ads_sp_purchased_asin_report` | `endpoint_spec` | `ad_report` | sid, report_date | profile_id, show_detail | `/pb/openapi/newad/asinReports` | 限流：endpoint /pb/openapi/newad/asinReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：SP 已购买 ASIN 报表。 |
-| 70 | `lingxing_exp_finance_report_seller` | `endpoint_spec` | `profit_report` | sid, start_date, end_date | currency_code, monthly_query, order_status | `/bd/profit/report/open/report/seller/list` | 限流：endpoint /bd/profit/report/open/report/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：结算利润报表店铺视角。 |
+| 70 | `lingxing_exp_finance_report_seller` | `endpoint_spec` | `profit_report` | sid, start_date, end_date | currency_code, monthly_query, order_status | `/bd/profit/report/open/report/seller/list` | 限流：endpoint /bd/profit/report/open/report/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 实验层：结算利润报表店铺视角；按天 YYYY-MM-DD，跨度最多 31 天；monthly_query=true 时用 YYYY-MM 且起止同月。 |
 | 71 | `lingxing_fba_stock_aggregate` | `endpoint_spec` | `stock` | sid, start_month, end_month | None | `/cost/center/openApi/fba/gather/query` | 限流：endpoint /cost/center/openApi/fba/gather/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | FBA 库存新报表汇总。 |
 | 72 | `lingxing_fba_stock_detail` | `endpoint_spec` | `stock` | sid, start_month, end_month | None | `/cost/center/openApi/fba/detail/query` | 限流：endpoint /cost/center/openApi/fba/detail/query，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | FBA 库存新报表明细。 |
 | 73 | `lingxing_fba_warehouse_detail` | `endpoint_spec` | `warehouse` | sid | search_field, search_value, cid, bid, attribute, asin_principal, status, senior_search_list, fulfillment_channel_type, is_hide_zero_stock, is_parant_asin_merge, is_contain_del_ls, query_fba_storage_quantity_list | `/basicOpen/openapi/storage/fbaWarehouseDetail` | 限流：endpoint /basicOpen/openapi/storage/fbaWarehouseDetail，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 按 ASIN、MSKU、SKU、FNSKU 等字段查询领星 FBA 仓库库存明细，用于获取可售、在途、调仓和调查中等库存字段。 |
-| 74 | `lingxing_finance_report_asin` | `endpoint_spec` | `profit_report` | sid, start_date, end_date | currency_code, search_value, monthly_query, summary_enabled, order_status | `/bd/profit/report/open/report/asin/list` | 限流：endpoint /bd/profit/report/open/report/asin/list，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。 | 结算利润报表 ASIN 视角。 |
+| 74 | `lingxing_finance_report_asin` | `endpoint_spec` | `profit_report` | sid, start_date, end_date | currency_code, search_value, monthly_query, summary_enabled, order_status | `/bd/profit/report/open/report/asin/list` | 限流：endpoint /bd/profit/report/open/report/asin/list，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。 | 结算利润报表 ASIN 视角；按天 YYYY-MM-DD，跨度最多 31 天；monthly_query=true 时用 YYYY-MM 且起止同月。 |
 | 75 | `lingxing_health_check` | `manual` | `manual` | None | None | `Manual` | 限流：endpoint /api/auth-server/oauth/access-token，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 检查领星环境变量、token 状态和基础连通性，不拉业务数据。 |
 | 76 | `lingxing_local_product_costs` | `manual` | `manual` | None | sku_list, sku_identifier_list, update_time_start, update_time_end, create_time_start, create_time_end, page_size, include_supplier_quotes, include_raw | `Manual` | 限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 按本地 SKU 或 SKU 标识查询领星本地产品成本，返回采购价、头程运输成本、采购员和供应商报价。 |
 | 77 | `lingxing_local_products` | `endpoint_spec` | `product` | None | sku_list, sku_identifier_list, update_time_start, update_time_end, create_time_start, create_time_end | `/erp/sc/routing/data/local_inventory/productList` | 限流：endpoint /erp/sc/routing/data/local_inventory/productList，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 按本地 SKU 或 SKU 标识查询领星本地产品列表，包含采购成本和供应商报价原始字段。 |
@@ -214,10 +290,10 @@ Registered tools: 113
 | 81 | `lingxing_order_lists` | `manual` | `manual` | sid, start_date, end_date | date_type | `Manual` | 限流：endpoint /erp/sc/data/mws/orders，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 按店铺与时间窗口拉取订单列表 Orderlists，并自动合并分页。 |
 | 82 | `lingxing_product_performance` | `endpoint_spec` | `source` | sid, start_date, end_date | search_field, search_value, summary_field, mid, currency_code, is_recently_enum, purchase_status, sort_field, sort_type | `/bd/productPerformance/openApi/asinList` | 限流：endpoint /bd/productPerformance/openApi/asinList，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 产品表现汇总，可按 ASIN / 父ASIN / MSKU 查询浏览、会话、广告和销量指标。 |
 | 83 | `lingxing_product_search` | `manual` | `manual` | query | country_codes, sids, store_names, limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按领星中文品名关键词模糊筛选 ASIN。query 支持用斜杠、空格或逗号分隔多个词，例如 广告机/LED；兼容大小写、空格和短修饰词差异。可按国家代码、店铺 SID 或店铺名缩小范围。服务端批量读取启用店铺产品目录并完成匹配，只返回相关度最高的候选。 |
-| 84 | `lingxing_profit_asin` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/asin/list` | 限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | ASIN 维度利润统计。 |
-| 85 | `lingxing_profit_parent_asin` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/parent/asin/list` | 限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 父 ASIN 维度利润统计。 |
-| 86 | `lingxing_profit_report_order_list` | `endpoint_spec` | `profit_report_order` | start_date, end_date | search_date_field, sids, mids, fee_type, listing_owner, currency_code, search_field, search_value, sort_field, sort_type, settlement_status, fund_transfer_status, account_type, fulfillment, product_developer_uids, order_status, gmt_modified_start_date, gmt_modified_end_date, response_mode, preview_limit | `/basicOpen/finance/profitReport/order/transcation/list` | 限流：endpoint /basicOpen/finance/profitReport/order/transcation/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询利润报表订单 Transaction 视图；默认返回摘要，full 仅供本地 Excel 导出器。fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。 |
-| 87 | `lingxing_profit_seller` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value, monthly_query | `/bd/profit/statistics/open/seller/list` | 限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 店铺维度利润统计。 |
+| 84 | `lingxing_profit_asin` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/asin/list` | 限流：endpoint /bd/profit/statistics/open/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | ASIN 维度利润统计，日期格式 YYYY-MM-DD，起止时间跨度最多 7 天。 |
+| 85 | `lingxing_profit_parent_asin` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/parent/asin/list` | 限流：endpoint /bd/profit/statistics/open/parent/asin/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 父 ASIN 维度利润统计，日期格式 YYYY-MM-DD，起止时间跨度最多 7 天。 |
+| 86 | `lingxing_profit_report_order_list` | `endpoint_spec` | `profit_report_order` | start_date, end_date | search_date_field, sids, mids, fee_type, listing_owner, currency_code, search_field, search_value, sort_field, sort_type, settlement_status, fund_transfer_status, account_type, fulfillment, product_developer_uids, order_status, gmt_modified_start_date, gmt_modified_end_date, response_mode, preview_limit | `/basicOpen/finance/profitReport/order/transcation/list` | 限流：endpoint /basicOpen/finance/profitReport/order/transcation/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询利润报表订单 Transaction 视图；order_status=Deferred 时结束日期必须为今天。默认摘要，full 仅供 Excel 导出器；fee_type→eventSource，listing_owner→principalUids。 |
+| 87 | `lingxing_profit_seller` | `endpoint_spec` | `profit` | sid, start_date, end_date | currency_code, search_value | `/bd/profit/statistics/open/seller/list` | 限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 店铺维度利润统计，日期格式 YYYY-MM-DD，起止时间跨度最多 7 天；按月查询请使用结算利润报表。 |
 | 88 | `lingxing_promotion_coupon` | `manual` | `manual` | sid, start_date, end_date | None | `Manual` | 限流：endpoint /basicOpen/promotionalActivities/coupon/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 拉取优惠券活动列表，并补充 coupon.amount_off / coupon.percent_off 标签。 |
 | 89 | `lingxing_promotion_listing` | `manual` | `manual` | sid, site_date, start_time, end_time | status, product_status, promotion_category | `Manual` | 限流：endpoint /basicOpen/promotion/listingList，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 拉取 promotionListingList，用于判断 ASIN 在某个日期窗口是否命中促销。 |
 | 90 | `lingxing_promotion_manage` | `manual` | `manual` | sid, start_date, end_date | None | `Manual` | 限流：endpoint /basicOpen/promotionalActivities/manage/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 拉取管理促销列表，并归类 buy_one_get_one / purchase_discount / fixed_price / social_media。 |
@@ -238,10 +314,10 @@ Registered tools: 113
 | 105 | `lingxing_shipment_settlement_report` | `manual` | `manual` | start_date, end_date | sids, amazon_seller_ids, time_type, country_codes, order_numbers, shipment_numbers, custom_numbers, mskus, skus, product_names, track_codes, fulfillment_type, response_mode, preview_limit | `Manual` | 限流：聚合工具，涉及 3 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 通过领星 OpenAPI 查询亚马逊发货与结算差异数据。可传 sids 或 amazon_seller_ids 定向查询；两者都不传时，一次 MCP 调用自动覆盖全部启用中的亚马逊店铺；服务端按站点分组请求，并按官方每页 1000 条限制合并全部分页，避免跨站点混合数组返回空结果。默认 time_type=04，按结算时间筛选。默认只返回摘要预览；生成 Excel 时由本地导出器使用 response_mode=full，避免把全量 JSON 放入模型上下文。 |
 | 106 | `lingxing_smoke_check` | `manual` | `manual` | None | sid, date | `Manual` | 限流：聚合工具，涉及 12 个 endpoint；最严格为 /erp/sc/data/seller/lists 1 req/s，burst 1；客户端应按 endpoint 分组排队，避免并发拆分同类查询；完整策略可调用 lingxing_rate_limit_policy。 | 按 SellerLists -> StoreSales -> Orderlists -> promotionListingList 做最小烟测。 |
 | 107 | `lingxing_source_all_orders` | `endpoint_spec` | `source` | sid, start_date, end_date | date_type | `/erp/sc/data/mws_report/allOrders` | 限流：endpoint /erp/sc/data/mws_report/allOrders，10 req/s，burst 10，来源 openapi_docs；该 endpoint 允许较高吞吐；客户端并发不应超过 burst=10，长期速率不应超过 10 req/s。 | 亚马逊源表所有订单。 |
-| 108 | `lingxing_source_daily_inventory` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/dailyInventory` | 限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表每日库存。 |
+| 108 | `lingxing_source_daily_inventory` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/dailyInventory` | 限流：endpoint /erp/sc/data/mws_report/dailyInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表每日库存（历史接口）：官方声明 2023-12-01 后不再更新，当前库存请使用库存分类账 summary 数据。 |
 | 109 | `lingxing_source_manage_inventory` | `endpoint_spec` | `source` | sid | None | `/erp/sc/data/mws_report/manageInventory` | 限流：endpoint /erp/sc/data/mws_report/manageInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表 FBA 库存。 |
 | 110 | `lingxing_source_reserved_inventory` | `endpoint_spec` | `source` | sid | None | `/erp/sc/data/mws_report/reservedInventory` | 限流：endpoint /erp/sc/data/mws_report/reservedInventory，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表预留库存。 |
-| 111 | `lingxing_source_transaction` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/transaction` | 限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表交易明细。 |
+| 111 | `lingxing_source_transaction` | `endpoint_spec` | `source` | sid, event_date | None | `/erp/sc/data/mws_report/transaction` | 限流：endpoint /erp/sc/data/mws_report/transaction，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 亚马逊源表交易明细：官方标记即将下线，未公布日期；每月 3 日后可查上月数据，建议改用结算中心交易明细。 |
 | 112 | `lingxing_store_sales` | `manual` | `manual` | sid, start_date, end_date | None | `Manual` | 限流：endpoint /erp/sc/data/sales_report/sales，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 按店铺和日期范围拉取 StoreSales，并自动合并分页。 |
 | 113 | `lingxing_voice_of_buyer` | `endpoint_spec` | `source` | None | fulfillment_channel, sids, pxc_health, search_field, search_value, return_badge | `/basicOpen/customerService/voiceOfBuyer/list` | 限流：endpoint /basicOpen/customerService/voiceOfBuyer/list，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。 | 查询买家之声列表，返回 ASIN/MSKU/SKU 的满意度状况、不满意率、不满意订单数、订单总数、主要退货原因和退货标记。 |
 
@@ -311,19 +387,62 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "keywords": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "campaignId",
+          "adGroupId",
+          "keyword",
+          "matchType",
+          "state",
+          "bid"
+        ],
+        "properties": {
+          "campaignId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "adGroupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "keyword": {
+            "type": "string",
+            "minLength": 1
+          },
+          "matchType": {
+            "type": "string",
+            "enum": [
+              "BROAD",
+              "EXACT",
+              "PHRASE"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "PAUSED"
+            ]
+          },
+          "bid": {
+            "type": "number"
+          }
+        }
       },
-      "description": "官方 keywords 对象数组，字段按领星 API 文档传入。"
+      "minItems": 1,
+      "description": "官方 keywords 对象数组，字段按领星 API 文档传入。",
+      "maxItems": 1000
     }
   },
   "required": [
@@ -360,19 +479,56 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "negative_keywords": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "campaignId",
+          "keyword",
+          "matchType",
+          "state"
+        ],
+        "properties": {
+          "campaignId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "adGroupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "keyword": {
+            "type": "string",
+            "minLength": 1
+          },
+          "matchType": {
+            "type": "string",
+            "enum": [
+              "negativeExact",
+              "negativePhrase"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "PAUSED"
+            ]
+          }
+        }
       },
-      "description": "官方 negativeKeywords 对象数组，字段按领星 API 文档传入。"
+      "minItems": 1,
+      "description": "官方 negativeKeywords 对象数组，字段按领星 API 文档传入。",
+      "maxItems": 1000
     }
   },
   "required": [
@@ -386,7 +542,7 @@ Registered tools: 113
 
 - Origin: `manual`
 - Category: `manual`
-- Description: 添加 SP 否定 ASIN，支持活动层级和广告组层级；默认 dry_run，不确认不执行。
+- Description: 添加 SP 否定 ASIN；按当前官方参数表传 campaignId 和 adGroupId；默认 dry_run，不确认不执行。
 - Endpoint: `Manual`
 - Docs path: `None`
 - Rate-limit endpoints: /basicOpen/adReport/spTarget/addNegativeTargets
@@ -409,19 +565,49 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "asins": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "campaignId",
+          "adGroupId",
+          "asin",
+          "state"
+        ],
+        "properties": {
+          "campaignId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "adGroupId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "asin": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ENABLED",
+              "PAUSED"
+            ]
+          }
+        }
       },
-      "description": "官方 asins 对象数组，字段按领星 API 文档传入。"
+      "minItems": 1,
+      "description": "官方 asins 对象数组，字段按领星 API 文档传入。",
+      "maxItems": 1000
     }
   },
   "required": [
@@ -458,10 +644,12 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "targetIds": {
@@ -469,6 +657,8 @@ Registered tools: 113
       "items": {
         "type": "string"
       },
+      "minItems": 1,
+      "maxItems": 1000,
       "description": "官方必填数组字段，字段名保持领星 API 文档命名。"
     }
   },
@@ -576,30 +766,33 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/sbAdGroupHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/sbAdGroupHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/sbAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids"
   ],
   "additionalProperties": false
 }
@@ -648,30 +841,33 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/sbCampaignHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/sbCampaignHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/sbCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids"
   ],
   "additionalProperties": false
 }
@@ -687,7 +883,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/hsaCampaignReports
 - Rate limit: 限流：endpoint /pb/openapi/newad/hsaCampaignReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -701,9 +897,6 @@ Registered tools: 113
       "type": "string"
     },
     "profile_id": {
-      "type": "integer"
-    },
-    "show_detail": {
       "type": "integer"
     }
   },
@@ -759,7 +952,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/listHsaProductAdReport
 - Rate limit: 限流：endpoint /pb/openapi/newad/listHsaProductAdReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -773,9 +966,6 @@ Registered tools: 113
       "type": "string"
     },
     "profile_id": {
-      "type": "integer"
-    },
-    "show_detail": {
       "type": "integer"
     }
   },
@@ -826,7 +1016,7 @@ Registered tools: 113
 - Endpoint: `/pb/openapi/newad/hsaNegativeKeywords`
 - Docs path: `docs/newAd/baseData/hsaNegativeKeywords.md`
 - Rate-limit endpoints: /pb/openapi/newad/hsaNegativeKeywords
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaNegativeKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaNegativeKeywords，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
 - Input schema:
@@ -860,7 +1050,7 @@ Registered tools: 113
 - Endpoint: `/pb/openapi/newad/hsaNegativeTargets`
 - Docs path: `docs/newAd/baseData/hsaNegativeTargets.md`
 - Rate-limit endpoints: /pb/openapi/newad/hsaNegativeTargets
-- Rate limit: 限流：endpoint /pb/openapi/newad/hsaNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Rate limit: 限流：endpoint /pb/openapi/newad/hsaNegativeTargets，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
 - Input schema:
@@ -895,30 +1085,33 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/sbAdPlacementHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/sbAdPlacementHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/sbAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids"
   ],
   "additionalProperties": false
 }
@@ -968,30 +1161,40 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/sbTargetHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/sbTargetHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/sbTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids, agg_dimension
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
+    },
+    "agg_dimension": {
+      "type": "string",
+      "enum": [
+        "target"
+      ]
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids",
+    "agg_dimension"
   ],
   "additionalProperties": false
 }
@@ -1007,7 +1210,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/sbTargeting
 - Rate limit: 限流：endpoint /pb/openapi/newad/sbTargeting，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
-- Optional args: profile_id, state
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -1019,9 +1222,6 @@ Registered tools: 113
     },
     "profile_id": {
       "type": "integer"
-    },
-    "state": {
-      "type": "string"
     }
   },
   "required": [
@@ -1040,30 +1240,33 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/sdAdGroupHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/sdAdGroupHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/sdAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids"
   ],
   "additionalProperties": false
 }
@@ -1112,30 +1315,41 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/sdAdvertiseHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/sdAdvertiseHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/sdAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids, agg_dimension
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
+    },
+    "agg_dimension": {
+      "type": "string",
+      "enum": [
+        "ad",
+        "both_ad_target"
+      ]
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids",
+    "agg_dimension"
   ],
   "additionalProperties": false
 }
@@ -1150,30 +1364,33 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/sdCampaignHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/sdCampaignHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/sdCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids"
   ],
   "additionalProperties": false
 }
@@ -1259,7 +1476,7 @@ Registered tools: 113
 - Endpoint: `/pb/openapi/newad/sdNegativeTargets`
 - Docs path: `docs/newAd/baseData/sdNegativeTargets.md`
 - Rate-limit endpoints: /pb/openapi/newad/sdNegativeTargets
-- Rate limit: 限流：endpoint /pb/openapi/newad/sdNegativeTargets，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Rate limit: 限流：endpoint /pb/openapi/newad/sdNegativeTargets，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
 - Optional args: profile_id, state
 - Input schema:
@@ -1366,30 +1583,41 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/sdTargetHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/sdTargetHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/sdTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids, agg_dimension
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
+    },
+    "agg_dimension": {
+      "type": "string",
+      "enum": [
+        "target",
+        "both_ad_target"
+      ]
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids",
+    "agg_dimension"
   ],
   "additionalProperties": false
 }
@@ -1405,7 +1633,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/sdTargetReports
 - Rate limit: 限流：endpoint /pb/openapi/newad/sdTargetReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -1419,9 +1647,6 @@ Registered tools: 113
       "type": "string"
     },
     "profile_id": {
-      "type": "integer"
-    },
-    "show_detail": {
       "type": "integer"
     }
   },
@@ -1476,30 +1701,33 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/spAdGroupHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/spAdGroupHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/spAdGroupHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids"
   ],
   "additionalProperties": false
 }
@@ -1548,30 +1776,41 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/spAdvertiseHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/spAdvertiseHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/spAdvertiseHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids, agg_dimension
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
+    },
+    "agg_dimension": {
+      "type": "string",
+      "enum": [
+        "ad",
+        "both_ad_target"
+      ]
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids",
+    "agg_dimension"
   ],
   "additionalProperties": false
 }
@@ -1586,30 +1825,33 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/spCampaignHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/spCampaignHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/spCampaignHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids"
   ],
   "additionalProperties": false
 }
@@ -1767,9 +2009,9 @@ Registered tools: 113
 - Endpoint: `/pb/openapi/newad/spNegativeTargetsOrKeywords`
 - Docs path: `docs/newAd/baseData/spNegativeTargetsOrKeywords.md`
 - Rate-limit endpoints: /pb/openapi/newad/spNegativeTargetsOrKeywords
-- Rate limit: 限流：endpoint /pb/openapi/newad/spNegativeTargetsOrKeywords，1 req/s，burst 1，来源 openapi_docs；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
+- Rate limit: 限流：endpoint /pb/openapi/newad/spNegativeTargetsOrKeywords，1 req/s，burst 1，来源 conservative；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid
-- Optional args: profile_id, state
+- Optional args: profile_id, target_type
 - Input schema:
 
 ```json
@@ -1782,8 +2024,12 @@ Registered tools: 113
     "profile_id": {
       "type": "integer"
     },
-    "state": {
-      "type": "string"
+    "target_type": {
+      "type": "string",
+      "enum": [
+        "keyword",
+        "target"
+      ]
     }
   },
   "required": [
@@ -1802,30 +2048,33 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/spAdPlacementHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/spAdPlacementHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/spAdPlacementHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, campaign_id, campaign_ids
+- Optional args: None
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 50
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "campaign_id",
+    "campaign_ids"
   ],
   "additionalProperties": false
 }
@@ -1953,30 +2202,42 @@ Registered tools: 113
 - Docs path: `docs/newAd/report/spTargetHourData.md`
 - Rate-limit endpoints: /pb/openapi/newad/spTargetHourData
 - Rate limit: 限流：endpoint /pb/openapi/newad/spTargetHourData，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
-- Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Required args: report_date, agg_dimension
+- Optional args: campaign_id, campaign_ids
 - Input schema:
 
 ```json
 {
   "type": "object",
   "properties": {
-    "sid": {
-      "type": "integer"
-    },
     "report_date": {
       "type": "string"
     },
-    "profile_id": {
-      "type": "integer"
+    "campaign_id": {
+      "type": "integer",
+      "description": "与 campaign_ids 至少传一项，合并去重后最多 50 个正整数活动 ID。",
+      "minimum": 1
     },
-    "show_detail": {
-      "type": "integer"
+    "campaign_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "与 campaign_id 至少传一项，合并去重后最多 50 个正整数活动 ID。"
+    },
+    "agg_dimension": {
+      "type": "string",
+      "enum": [
+        "target",
+        "both_ad_target",
+        "both_target_placement",
+        "all_ad_target_placement"
+      ]
     }
   },
   "required": [
-    "sid",
-    "report_date"
+    "report_date",
+    "agg_dimension"
   ],
   "additionalProperties": false
 }
@@ -2081,18 +2342,56 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "ad_groups": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "adGroupId",
+          "isBaseValue"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "paused"
+            ]
+          },
+          "isBaseValue": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "baseType": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "baseValue": {
+            "type": "number"
+          },
+          "adGroupId": {
+            "type": "number"
+          },
+          "defaultBid": {
+            "type": "number"
+          }
+        }
       },
+      "minItems": 1,
       "description": "官方 adGroups 对象数组，字段按领星 API 文档传入。"
     }
   },
@@ -2130,18 +2429,106 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "campaigns": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "campaignId",
+          "isBaseValue"
+        ],
+        "properties": {
+          "campaignId": {
+            "type": "number"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "paused"
+            ]
+          },
+          "isBaseValue": {
+            "type": "number",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "baseType": {
+            "type": "string",
+            "enum": [
+              "1",
+              "2"
+            ]
+          },
+          "baseValue": {
+            "type": "string",
+            "minLength": 1
+          },
+          "isBasePlacementAll": {
+            "type": "number",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "budget": {
+            "type": "object",
+            "properties": {
+              "budgetType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "budget": {
+                "type": "number"
+              }
+            }
+          },
+          "dynamicBidding": {
+            "type": "object",
+            "properties": {
+              "strategy": {
+                "type": "string",
+                "enum": [
+                  "AUTO_FOR_SALES",
+                  "LEGACY_FOR_SALES",
+                  "MANUAL"
+                ]
+              },
+              "placementBidding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "placement": {
+                      "type": "string",
+                      "enum": [
+                        "PLACEMENT_PRODUCT_PAGE",
+                        "PLACEMENT_TOP",
+                        "PLACEMENT_REST_OF_SEARCH",
+                        "SITE_AMAZON_BUSINESS"
+                      ]
+                    },
+                    "percentage": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
+      "minItems": 1,
       "description": "官方 campaigns 对象数组，字段按领星 API 文档传入。"
     }
   },
@@ -2179,19 +2566,58 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "keywords": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "keywordId",
+          "isBaseValue"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "paused"
+            ]
+          },
+          "bid": {
+            "type": "number"
+          },
+          "isBaseValue": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "baseType": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "baseValue": {
+            "type": "number"
+          },
+          "keywordId": {
+            "type": "integer"
+          }
+        }
       },
-      "description": "官方 keywords 对象数组，字段按领星 API 文档传入。"
+      "minItems": 1,
+      "description": "官方 keywords 对象数组，字段按领星 API 文档传入。",
+      "maxItems": 1000
     }
   },
   "required": [
@@ -2228,19 +2654,37 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "product_ads": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "adId"
+        ],
+        "properties": {
+          "adId": {
+            "type": "number"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "paused"
+            ]
+          }
+        }
       },
-      "description": "官方 productAds 对象数组，字段按领星 API 文档传入。"
+      "minItems": 1,
+      "description": "官方 productAds 对象数组，字段按领星 API 文档传入。",
+      "maxItems": 1000
     }
   },
   "required": [
@@ -2277,19 +2721,58 @@ Registered tools: 113
     },
     "dry_run": {
       "type": "boolean",
+      "default": true,
       "description": "默认 true；true 时只返回待提交请求体，不调用领星写接口。"
     },
     "confirm": {
       "type": "boolean",
+      "default": false,
       "description": "执行写入必须显式传 true；否则只返回计划。"
     },
     "targeting_clauses": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": true
+        "required": [
+          "targetId",
+          "isBaseValue"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "enabled",
+              "paused"
+            ]
+          },
+          "bid": {
+            "type": "number"
+          },
+          "isBaseValue": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "baseType": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "baseValue": {
+            "type": "number"
+          },
+          "targetId": {
+            "type": "integer"
+          }
+        }
       },
-      "description": "官方 targetingClauses 对象数组，字段按领星 API 文档传入。"
+      "minItems": 1,
+      "description": "官方 targetingClauses 对象数组，字段按领星 API 文档传入。",
+      "maxItems": 1000
     }
   },
   "required": [
@@ -2321,21 +2804,35 @@ Registered tools: 113
     },
     "search_field": {
       "type": "string",
-      "default": "seller_sku"
+      "default": "seller_sku",
+      "enum": [
+        "seller_sku",
+        "asin",
+        "sku"
+      ]
     },
     "search_value": {
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "maxItems": 10
     },
     "exact_search": {
       "type": "integer",
-      "default": 1
+      "default": 1,
+      "enum": [
+        0,
+        1
+      ]
     },
     "store_type": {
       "type": "integer",
-      "default": 1
+      "default": 1,
+      "enum": [
+        1,
+        2
+      ]
     },
     "listing_update_start_time": {
       "type": "string"
@@ -2563,7 +3060,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/hsaAdGroupReports
 - Rate limit: 限流：endpoint /pb/openapi/newad/hsaAdGroupReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -2577,9 +3074,6 @@ Registered tools: 113
       "type": "string"
     },
     "profile_id": {
-      "type": "integer"
-    },
-    "show_detail": {
       "type": "integer"
     }
   },
@@ -2601,7 +3095,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/hsaCampaignPlacementReports
 - Rate limit: 限流：endpoint /pb/openapi/newad/hsaCampaignPlacementReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -2615,9 +3109,6 @@ Registered tools: 113
       "type": "string"
     },
     "profile_id": {
-      "type": "integer"
-    },
-    "show_detail": {
       "type": "integer"
     }
   },
@@ -2639,7 +3130,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/listHsaKeywordPlacementReport
 - Rate limit: 限流：endpoint /pb/openapi/newad/listHsaKeywordPlacementReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -2653,9 +3144,6 @@ Registered tools: 113
       "type": "string"
     },
     "profile_id": {
-      "type": "integer"
-    },
-    "show_detail": {
       "type": "integer"
     }
   },
@@ -2677,7 +3165,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/hsaQueryWordReports
 - Rate limit: 限流：endpoint /pb/openapi/newad/hsaQueryWordReports，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -2691,9 +3179,6 @@ Registered tools: 113
       "type": "string"
     },
     "profile_id": {
-      "type": "integer"
-    },
-    "show_detail": {
       "type": "integer"
     }
   },
@@ -2715,7 +3200,7 @@ Registered tools: 113
 - Rate-limit endpoints: /pb/openapi/newad/listHsaTargetingReport
 - Rate limit: 限流：endpoint /pb/openapi/newad/listHsaTargetingReport，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, report_date
-- Optional args: profile_id, show_detail
+- Optional args: profile_id
 - Input schema:
 
 ```json
@@ -2729,9 +3214,6 @@ Registered tools: 113
       "type": "string"
     },
     "profile_id": {
-      "type": "integer"
-    },
-    "show_detail": {
       "type": "integer"
     }
   },
@@ -2937,7 +3419,7 @@ Registered tools: 113
 
 - Origin: `endpoint_spec`
 - Category: `profit_report`
-- Description: 实验层：结算利润报表店铺视角。
+- Description: 实验层：结算利润报表店铺视角；按天 YYYY-MM-DD，跨度最多 31 天；monthly_query=true 时用 YYYY-MM 且起止同月。
 - Endpoint: `/bd/profit/report/open/report/seller/list`
 - Docs path: `docs/Finance/bdSeller.md`
 - Rate-limit endpoints: /bd/profit/report/open/report/seller/list
@@ -3121,7 +3603,7 @@ Registered tools: 113
 
 - Origin: `endpoint_spec`
 - Category: `profit_report`
-- Description: 结算利润报表 ASIN 视角。
+- Description: 结算利润报表 ASIN 视角；按天 YYYY-MM-DD，跨度最多 31 天；monthly_query=true 时用 YYYY-MM 且起止同月。
 - Endpoint: `/bd/profit/report/open/report/asin/list`
 - Docs path: `docs/Finance/bdASIN.md`
 - Rate-limit endpoints: /bd/profit/report/open/report/asin/list
@@ -3503,7 +3985,8 @@ Registered tools: 113
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "maxItems": 50
     },
     "summary_field": {
       "type": "string"
@@ -3599,7 +4082,7 @@ Registered tools: 113
 
 - Origin: `endpoint_spec`
 - Category: `profit`
-- Description: ASIN 维度利润统计。
+- Description: ASIN 维度利润统计，日期格式 YYYY-MM-DD，起止时间跨度最多 7 天。
 - Endpoint: `/bd/profit/statistics/open/asin/list`
 - Docs path: `docs/Statistics/statisticsOpenASIN.md`
 - Rate-limit endpoints: /bd/profit/statistics/open/asin/list
@@ -3641,7 +4124,7 @@ Registered tools: 113
 
 - Origin: `endpoint_spec`
 - Category: `profit`
-- Description: 父 ASIN 维度利润统计。
+- Description: 父 ASIN 维度利润统计，日期格式 YYYY-MM-DD，起止时间跨度最多 7 天。
 - Endpoint: `/bd/profit/statistics/open/parent/asin/list`
 - Docs path: `docs/Statistics/statisticsOpenParent.md`
 - Rate-limit endpoints: /bd/profit/statistics/open/parent/asin/list
@@ -3683,7 +4166,7 @@ Registered tools: 113
 
 - Origin: `endpoint_spec`
 - Category: `profit_report_order`
-- Description: 查询利润报表订单 Transaction 视图；默认返回摘要，full 仅供本地 Excel 导出器。fee_type 映射到官方 eventSource，listing_owner 映射到官方 principalUids。
+- Description: 查询利润报表订单 Transaction 视图；order_status=Deferred 时结束日期必须为今天。默认摘要，full 仅供 Excel 导出器；fee_type→eventSource，listing_owner→principalUids。
 - Endpoint: `/basicOpen/finance/profitReport/order/transcation/list`
 - Docs path: `docs/Finance/profitReportOrderTranscationList.md`
 - Rate-limit endpoints: /basicOpen/finance/profitReport/order/transcation/list
@@ -3815,13 +4298,13 @@ Registered tools: 113
 
 - Origin: `endpoint_spec`
 - Category: `profit`
-- Description: 店铺维度利润统计。
+- Description: 店铺维度利润统计，日期格式 YYYY-MM-DD，起止时间跨度最多 7 天；按月查询请使用结算利润报表。
 - Endpoint: `/bd/profit/statistics/open/seller/list`
 - Docs path: `docs/Statistics/statisticsOpenSeller.md`
 - Rate-limit endpoints: /bd/profit/statistics/open/seller/list
 - Rate limit: 限流：endpoint /bd/profit/statistics/open/seller/list，1 req/s，burst 1，来源 default；该 endpoint 按 1 秒 1 次串行调用；客户端不要对同一 endpoint 并发。
 - Required args: sid, start_date, end_date
-- Optional args: currency_code, search_value, monthly_query
+- Optional args: currency_code, search_value
 - Input schema:
 
 ```json
@@ -3842,9 +4325,6 @@ Registered tools: 113
     },
     "search_value": {
       "type": "string"
-    },
-    "monthly_query": {
-      "type": "boolean"
     }
   },
   "required": [
@@ -4415,10 +4895,21 @@ Registered tools: 113
       "type": "string"
     },
     "asinType": {
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "msku",
+        "asin",
+        "parentAsin",
+        "sku",
+        "spu"
+      ]
     },
     "dateType": {
-      "type": "integer"
+      "type": "integer",
+      "enum": [
+        0,
+        1
+      ]
     },
     "mids": {
       "type": "array",
@@ -4442,10 +4933,20 @@ Registered tools: 113
       }
     },
     "sortField": {
-      "type": "string"
+      "type": "string",
+      "default": "curReturnGoodsCount",
+      "enum": [
+        "curReturnGoodsCount",
+        "returnGoodsCountRatio",
+        "curVolume",
+        "curReturnGoodsVolumeRatio",
+        "returnGoodsVolumeRatioDiff"
+      ]
     },
     "sortType": {
-      "type": "string"
+      "type": "string",
+      "description": "ASC/DESC 或 asc/desc；当前上游实测仅接收小写，服务端兼容转换。",
+      "default": "desc"
     },
     "storeId": {
       "type": "array",
@@ -4780,7 +5281,7 @@ Registered tools: 113
 
 - Origin: `endpoint_spec`
 - Category: `source`
-- Description: 亚马逊源表每日库存。
+- Description: 亚马逊源表每日库存（历史接口）：官方声明 2023-12-01 后不再更新，当前库存请使用库存分类账 summary 数据。
 - Endpoint: `/erp/sc/data/mws_report/dailyInventory`
 - Docs path: `docs/SourceData/DailyInventory.md`
 - Rate-limit endpoints: /erp/sc/data/mws_report/dailyInventory
@@ -4868,7 +5369,7 @@ Registered tools: 113
 
 - Origin: `endpoint_spec`
 - Category: `source`
-- Description: 亚马逊源表交易明细。
+- Description: 亚马逊源表交易明细：官方标记即将下线，未公布日期；每月 3 日后可查上月数据，建议改用结算中心交易明细。
 - Endpoint: `/erp/sc/data/mws_report/transaction`
 - Docs path: `docs/SourceData/Transaction.md`
 - Rate-limit endpoints: /erp/sc/data/mws_report/transaction

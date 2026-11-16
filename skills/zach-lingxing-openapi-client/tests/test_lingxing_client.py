@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
 
 from lib.lingxing_openapi import (  # noqa: E402
     LingxingOpenAPIClient,
+    LingxingRequestError,
     RawResponse,
     TokenBundle,
     build_sign_payload,
@@ -154,9 +155,10 @@ class LingxingClientTests(unittest.TestCase):
             with self.subTest(method=method):
                 client = StubClient()
                 payload = {"code": 0, "data": {"access_token": "token-123", "refresh_token": "refresh-123", "expires_in": 3600}}
-                with patch.object(client, "_write_token_cache"), patch.object(client, "_request", return_value=payload) as requester:
+                with patch.object(client, "_write_token_cache"), patch.object(client, "_request", return_value=payload) as requester, patch.object(client, "_apply_rate_limit") as limiter:
                     getattr(client, method)(*args)
                 request = requester.call_args.args[0]
+                limiter.assert_called_once_with("/api/auth-server/oauth/access-token" if method == "fetch_access_token" else "/api/auth-server/oauth/refresh")
                 self.assertIsNone(request.get_header("Authorization"))
                 self.assertEqual(urlsplit(request.full_url).query, "")
                 self.assertTrue(request.get_header("Content-type").startswith("multipart/form-data;"))
@@ -215,6 +217,40 @@ class LingxingClientTests(unittest.TestCase):
             {"page": 1, "page_size": 2},
             {"page": 2, "page_size": 2},
         ])
+
+    def test_pagination_without_total_continues_after_full_page(self) -> None:
+        for mode in ("offset", "page"):
+            with self.subTest(mode=mode):
+                client = StubClient()
+                client.page_responses = [
+                    {"code": 0, "data": [{"id": 1}, {"id": 2}]},
+                    {"code": 0, "data": [{"id": 3}]},
+                ]
+                with patch.object(client, "_apply_rate_limit"):
+                    result = client.paged_post_detailed("/probe", {}, page_size=2, pagination_mode=mode)
+                self.assertEqual([row["id"] for row in result.rows], [1, 2, 3])
+                self.assertEqual(result.page_count, 2)
+                self.assertIsNone(result.total)
+                key = "offset" if mode == "offset" else "page"
+                self.assertEqual([body[key] for body in client.request_bodies], [0, 2] if mode == "offset" else [1, 2])
+
+    def test_cursor_pagination_omits_offset_and_rejects_repeated_cursor(self) -> None:
+        client = StubClient()
+        client.page_responses = [
+            {"code": 0, "data": [{"id": 1}], "next_token": "cursor-a"},
+            {"code": 0, "data": [{"id": 2}], "next_token": "cursor-a"},
+        ]
+        with patch.object(client, "_apply_rate_limit"), self.assertRaises(LingxingRequestError):
+            client.paged_post_detailed("/probe", {"offset": 0}, page_size=1, pagination_mode="next_token")
+        self.assertEqual(len(client.request_bodies), 2)
+        self.assertTrue(all("offset" not in body for body in client.request_bodies))
+        self.assertEqual(client.request_bodies[1]["next_token"], "cursor-a")
+
+    def test_cursor_pagination_rejects_early_end_with_known_total(self) -> None:
+        client = StubClient()
+        client.page_responses = [{"code": 0, "data": [{"id": 1}], "total": 2}]
+        with patch.object(client, "_apply_rate_limit"), self.assertRaises(LingxingRequestError):
+            client.paged_post_detailed("/probe", {}, page_size=1, pagination_mode="next_token")
 
     def test_parse_download_response_handles_gzip_csv(self) -> None:
         client = StubClient()

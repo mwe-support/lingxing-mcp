@@ -74,7 +74,7 @@ def build_snapshot() -> dict[str, Any]:
         "generated_at": generated_at,
         "source": "LingxingMCPApplication built-in role defaults",
         "tool_count": len(tools),
-        "roles": {role: sorted(names) for role, names in sorted(app.role_tool_names.items()) if role in {"finance", "minimal", "operations"}},
+        "roles": {role: sorted(names) for role, names in sorted(app.role_tool_names.items())},
         "rate_limit_runtime_settings": rate_limit_runtime_settings(),
         "tools": tools,
     }

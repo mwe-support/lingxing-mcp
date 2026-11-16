@@ -1,0 +1,4770 @@
+{
+  "as_of": "2026-11-16",
+  "production_baseline": "a94269415a0927bd1a3e4d20a60bbeca6a98f18d",
+  "endpoint_count": 109,
+  "contracts": [
+    {
+      "endpoint": "/api/auth-server/oauth/access-token",
+      "method": "POST",
+      "official_token_bucket_capacity": 100,
+      "tools": [
+        "lingxing_health_check"
+      ],
+      "request_fields": [
+        {
+          "name": "appId",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "appSecret",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Authorization/GetToken/",
+      "source_sha256": "12f62b5008aed335f9fad5953e8770d842b9ac6d7feab6720f566f580da61dc4",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Authorization/GetToken.md",
+      "retrieved_at": "2026-11-16T03:54:04.880954+00:00"
+    },
+    {
+      "endpoint": "/api/auth-server/oauth/refresh",
+      "method": "POST",
+      "official_token_bucket_capacity": 100,
+      "tools": [],
+      "request_fields": [
+        {
+          "name": "appId",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "refreshToken",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Authorization/RefreshToken/",
+      "source_sha256": "09fba717021e264ea46c4c53ac98a7282b0b27b00aa8188bd736b9b9248fe593",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Authorization/RefreshToken.md",
+      "retrieved_at": "2026-11-16T03:54:04.879858+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/manage/putSpAdGroup",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_update_sp_ad_group"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "adGroups",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/adReportManagePutSpAdGroup/",
+      "source_sha256": "bd8c7fbcc3ae5955bdef9d949418baf22e6b753efb859f0c9a84b95847239bb2",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/adReportManagePutSpAdGroup.md",
+      "retrieved_at": "2026-11-16T03:54:11.543152+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/manage/putSpCampaign",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_update_sp_campaign"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "profileId",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "campaigns",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/adReportManagePutSpCampaign/",
+      "source_sha256": "2bbff0181bebf124fee3d1a5ea25ef1b2dbeb5bdb6719dd3ce92016ddb7cd254",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/adReportManagePutSpCampaign.md",
+      "retrieved_at": "2026-11-16T03:54:11.598761+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/manage/putSpKeyword",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_update_sp_keyword"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "profileId",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "keywords",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/adReportManagePutSpKeyword/",
+      "source_sha256": "0eca2da0ad01cd848bc4877f0957dcb72e42217fe4bc56f93d43fa1bec66581e",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/adReportManagePutSpKeyword.md",
+      "retrieved_at": "2026-11-16T03:54:11.710514+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/manage/putSpProductAds",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_update_sp_product_ads"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "number",
+          "required": false
+        },
+        {
+          "name": "profile_id",
+          "type": "number",
+          "required": false
+        },
+        {
+          "name": "productAds",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/adReportManagePutSpProductAds/",
+      "source_sha256": "930193fdc3bc72174465a8efd4a163a20756b9fb793d4029a6cac9793664b742",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/adReportManagePutSpProductAds.md",
+      "retrieved_at": "2026-11-16T03:54:11.737706+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/manage/putSpTarget",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_update_sp_target"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "profileId",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "targetingClauses",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/adReportManagePutSpTarget/",
+      "source_sha256": "8d00a84c96f2b0ab08d26c80745b177dda4f40f89b88d7a1d03fac0a1bbff779",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/adReportManagePutSpTarget.md",
+      "retrieved_at": "2026-11-16T03:54:11.740119+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/spTarget/addKeywords",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_add_sp_keywords"
+      ],
+      "request_fields": [
+        {
+          "name": "profileId",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "keywords",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/SpAddKeywords/",
+      "source_sha256": "91717a6f989df9da80453aded1fb7e22c99b933bf8db5c5ed7ca54c1a931fef2",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/SpAddKeywords.md",
+      "retrieved_at": "2026-11-16T03:54:15.889057+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/spTarget/addNegativeKeywords",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_add_sp_negative_keywords"
+      ],
+      "request_fields": [
+        {
+          "name": "profileId",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "negativeKeywords",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/SpAddNegativeKeywords/",
+      "source_sha256": "04d0b040fc5ee70fe56e71ecef31882501b1497d76e88cd872adf5c14714ce79",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/SpAddNegativeKeywords.md",
+      "retrieved_at": "2026-11-16T03:54:15.092882+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/spTarget/addNegativeTargets",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_add_sp_negative_targets"
+      ],
+      "request_fields": [
+        {
+          "name": "profileId",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "asins",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/SpAddNegativeTargets/",
+      "source_sha256": "7c95623243108632ba9a1f309a732041f360a967700f46239dc0f16d15e32141",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/SpAddNegativeTargets.md",
+      "retrieved_at": "2026-11-16T03:54:15.152453+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/adReport/spTarget/archiveNegatives",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_archive_sp_negatives"
+      ],
+      "request_fields": [
+        {
+          "name": "profileId",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "targetIds",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/SpArchiveNegatives/",
+      "source_sha256": "60bb99048f6469f3d410d7ebb90a2c403f1c1656e51f13acc0bc4e6e62b5e7c0",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/SpArchiveNegatives.md",
+      "retrieved_at": "2026-11-16T03:54:15.224435+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/baseData/account/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_smoke_check",
+        "lingxing_ad_accounts",
+        "lingxing_asin_ads_daily_rollup",
+        "lingxing_asin_weekly_rollup"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/dspAccountList/",
+      "source_sha256": "463e14065d7519c080c01b779072d0a6a00a786776e6a1d68a6b9d83da063e0a",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/dspAccountList.md",
+      "retrieved_at": "2026-11-16T03:54:11.896022+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/customerService/voiceOfBuyer/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_voice_of_buyer"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "fulfillment_channel",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "pxc_health",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "search_field",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "search_value",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "return_badge",
+          "type": "array<any>",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Service/voiceOfBuyerList/",
+      "source_sha256": "79fcaa96c2a1c75b2f5958bbce7516b58e9c35a22f24e733af36c70a0a0a4035",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Service/voiceOfBuyerList.md",
+      "retrieved_at": "2026-11-16T03:54:08.127744+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/finance/profitReport/order/transcation/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_profit_report_order_list"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "mids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "searchDateField",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "gmtModifiedStartDate",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "gmtModifiedEndDate",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "currencyCode",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "searchField",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "searchValue",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sortField",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sortType",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "settlementStatus",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "fundTransferStatus",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "accountType",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "eventSource",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "fulfillment",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "principalUids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "productDeveloperUids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "orderStatus",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Finance/profitReportOrderTranscationList/",
+      "source_sha256": "27b980801dde36949a726b462ec33c7dc878c70704488c639d857ffce4cdea7e",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Finance/profitReportOrderTranscationList.md",
+      "retrieved_at": "2026-11-16T03:54:05.744705+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/openapi/salesOrder/multi-channel/list/transaction",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_multi_channel_orders"
+      ],
+      "request_fields": [
+        {
+          "name": "amazonOrderId",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/MutilChannelTransactionDetail/",
+      "source_sha256": "db648b33f88ff086f6e0314505cfeb0d41ebc0d44d22ed2d31ad245e9f6648c3",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/MutilChannelTransactionDetail.md",
+      "retrieved_at": "2026-11-16T03:54:06.593369+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/openapi/storage/fbaWarehouseDetail",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_asin_product_snapshot",
+        "lingxing_fba_warehouse_detail"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "search_field",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "search_value",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "is_cost_page",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "cid",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "bid",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "attribute",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "asin_principal",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "senior_search_list",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "fulfillment_channel_type",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "is_hide_zero_stock",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "is_parant_asin_merge",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "is_contain_del_ls",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "query_fba_storage_quantity_list",
+          "type": "boolean",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Warehouse/FBAStock_v2/",
+      "source_sha256": "bd209a962d79f99ebfe83408daf5ca7c5fb1dba63dc7832356b3520a626b85bb",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Warehouse/FBAStock_v2.md",
+      "retrieved_at": "2026-11-16T03:54:11.443655+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/promotion/listingList",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_promotion_listing",
+        "lingxing_resolve_daily_promotions",
+        "lingxing_smoke_check",
+        "lingxing_asin_weekly_rollup"
+      ],
+      "request_fields": [
+        {
+          "name": "site_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "is_overlay",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "product_status",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "promotion_category",
+          "type": "array<any>",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/promotionListingList/",
+      "source_sha256": "6ccb998c9cce4154d4c37a8cc002a2e17cb6acf9d17f9355a077dc3b8a43e375",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/promotionListingList.md",
+      "retrieved_at": "2026-11-16T03:54:07.184197+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/promotionalActivities/coupon/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_promotion_coupon",
+        "lingxing_resolve_daily_promotions",
+        "lingxing_asin_weekly_rollup"
+      ],
+      "request_fields": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/promotionalActivitiesCouponList/",
+      "source_sha256": "9f0af6f1c057751a56c907b3e81c1f7f6d031836b655e628aeb95b31852feb55",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/promotionalActivitiesCouponList.md",
+      "retrieved_at": "2026-11-16T03:54:08.580964+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/promotionalActivities/manage/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_promotion_manage",
+        "lingxing_resolve_daily_promotions",
+        "lingxing_asin_weekly_rollup"
+      ],
+      "request_fields": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/promotionalActivitiesManageList/",
+      "source_sha256": "fa2f1d77a8a2df8935fbab2beed203fb970dd14f45738746b080726c846a909f",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/promotionalActivitiesManageList.md",
+      "retrieved_at": "2026-11-16T03:54:07.703701+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/promotionalActivities/secKill/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_promotion_sec_kill",
+        "lingxing_resolve_daily_promotions",
+        "lingxing_asin_weekly_rollup"
+      ],
+      "request_fields": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/promotionalActivitiesSecKillList/",
+      "source_sha256": "c98b45076cce837039511ae0e2afd341b2a5244038739c7b1bfe14854137deea",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/promotionalActivitiesSecKillList.md",
+      "retrieved_at": "2026-11-16T03:54:07.872448+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/promotionalActivities/vipDiscount/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_promotion_vip_discount",
+        "lingxing_resolve_daily_promotions",
+        "lingxing_asin_weekly_rollup"
+      ],
+      "request_fields": [
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/promotionalActivitiesVipDiscountList/",
+      "source_sha256": "661ef166caaa8995e7ceff4e8f39aa2182118cc05133eb2ba5d3cee8c586b76f",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/promotionalActivitiesVipDiscountList.md",
+      "retrieved_at": "2026-11-16T03:54:07.984828+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/report/amazonReportExportTask",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_report_export_refresh_url",
+        "lingxing_report_export_download"
+      ],
+      "request_fields": [
+        {
+          "name": "region",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "seller_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "report_document_id",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/AmazonReportExportTask/",
+      "source_sha256": "9875160c47b1242ae86f4da5342488fa87e63c9aa8483546c4dcc45b27c29f49",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/AmazonReportExportTask.md",
+      "retrieved_at": "2026-11-16T03:54:09.551984+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/report/create/reportExportTask",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_report_export_create"
+      ],
+      "request_fields": [
+        {
+          "name": "seller_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "report_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "data_start_time",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "data_end_time",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "marketplace_ids",
+          "type": "array<any>",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "report_options",
+          "type": "object",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/reportCreateReportExportTask/",
+      "source_sha256": "861a241bbec93dfb38848ce1ff62969daead166c1c4c3e6b512f0a3fe9730a55",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/reportCreateReportExportTask.md",
+      "retrieved_at": "2026-11-16T03:54:10.715382+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/report/query/reportExportTask",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_report_export_query",
+        "lingxing_report_export_download"
+      ],
+      "request_fields": [
+        {
+          "name": "seller_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/reportQueryReportExportTask/",
+      "source_sha256": "e7d752d27e1b3b9b43a28c25c2f46640e61dab464abacad51d82d31a42e66611",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/reportQueryReportExportTask.md",
+      "retrieved_at": "2026-11-16T03:54:10.918767+00:00"
+    },
+    {
+      "endpoint": "/basicOpen/salesAnalysis/returnOrder/analysisLists",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_return_analysis"
+      ],
+      "request_fields": [
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "asinType",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "dateType",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "mids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "principalUid",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "searchField",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "searchValue",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sortField",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sortType",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "storeId",
+          "type": "array<any>",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/ReturnOrderAnalysisLists/",
+      "source_sha256": "4a3e39544997b05e5e841b419340dd912b1ada65a7dea8dd29209a12739136a3",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/ReturnOrderAnalysisLists.md",
+      "retrieved_at": "2026-11-16T03:54:10.213614+00:00"
+    },
+    {
+      "endpoint": "/bd/productPerformance/openApi/asinList",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_asin_product_snapshot",
+        "lingxing_product_search",
+        "lingxing_product_performance"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "sort_field",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "sort_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "search_field",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "search_value",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "mid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "object",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "extend_search",
+          "type": "array<object>",
+          "required": false
+        },
+        {
+          "name": "summary_field",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "currency_code",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "is_recently_enum",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "purchase_status",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/AsinListNew/",
+      "source_sha256": "08eb6b8d474475b0e159e2f83b42e5524d599ed5a2370ce2bcbc60670839fccc",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/AsinListNew.md",
+      "retrieved_at": "2026-11-16T03:54:10.010071+00:00"
+    },
+    {
+      "endpoint": "/bd/profit/report/open/report/asin/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_finance_report_asin"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "mids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "monthlyQuery",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "searchField",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "searchValue",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "currencyCode",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "summaryEnabled",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "orderStatus",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Finance/bdASIN/",
+      "source_sha256": "d0bc997f517e935e34b4de65997cf58bbc25a4caaf484d529f27415a12ab60f5",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Finance/bdASIN.md",
+      "retrieved_at": "2026-11-16T03:54:05.679501+00:00"
+    },
+    {
+      "endpoint": "/bd/profit/report/open/report/seller/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_finance_report_seller"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "mids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "monthlyQuery",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "currencyCode",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "summaryEnabled",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "orderStatus",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Finance/bdSeller/",
+      "source_sha256": "379155d3927f2f7b3d060969fab3273370cff450ec6cbfb9956ffcc1277e33b9",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Finance/bdSeller.md",
+      "retrieved_at": "2026-11-16T03:54:05.877737+00:00"
+    },
+    {
+      "endpoint": "/bd/profit/statistics/open/asin/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_profit_asin"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "mids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "searchField",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "searchValue",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "currencyCode",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/statisticsOpenASIN/",
+      "source_sha256": "e42fea2097dcbb661124a1c2a29f14eb7872d03d99245d21c51d164a729260e3",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/statisticsOpenASIN.md",
+      "retrieved_at": "2026-11-16T03:54:11.336054+00:00"
+    },
+    {
+      "endpoint": "/bd/profit/statistics/open/parent/asin/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_profit_parent_asin"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "mids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "searchField",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "searchValue",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "currencyCode",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/statisticsOpenParent/",
+      "source_sha256": "6d247722e678252615d1e6d86c79981417038118b2141129bcbe870fcf84e991",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/statisticsOpenParent.md",
+      "retrieved_at": "2026-11-16T03:54:11.116394+00:00"
+    },
+    {
+      "endpoint": "/bd/profit/statistics/open/seller/list",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_smoke_check",
+        "lingxing_profit_seller"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "mids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "currencyCode",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/statisticsOpenSeller/",
+      "source_sha256": "9b33ae0221411b837b5829a6b07daae7fa29c38084aae678932295c47e556244",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/statisticsOpenSeller.md",
+      "retrieved_at": "2026-11-16T03:54:11.374893+00:00"
+    },
+    {
+      "endpoint": "/cost/center/api/settlement/report",
+      "method": "POST",
+      "official_token_bucket_capacity": 3,
+      "tools": [
+        "lingxing_shipment_settlement_report"
+      ],
+      "request_fields": [
+        {
+          "name": "amazonSellerIds",
+          "type": "array<any>",
+          "required": true
+        },
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": true
+        },
+        {
+          "name": "timeType",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "filterBeginDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "filterEndDate",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "countryCodes",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "orderNumbers",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "shipmentNumbers",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "customNumbers",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "mskus",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "skus",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "productNames",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "trackCodes",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "fulfillmentType",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Finance/SettlementReport/",
+      "source_sha256": "14189ec24afc971166b1b98ee3dc31fffb39984e2564eea3b4d9cf3016283834",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Finance/SettlementReport.md",
+      "retrieved_at": "2026-11-16T03:54:05.292872+00:00"
+    },
+    {
+      "endpoint": "/cost/center/openApi/fba/detail/query",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_fba_stock_detail"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "seller_id",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/FbaStockDetailListNew/",
+      "source_sha256": "eb69942334976137979b8a0f8ca3cc6492e3a61e6c5b7303c6ea12ad3b377276",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/FbaStockDetailListNew.md",
+      "retrieved_at": "2026-11-16T03:54:10.245979+00:00"
+    },
+    {
+      "endpoint": "/cost/center/openApi/fba/gather/query",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_fba_stock_aggregate"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "seller_id",
+          "type": "array<any>",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/FbaStockAggregateListNew/",
+      "source_sha256": "8ade684baaea668666123bd86def6eb1c1ae8022043c381260c0af4f96d3c5d8",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/FbaStockAggregateListNew.md",
+      "retrieved_at": "2026-11-16T03:54:10.091997+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws/listing",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_amazon_listing"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "is_pair",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "is_delete",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "pair_update_start_time",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "pair_update_end_time",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "listing_update_start_time",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "listing_update_end_time",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "search_field",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "search_value",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "exact_search",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "store_type",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/Listing/",
+      "source_sha256": "52b001adaca8362d6cd9c74340ae4f5e7bb55225f62aeb9fed6e58160ddce218",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/Listing.md",
+      "retrieved_at": "2026-11-16T03:54:05.965114+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws/orderDetail",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_order_details"
+      ],
+      "request_fields": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/OrderDetail/",
+      "source_sha256": "59b9766bfa5b57aca0c1b165d858d299e35c94d7e1f7cac47060751773077809",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/OrderDetail.md",
+      "retrieved_at": "2026-11-16T03:54:06.607659+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws/orders",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_order_lists",
+        "lingxing_smoke_check"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sid_list",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "date_type",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "order_status",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sort_desc_by_date_type",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "fulfillment_channel",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/Orderlists/",
+      "source_sha256": "2971d4c0647b78edf31e95a1367206cf9e8afc0332eface616747db4bc0d4b7c",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/Orderlists.md",
+      "retrieved_at": "2026-11-16T03:54:07.001360+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws_report/allOrders",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_smoke_check",
+        "lingxing_source_all_orders"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "date_type",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/SourceData/AllOrders/",
+      "source_sha256": "3fc40aad33b4c5971d366f40934bcadfd207bde8cd3274014f006b03cb29026d",
+      "legacy_source": "https://apidoc.lingxing.com/docs/SourceData/AllOrders.md",
+      "retrieved_at": "2026-11-16T03:54:08.123360+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws_report/dailyInventory",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_source_daily_inventory"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "event_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/SourceData/DailyInventory/",
+      "source_sha256": "ca9eca5e6a1b271df4b28239497787ff1a63d22418ef94a298b8b0286872061f",
+      "legacy_source": "https://apidoc.lingxing.com/docs/SourceData/DailyInventory.md",
+      "retrieved_at": "2026-11-16T03:54:08.819954+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws_report/manageInventory",
+      "method": "POST",
+      "official_token_bucket_capacity": 5,
+      "tools": [
+        "lingxing_smoke_check",
+        "lingxing_source_manage_inventory"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/SourceData/ManageInventory/",
+      "source_sha256": "f372703cab724f11af4e79fd49fbeff63b7be6c2c9b808e4933aea91c83853bd",
+      "legacy_source": "https://apidoc.lingxing.com/docs/SourceData/ManageInventory.md",
+      "retrieved_at": "2026-11-16T03:54:09.252869+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws_report/refundOrders",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_refund_orders"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "date_type",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/SourceData/RefundOrders/",
+      "source_sha256": "02b064127667efe0804fba410ba6c50c80b7afe7e0fa198e3b2fcded52a7c10c",
+      "legacy_source": "https://apidoc.lingxing.com/docs/SourceData/RefundOrders.md",
+      "retrieved_at": "2026-11-16T03:54:09.392582+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws_report/reservedInventory",
+      "method": "POST",
+      "official_token_bucket_capacity": 5,
+      "tools": [
+        "lingxing_source_reserved_inventory"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/SourceData/ReservedInventory/",
+      "source_sha256": "30b2293c1b3e890874f18498725a32b6b943d82670933ffe17c2d79b557f1599",
+      "legacy_source": "https://apidoc.lingxing.com/docs/SourceData/ReservedInventory.md",
+      "retrieved_at": "2026-11-16T03:54:09.390364+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/mws_report/transaction",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_source_transaction"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "event_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/SourceData/Transaction/",
+      "source_sha256": "656ef83f1b7d4d070244f8bf5938f365b05ffaa819895c24a68ae4e9ca809d88",
+      "legacy_source": "https://apidoc.lingxing.com/docs/SourceData/Transaction.md",
+      "retrieved_at": "2026-11-16T03:54:09.488911+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/sales_report/asinDailyLists",
+      "method": "POST",
+      "official_token_bucket_capacity": 5,
+      "tools": [
+        "lingxing_asin_daily_lists"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "event_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "asin_type",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "type",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/AsinDailyLists/",
+      "source_sha256": "aab79c3003a98156e6ea548ea6546c9c933613ef1f3b892481021c84d3a7650b",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/AsinDailyLists.md",
+      "retrieved_at": "2026-11-16T03:54:09.590708+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/sales_report/sales",
+      "method": "POST",
+      "official_token_bucket_capacity": 5,
+      "tools": [
+        "lingxing_store_sales",
+        "lingxing_smoke_check",
+        "lingxing_asin_weekly_rollup"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Statistics/StoreSales/",
+      "source_sha256": "c8d429a54380040790dddb604061ebe2e0eb9d5a66bc69e3b17d0c4030409ca5",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Statistics/StoreSales.md",
+      "retrieved_at": "2026-11-16T03:54:10.257276+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/seller/allMarketplace",
+      "method": "GET",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_seller_lists",
+        "lingxing_marketplaces",
+        "lingxing_order_details",
+        "lingxing_shipment_settlement_report",
+        "lingxing_sales_outbound_orders",
+        "lingxing_product_search",
+        "lingxing_smoke_check"
+      ],
+      "request_fields": [],
+      "source": "https://apidoc.lingxing.com/new/api-docs/BasicData/AllMarketplace/",
+      "source_sha256": "008d014d8b95158f30a8876dfd0441060648d147d4e5ca8204f02942a9502ed0",
+      "legacy_source": "https://apidoc.lingxing.com/docs/BasicData/AllMarketplace.md",
+      "retrieved_at": "2026-11-16T03:54:04.885200+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/data/seller/lists",
+      "method": "GET",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_seller_lists",
+        "lingxing_order_details",
+        "lingxing_shipment_settlement_report",
+        "lingxing_sales_outbound_orders",
+        "lingxing_product_search",
+        "lingxing_smoke_check"
+      ],
+      "request_fields": [],
+      "source": "https://apidoc.lingxing.com/new/api-docs/BasicData/SellerLists/",
+      "source_sha256": "86aaa929670ad035e67e8b42976673cb7aa7c8dbf3b64cd0d13d014feea40e38",
+      "legacy_source": "https://apidoc.lingxing.com/docs/BasicData/SellerLists.md",
+      "retrieved_at": "2026-11-16T03:54:05.028106+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/routing/data/local_inventory/productList",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_asin_product_snapshot",
+        "lingxing_local_product_costs",
+        "lingxing_local_products"
+      ],
+      "request_fields": [
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "update_time_start",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "update_time_end",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "create_time_start",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "create_time_end",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sku_list",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "sku_identifier_list",
+          "type": "array<any>",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Product/ProductLists/",
+      "source_sha256": "378637431bab43b06d5bc6ae7246d4fb12c7362e1dc37a20edbc0e2dab5b4016",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Product/ProductLists.md",
+      "retrieved_at": "2026-11-16T03:54:05.873400+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/routing/fbaSug/asin/getInfo",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_replenishment_asin_info"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "asin",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/FBASug/InfoASIN/",
+      "source_sha256": "7f77e15cf17b9d3e56159c5420f5604e5c71faed79a7ec3a9f6a7104e9d1e675",
+      "legacy_source": "https://apidoc.lingxing.com/docs/FBASug/InfoASIN.md",
+      "retrieved_at": "2026-11-16T03:54:05.074030+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/routing/restocking/analysis/getSummaryList",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_replenishment_summary"
+      ],
+      "request_fields": [
+        {
+          "name": "sid_list",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "data_type",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "asin_list",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "msku_list",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "mode",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "listing_date_range",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/FBASug/GetSummaryList/",
+      "source_sha256": "0d9b18dd250c37ba906261fa819d8960ba5eadc0957a2a08c40e00fdd6faafb3",
+      "legacy_source": "https://apidoc.lingxing.com/docs/FBASug/GetSummaryList.md",
+      "retrieved_at": "2026-11-16T03:54:05.056008+00:00"
+    },
+    {
+      "endpoint": "/erp/sc/routing/wms/order/wmsOrderList",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_sales_outbound_orders"
+      ],
+      "request_fields": [
+        {
+          "name": "page",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "page_size",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "sid_arr",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "status_arr",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "logistics_status_arr",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "platform_order_no_arr",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "order_number_arr",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "wo_number_arr",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "time_type",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Warehouse/WmsOrderList/",
+      "source_sha256": "ca1cd480361a601d2754a47f29ef497d01182b04b19a67806d63670774f97edd",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Warehouse/WmsOrderList.md",
+      "retrieved_at": "2026-11-16T03:54:11.499431+00:00"
+    },
+    {
+      "endpoint": "/order/amzod/api/orderDetails/logisticsInformation",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_multi_channel_orders"
+      ],
+      "request_fields": [
+        {
+          "name": "order_info",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/LogisticsInformation/",
+      "source_sha256": "15dff5e78594c65bf9aa184414d44525cf0380afc8f01c7f44724c8261896307",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/LogisticsInformation.md",
+      "retrieved_at": "2026-11-16T03:54:06.473030+00:00"
+    },
+    {
+      "endpoint": "/order/amzod/api/orderDetails/productInformation",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_multi_channel_orders"
+      ],
+      "request_fields": [
+        {
+          "name": "order_info",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/ProductInformation/",
+      "source_sha256": "a72eb58b93b79d47c2f2662325b3e7c944c65105254440e3471db9ea9148d0c7",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/ProductInformation.md",
+      "retrieved_at": "2026-11-16T03:54:07.986901+00:00"
+    },
+    {
+      "endpoint": "/order/amzod/api/orderDetails/returnInformation",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_multi_channel_orders"
+      ],
+      "request_fields": [
+        {
+          "name": "order_info",
+          "type": "array<object>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/ReturnInfomation/",
+      "source_sha256": "d3644a86e5f5340dc28a51b60df30de17271851ebf2c6772c853f588a3e46418",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/ReturnInfomation.md",
+      "retrieved_at": "2026-11-16T03:54:07.125531+00:00"
+    },
+    {
+      "endpoint": "/order/amzod/api/orderList",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_multi_channel_orders"
+      ],
+      "request_fields": [
+        {
+          "name": "sids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "date_type",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "order_status",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/Sale/MCFOrderList/",
+      "source_sha256": "9a0e944913d61123a721ab2317688142c467fca81db42e58c0d92fc8755d5ac3",
+      "legacy_source": "https://apidoc.lingxing.com/docs/Sale/MCFOrderList.md",
+      "retrieved_at": "2026-11-16T03:54:06.513488+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/abaReport",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_aba_report"
+      ],
+      "request_fields": [
+        {
+          "name": "country",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "data_start_time",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/reportDownload/abaReport/",
+      "source_sha256": "a5fc0cdeef980ba1a969f9bdc8e447f61407b81b42cb11524f5ed33adc74d36a",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/reportDownload/abaReport.md",
+      "retrieved_at": "2026-11-16T03:54:18.996105+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/apiLogStandard",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_operation_logs"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "log_source",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "sponsored_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "operate_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/apiLogStandard/",
+      "source_sha256": "5ca900096cbe08047de1e7423e69056e82ac0a74ae009d9b94df38412937157e",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/apiLogStandard.md",
+      "retrieved_at": "2026-11-16T03:54:11.865690+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/asinReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sp_purchased_asin_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/asinReports/",
+      "source_sha256": "1cb9c90cb7c0906753f5f195355e6c0dc4c8d80894402f2d80afb06153ef24e0",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/asinReports.md",
+      "retrieved_at": "2026-11-16T03:54:15.311862+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/campaignPlacementReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sp_placement_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/campaignPlacementReports/",
+      "source_sha256": "c9f8951dbf8e94d180a439d6399d2bd3b7a8328aaf24f858d0d445d1d2b92fc6",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/campaignPlacementReports.md",
+      "retrieved_at": "2026-11-16T03:54:15.471424+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaAdGroupReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sb_ad_group_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/hsaAdGroupReports/",
+      "source_sha256": "ac4d28ea079d2ccc41bde0b56ae642f3439aeaa5a09dd1b9e1efcf991983ae65",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/hsaAdGroupReports.md",
+      "retrieved_at": "2026-11-16T03:54:15.720985+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaAdGroups",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sb_ad_groups"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/hsaAdGroups/",
+      "source_sha256": "6cbc4e774355ff6d59004b105a25341c72f1091639c4532faa8796acff5bce02",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/hsaAdGroups.md",
+      "retrieved_at": "2026-11-16T03:54:11.913376+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaCampaignPlacementReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sb_campaign_placement_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/hsaCampaignPlacementReports/",
+      "source_sha256": "3403e434105ba4aa07cd75500a3597033309ae756d80d43767cbf5d4fea2c080",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/hsaCampaignPlacementReports.md",
+      "retrieved_at": "2026-11-16T03:54:15.844402+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaCampaignReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sb_campaign_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/hsaCampaignReports/",
+      "source_sha256": "a50813c70c1c27e4291773849cd7066e371d94d37a90b5a88891de39069db935",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/hsaCampaignReports.md",
+      "retrieved_at": "2026-11-16T03:54:15.910058+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaCampaigns",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sb_campaigns"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/hsaCampaigns/",
+      "source_sha256": "f2c6117989fd1d82f2d71779ffd2257f9a4370f19fbcf99a78756521d1d2aed9",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/hsaCampaigns.md",
+      "retrieved_at": "2026-11-16T03:54:12.418013+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaNegativeKeywords",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sb_negative_keywords"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/hsaNegativeKeywords/",
+      "source_sha256": "c7e3f86937013f7fc4efe96729392277bdbd595dd67e40b8c455c930473fc9a3",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/hsaNegativeKeywords.md",
+      "retrieved_at": "2026-11-16T03:54:12.495193+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaNegativeTargets",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sb_negative_targets"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/hsaNegativeTargets/",
+      "source_sha256": "4cc0009cc1919118bdb76ee70bce3e00cd9f03c0bb215f9b6e826cdc6823ac68",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/hsaNegativeTargets.md",
+      "retrieved_at": "2026-11-16T03:54:13.049488+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaProductAds",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_asin_ads_daily_rollup",
+        "lingxing_asin_weekly_rollup",
+        "lingxing_ads_sb_creatives"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<number>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/sbAdHasProductAds/",
+      "source_sha256": "7b0ee45deedc0ea37b2d99d6cea3856e6f2735cbcfb92ca9299afafbe2bf632b",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/sbAdHasProductAds.md",
+      "retrieved_at": "2026-11-16T03:54:13.322226+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaPurchasedAsinReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_smoke_check",
+        "lingxing_asin_ads_daily_rollup",
+        "lingxing_asin_weekly_rollup",
+        "lingxing_ads_sb_purchased_asin_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/hsaPurchasedAsinReports/",
+      "source_sha256": "b4286cebd826e5d7c298145f58708b152294fc1b4b73a45520aa6466402af263",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/hsaPurchasedAsinReports.md",
+      "retrieved_at": "2026-11-16T03:54:16.132807+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/hsaQueryWordReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sb_search_term_report"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/hsaQueryWordReports/",
+      "source_sha256": "112d4759b5b7320f43a23b0690639259fdff90b55df6f3ded44dd1c08428d6bc",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/hsaQueryWordReports.md",
+      "retrieved_at": "2026-11-16T03:54:16.323574+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/listHsaKeywordPlacementReport",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sb_keyword_placement_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "sponsored_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/listHsaKeywordPlacementReport/",
+      "source_sha256": "5c484dc7be957db6afe156ed36c32c869a700215e63ecc50e32bdfcb4c08c030",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/listHsaKeywordPlacementReport.md",
+      "retrieved_at": "2026-11-16T03:54:16.392146+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/listHsaProductAdReport",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_asin_ads_daily_rollup",
+        "lingxing_asin_weekly_rollup",
+        "lingxing_ads_sb_creative_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/listHsaProductAdReport/",
+      "source_sha256": "aecba5a9561024464f041f23512a7b8bb12d9857e01c701f340cd92d3af689f7",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/listHsaProductAdReport.md",
+      "retrieved_at": "2026-11-16T03:54:16.483823+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/listHsaTargetingReport",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sb_target_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "sponsored_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/listHsaTargetingReport/",
+      "source_sha256": "7bc5560a42b8e9b1ca622a8aacb6dc76b0f13bd895c96b288e30cbc39bfe1d44",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/listHsaTargetingReport.md",
+      "retrieved_at": "2026-11-16T03:54:16.504165+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/portfolios",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_portfolios"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/portfolios/",
+      "source_sha256": "30f5d86b9372d278b202bd4e858d5b36dde1b1d380045aebc164528393ba7f55",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/portfolios.md",
+      "retrieved_at": "2026-11-16T03:54:13.168053+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/queryWordReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_search_term_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/queryWordReports/",
+      "source_sha256": "4a7db79b49419cfc2141933484ccbe9d2ceb5ce011f5ec17add45e3fde02ea04",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/queryWordReports.md",
+      "retrieved_at": "2026-11-16T03:54:16.539429+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sbAdGroupHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sb_ad_group_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sbAdGroupHourData/",
+      "source_sha256": "6f14fa6cf316eae3e42f5c7e98c95360dbbb0fded1f0bb89b8eee4e4671326c6",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sbAdGroupHourData.md",
+      "retrieved_at": "2026-11-16T03:54:16.757602+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sbAdPlacementHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sb_placement_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sbAdPlacementHourData/",
+      "source_sha256": "200ed0b082ca5871683e6bd77768e0af206119abfdd132098898f65367f4d927",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sbAdPlacementHourData.md",
+      "retrieved_at": "2026-11-16T03:54:16.836645+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sbCampaignHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sb_campaign_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sbCampaignHourData/",
+      "source_sha256": "e2a4ee62b5462484b2c6868e42e534a83bb1058ded24faf8b10764fad78ce2c5",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sbCampaignHourData.md",
+      "retrieved_at": "2026-11-16T03:54:16.988300+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sbTargetHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sb_target_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        },
+        {
+          "name": "agg_dimension",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sbTargetHourData/",
+      "source_sha256": "5c9e3d44d15d2e2338ba1ce823f143b70b7eabdddc65b8356d348a048bcf1722",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sbTargetHourData.md",
+      "retrieved_at": "2026-11-16T03:54:17.148599+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sbTargeting",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sb_targets"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "ads_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "targeting_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/sbTargeting/",
+      "source_sha256": "071c54f506d1b46c758ce6484e381f05a35e28d2443450dd520f7e70fc0ccd98",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/sbTargeting.md",
+      "retrieved_at": "2026-11-16T03:54:13.327419+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdAdGroupHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sd_ad_group_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdAdGroupHourData/",
+      "source_sha256": "d1c455236e025e4e198f17e43731a7443de11cfc1f7e2e986ef6b048f061f1a6",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdAdGroupHourData.md",
+      "retrieved_at": "2026-11-16T03:54:17.784111+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdAdGroupReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sd_ad_group_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdAdGroupReports/",
+      "source_sha256": "7c82b5e4332c945daa513a85fabbf63f2b5d3a5a5b11f70e9d7d6e0dc71db57c",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdAdGroupReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.470152+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdAdGroups",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sd_ad_groups"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/sdAdGroups/",
+      "source_sha256": "c1a5f2a9042cd0ecc7a8f56e214e5f4ba60c05ea7c2eca25214d352e96cfee98",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/sdAdGroups.md",
+      "retrieved_at": "2026-11-16T03:54:13.447149+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdAdvertiseHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sd_advertise_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        },
+        {
+          "name": "agg_dimension",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdAdvertiseHourData/",
+      "source_sha256": "69e64951b28099ff39b330ff6a74ca55a3ca5932d7953f07f730b75b84c79165",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdAdvertiseHourData.md",
+      "retrieved_at": "2026-11-16T03:54:17.694514+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdCampaignHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sd_campaign_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdCampaignHourData/",
+      "source_sha256": "ed55018f563185794585fb70d5d60ba4a5b8f5106311e05dfdad2142cef653de",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdCampaignHourData.md",
+      "retrieved_at": "2026-11-16T03:54:17.839344+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdCampaignReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sd_campaign_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdCampaignReports/",
+      "source_sha256": "7798feb02040a4487fe0dbbb26fb69a327c72611eb59ec0416c1999b269f5f73",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdCampaignReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.124240+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdCampaigns",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sd_campaigns"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/sdCampaigns/",
+      "source_sha256": "bb5a7bf3ac1f7a0545e7385406e438a03d9fae0ac4dce2efb9d193859e9cfb89",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/sdCampaigns.md",
+      "retrieved_at": "2026-11-16T03:54:13.802250+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdMatchTargetReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sd_match_target_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdMatchTargetReports/",
+      "source_sha256": "7d6f74b57cb992aa5852893882f9681f8d3a7fdb4861e502e969c94ed02c4e32",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdMatchTargetReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.147593+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdNegativeTargets",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sd_negative_targets"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/sdNegativeTargets/",
+      "source_sha256": "73d27429f9aaf0ed451be3857220152f5c37ddd00d791b4705c4644a3d024dc7",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/sdNegativeTargets.md",
+      "retrieved_at": "2026-11-16T03:54:13.840978+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdProductAdReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_smoke_check",
+        "lingxing_asin_ads_daily_rollup",
+        "lingxing_asin_weekly_rollup",
+        "lingxing_ads_sd_product_ad_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdProductAdReports/",
+      "source_sha256": "1c27a348a36223131dbef3e21b435614d8d6ca20a0370876b4ec91a1bb86ed26",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdProductAdReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.262561+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdProductAds",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sd_product_ads"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<number>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/sdProductAds/",
+      "source_sha256": "1d48b897038b3967a11f168a5eaff0554bdf0b6d9413a2ea0040f71ea2dd9222",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/sdProductAds.md",
+      "retrieved_at": "2026-11-16T03:54:13.941263+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdTargetHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sd_target_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        },
+        {
+          "name": "agg_dimension",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdTargetHourData/",
+      "source_sha256": "0334e93d686538bb6f3d8a561c82e513fb218a3334d5149d899da9eb8a417562",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdTargetHourData.md",
+      "retrieved_at": "2026-11-16T03:54:18.324932+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdTargetReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sd_target_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/sdTargetReports/",
+      "source_sha256": "b7b8dba56a60cff2cdbdb7400211e2feaff2bb6306089925650fb14200a6ce82",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/sdTargetReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.374659+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/sdTargets",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sd_targets"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/sdTargets/",
+      "source_sha256": "6608407c53ce28f4fc17ba38213d211d47b8d2ddb91b0753c9c08507c88e7c9a",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/sdTargets.md",
+      "retrieved_at": "2026-11-16T03:54:13.988309+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spAdGroupHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sp_ad_group_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spAdGroupHourData/",
+      "source_sha256": "5ff3d22022ad70b9b99a1cb6d84413a93e8f99cc191d02e91bc69dc6a20507c3",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spAdGroupHourData.md",
+      "retrieved_at": "2026-11-16T03:54:18.460813+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spAdGroupReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_exp_ads_sp_ad_group_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spAdGroupReports/",
+      "source_sha256": "e50127dfafb915f179b4235375aaca4b926d47257bfcef3054b00950d9a96557",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spAdGroupReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.501402+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spAdGroups",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_ad_groups"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/spAdGroups/",
+      "source_sha256": "59a4f4f2bc9939c5170fc2bbf9726d844a99b1dbecf8ca5bd6252f25401859ac",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/spAdGroups.md",
+      "retrieved_at": "2026-11-16T03:54:14.054960+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spAdPlacementHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sp_placement_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "[string]",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "[number]",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "[Array]",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spAdPlacementHourData/",
+      "source_sha256": "4d1a5c075512dae767ebb6b57f9059e3d4f8fcdb47483c9643c14643d1bade53",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spAdPlacementHourData.md",
+      "retrieved_at": "2026-11-16T03:54:18.629679+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spAdvertiseHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sp_advertise_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        },
+        {
+          "name": "agg_dimension",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spAdvertiseHourData/",
+      "source_sha256": "80a3aa112d0dc316608552421c2a89a5e3210f014457df176717454c91ea06c4",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spAdvertiseHourData.md",
+      "retrieved_at": "2026-11-16T03:54:18.647220+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spCampaignHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sp_campaign_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spCampaignHourData/",
+      "source_sha256": "79b7b7723aadeac3e28f91ab9f6d7c2487c4373da75bdad33aed0674f731ceff",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spCampaignHourData.md",
+      "retrieved_at": "2026-11-16T03:54:18.636279+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spCampaignReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_campaign_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spCampaignReports/",
+      "source_sha256": "942756c9c99de706c032002e85ef85441252012f4474840c9e5dc59ad864e8fa",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spCampaignReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.747155+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spCampaigns",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_campaigns"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/spCampaigns/",
+      "source_sha256": "80ed1f9357c98f649bd70bd05c0bea02f7d0af5b1866f25749ce909f36c794df",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/spCampaigns.md",
+      "retrieved_at": "2026-11-16T03:54:14.315109+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spKeywordReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_keyword_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spKeywordReports/",
+      "source_sha256": "3eb9f1dac8eece96ba0d6c7fe53441413082a78f79e702f8897df6fe4b63ddf4",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spKeywordReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.774659+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spKeywords",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_keywords"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/spKeywords/",
+      "source_sha256": "800be2f6a25437c480ac3ba6a89768f4fa0a99bcf361438f52040ad12c6f8498",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/spKeywords.md",
+      "retrieved_at": "2026-11-16T03:54:14.383550+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spNegativeTargetsOrKeywords",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_negative_targets_or_keywords"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": false
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/spNegativeTargetsOrKeywords/",
+      "source_sha256": "2aa06727d371c1fb2333f5a620ec6c56fdb5fabcea31032248a4c1dedf5a87dd",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/spNegativeTargetsOrKeywords.md",
+      "retrieved_at": "2026-11-16T03:54:14.490253+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spProductAdReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_smoke_check",
+        "lingxing_asin_ads_daily_rollup",
+        "lingxing_asin_weekly_rollup",
+        "lingxing_ads_sp_product_ad_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spProductAdReports/",
+      "source_sha256": "63a029fc8b9876e975975946aba4d9e122a33d0b32437dd624318488275cb239",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spProductAdReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.800938+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spProductAds",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_product_ads"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<number>",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/spProductAds/",
+      "source_sha256": "091ec0771309e083bd8b30d1edee323c85791ca3884a08a216f216e17e2c8ed0",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/spProductAds.md",
+      "retrieved_at": "2026-11-16T03:54:14.832457+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spTargetHourData",
+      "method": "POST",
+      "official_token_bucket_capacity": 1,
+      "tools": [
+        "lingxing_ads_sp_target_hourly"
+      ],
+      "request_fields": [
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "number",
+          "required": false
+        },
+        {
+          "name": "campaign_ids",
+          "type": "array<any>",
+          "required": false
+        },
+        {
+          "name": "agg_dimension",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spTargetHourData/",
+      "source_sha256": "d7832d1d7353148a31eae940ebf2b55b09698dca523de39003f1cc394385030d",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spTargetHourData.md",
+      "retrieved_at": "2026-11-16T03:54:18.867469+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spTargetReports",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_target_report"
+      ],
+      "request_fields": [
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "report_date",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "show_detail",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/report/spTargetReports/",
+      "source_sha256": "ad941dd8f2c66de8031561a49ab4f31baca6124fb9176d54d1db5fc185b17202",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/report/spTargetReports.md",
+      "retrieved_at": "2026-11-16T03:54:18.930848+00:00"
+    },
+    {
+      "endpoint": "/pb/openapi/newad/spTargets",
+      "method": "POST",
+      "official_token_bucket_capacity": 10,
+      "tools": [
+        "lingxing_ads_sp_targets"
+      ],
+      "request_fields": [
+        {
+          "name": "sid",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "profile_id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "length",
+          "type": "integer",
+          "required": false
+        },
+        {
+          "name": "next_token",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "source": "https://apidoc.lingxing.com/new/api-docs/newAd/baseData/spTargets/",
+      "source_sha256": "ac4f5cd2cc7a173409ac9cee907467753e89e66700336b59baf3834c1e22a2d9",
+      "legacy_source": "https://apidoc.lingxing.com/docs/newAd/baseData/spTargets.md",
+      "retrieved_at": "2026-11-16T03:54:14.999814+00:00"
+    }
+  ]
+}

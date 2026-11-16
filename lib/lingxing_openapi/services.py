@@ -118,6 +118,19 @@ def _parse_iso_date(value: str) -> datetime.date:
     return datetime.strptime(value, "%Y-%m-%d").date()
 
 
+def _validate_date_window(start: str, end: str, max_days: int | None, date_format: str = "%Y-%m-%d") -> tuple[datetime, datetime]:
+    try:
+        first = datetime.strptime(start, date_format)
+        last = datetime.strptime(end, date_format)
+    except (TypeError, ValueError) as exc:
+        raise LingxingConfigError(f"日期格式必须为 {date_format}") from exc
+    if first > last:
+        raise LingxingConfigError("开始时间不能晚于结束时间")
+    if max_days is not None and last - first > timedelta(days=max_days):
+        raise LingxingConfigError(f"时间跨度不能超过 {max_days} 天")
+    return first, last
+
+
 def _iso_day_range(start_date: str, end_date: str) -> list[str]:
     start = _parse_iso_date(start_date)
     end = _parse_iso_date(end_date)
@@ -562,6 +575,17 @@ class LingxingOpenAPIService:
         )
 
     def orders(self, sid: int, start_date: str, end_date: str, date_type: int = 1) -> dict[str, Any]:
+        if date_type not in {1, 2, 3, 10}:
+            raise LingxingConfigError("date_type 必须为 1、2、3 或 10")
+        validation_start = start_date + " 00:00:00" if len(start_date) == 10 and date_type != 3 else start_date
+        validation_end = end_date + " 00:00:00" if len(end_date) == 10 and date_type != 3 else end_date
+        first, last = _validate_date_window(validation_start, validation_end, 366, "%Y-%m-%d %H:%M:%S")
+        try:
+            anniversary = first.replace(year=first.year + 1)
+        except ValueError:
+            anniversary = first.replace(year=first.year + 1, day=28)
+        if last > anniversary:
+            raise LingxingConfigError("订单查询时间范围不能超过一年")
         endpoint = "/erp/sc/data/mws/orders"
         page = self.client.paged_post_detailed(
             endpoint,
@@ -728,6 +752,8 @@ class LingxingOpenAPIService:
         promotion_category: list[int] | None = None,
     ) -> dict[str, Any]:
         endpoint = "/basicOpen/promotion/listingList"
+        _validate_date_window(start_time, end_time, 90)
+        _validate_date_window(site_date, site_date, 0)
         page = self.client.paged_post_detailed(
             endpoint,
             {
@@ -753,6 +779,7 @@ class LingxingOpenAPIService:
         )
 
     def promotion_sec_kill(self, sid: int, start_date: str, end_date: str) -> dict[str, Any]:
+        _validate_date_window(start_date, end_date, 90)
         endpoint = "/basicOpen/promotionalActivities/secKill/list"
         page = self.client.paged_post_detailed(
             endpoint,
@@ -779,6 +806,7 @@ class LingxingOpenAPIService:
         )
 
     def promotion_manage(self, sid: int, start_date: str, end_date: str) -> dict[str, Any]:
+        _validate_date_window(start_date, end_date, 90)
         endpoint = "/basicOpen/promotionalActivities/manage/list"
         page = self.client.paged_post_detailed(
             endpoint,
@@ -805,6 +833,7 @@ class LingxingOpenAPIService:
         )
 
     def promotion_vip_discount(self, sid: int, start_date: str, end_date: str) -> dict[str, Any]:
+        _validate_date_window(start_date, end_date, 90)
         endpoint = "/basicOpen/promotionalActivities/vipDiscount/list"
         page = self.client.paged_post_detailed(
             endpoint,
@@ -831,6 +860,7 @@ class LingxingOpenAPIService:
         )
 
     def promotion_coupon(self, sid: int, start_date: str, end_date: str) -> dict[str, Any]:
+        _validate_date_window(start_date, end_date, 90)
         endpoint = "/basicOpen/promotionalActivities/coupon/list"
         page = self.client.paged_post_detailed(
             endpoint,
@@ -857,6 +887,8 @@ class LingxingOpenAPIService:
         )
 
     def resolve_daily_promotions(self, sid: int, target_date: str, lookback_days: int = 90) -> dict[str, Any]:
+        if not 1 <= lookback_days <= 90:
+            raise LingxingConfigError("lookback_days 必须在 1 到 90 之间")
         target = datetime.strptime(target_date, "%Y-%m-%d").date()
         window_start = (target - timedelta(days=max(1, int(lookback_days) - 1))).isoformat()
         listing = self.promotion_listing(
@@ -1879,6 +1911,12 @@ class LingxingOpenAPIService:
                 body[arg.name] = bool(value)
             else:
                 body[arg.name] = self._normalize_spec_value(value)
+        if spec.tool_name in {"lingxing_amazon_listing", "lingxing_product_performance"} and "sid" in body:
+            body["sid"] = str(body["sid"])
+        if spec.tool_name == "lingxing_return_analysis" and "sortType" in body:
+            body["sortType"] = str(body["sortType"]).lower()
+            if body["sortType"] not in {"asc", "desc"}:
+                raise LingxingConfigError("sortType 必须为 ASC 或 DESC")
         return body
 
     def ad_accounts(
@@ -1916,6 +1954,8 @@ class LingxingOpenAPIService:
         )
 
     def ads_management_apply(self, request: AdManagementRequest) -> dict[str, Any]:
+        if type(request.dry_run) is not bool or type(request.confirm) is not bool:
+            raise LingxingConfigError("dry_run 和 confirm 必须为 JSON 布尔值")
         warnings: list[str] = []
         if request.dry_run or not request.confirm:
             warnings.append("dry_run=true 或 confirm 未开启，未调用领星广告写接口。")
@@ -1951,6 +1991,9 @@ class LingxingOpenAPIService:
         offset: int = 0,
         length: int = 100,
     ) -> dict[str, Any]:
+        first, last = _validate_date_window(start_date, end_date, 31)
+        if (last.year, last.month, last.day) > (first.year + (first.month == 12), first.month % 12 + 1, first.day):
+            raise LingxingConfigError("广告日志日期间隔不能超过一个月")
         body = {
             "sid": int(sid),
             "log_source": log_source,
@@ -1970,6 +2013,9 @@ class LingxingOpenAPIService:
             extra_meta={
                 "docs_path": "https://apidoc.lingxing.com/#/docs/newAd/apiLogStandard",
                 "filters": body,
+                "total": payload.get("total"),
+                "offset": body["offset"],
+                "length": body["length"],
             },
         )
 
@@ -1999,6 +2045,26 @@ class LingxingOpenAPIService:
 
     def _run_ad_like_spec(self, spec: EndpointSpec, args: dict[str, Any]) -> dict[str, Any]:
         body = self._build_spec_body(spec, args)
+        if spec.endpoint.endswith("HourData"):
+            ids = list(args.get("campaign_ids") or [])
+            if args.get("campaign_id") is not None:
+                ids.append(args["campaign_id"])
+            if not ids or any(type(value) is not int or value <= 0 for value in ids):
+                raise LingxingConfigError("必须提供正整数 campaign_id 或 campaign_ids")
+            if spec.endpoint.endswith("/spTargetHourData"):
+                ids = list(dict.fromkeys(ids))
+                if len(ids) > 50:
+                    raise LingxingConfigError("campaign_id 和 campaign_ids 合并后最多 50 个")
+                body.pop("campaign_id", None)
+                body["campaign_ids"] = ids
+            report_day = _validate_date_window(str(body["report_date"]), str(body["report_date"]), 0)[0].date()
+            max_age = 61 if spec.endpoint.endswith("/spTargetHourData") else 60
+            if not 0 <= (datetime.now().date() - report_day).days <= max_age:
+                raise LingxingConfigError(f"小时报告日期必须在最近 {max_age} 天内")
+        if spec.endpoint.endswith("/abaReport"):
+            report_day = _validate_date_window(str(body["data_start_time"]), str(body["data_start_time"]), 0)[0].date()
+            if report_day.weekday() != 6 or not 0 <= (datetime.now().date() - report_day).days <= 45:
+                raise LingxingConfigError("ABA data_start_time 必须为最近 45 天内的周日")
         sid = int(body.get("sid") or 0)
         if spec.auto_profile:
             body["profile_id"] = self._resolve_profile_id(
@@ -2016,26 +2082,26 @@ class LingxingOpenAPIService:
                 date_range=self._spec_result_date_range(body),
                 extra_meta={"docs_path": spec.docs_path, "profile_id": body.get("profile_id")},
             )
-        page = self.client.paged_post_detailed(
-            spec.endpoint,
-            {**body, "offset": 0, "length": spec.page_size},
-            page_size=spec.page_size,
-            data_path=spec.data_path,
-            total_path=spec.total_path,
-            next_token_path=spec.next_token_path,
-            pagination_mode=spec.pagination_mode,
-            extra_headers=spec.headers,
-        )
+        queries = [body]
+        if spec.endpoint.endswith("/spNegativeTargetsOrKeywords") and not body.get("target_type"):
+            queries = [{**body, "target_type": target_type} for target_type in ("keyword", "target")]
+        pages = [self.client.paged_post_detailed(
+            spec.endpoint, {**query, "length": spec.page_size}, page_size=spec.page_size,
+            data_path=spec.data_path, total_path=spec.total_path, next_token_path=spec.next_token_path,
+            pagination_mode=spec.pagination_mode, extra_headers=spec.headers,
+        ) for query in queries]
         return self._result(
-            data=page.rows,
+            data=[row for page in pages for row in page.rows],
             endpoint=spec.endpoint,
-            page_count=page.page_count,
+            page_count=sum(page.page_count for page in pages),
             sid=sid or None,
             date_range=self._spec_result_date_range(body),
             extra_meta={"docs_path": spec.docs_path, "profile_id": body.get("profile_id")},
         )
 
     def _run_profit_report_order_spec(self, spec: EndpointSpec, args: dict[str, Any]) -> dict[str, Any]:
+        if args.get("order_status") == "Deferred" and str(args.get("end_date") or "")[:10] != datetime.now().date().isoformat():
+            raise LingxingConfigError("order_status=Deferred 时结束日期必须为今天")
         normalized_mode, preview_limit = self._normalize_large_report_options(
             str(args.get("response_mode") or "summary"),
             20 if args.get("preview_limit") is None else int(args["preview_limit"]),
@@ -2132,7 +2198,7 @@ class LingxingOpenAPIService:
         if search_value and spec.search_field:
             body["searchField"] = spec.search_field
             body["searchValue"] = [search_value]
-        if "monthly_query" in args and args.get("monthly_query") is not None:
+        if spec.category == "profit_report" and "monthly_query" in args and args.get("monthly_query") is not None:
             body["monthlyQuery"] = bool(args.get("monthly_query"))
         if "summary_enabled" in args and args.get("summary_enabled") is not None:
             body["summaryEnabled"] = bool(args.get("summary_enabled"))
@@ -2171,6 +2237,7 @@ class LingxingOpenAPIService:
         return self._result(
             data=page.rows,
             endpoint=spec.endpoint,
+            warnings=[spec.description] if spec.tool_name in {"lingxing_source_daily_inventory", "lingxing_source_transaction"} else [],
             page_count=page.page_count,
             sid=sid,
             date_range=self._spec_result_date_range(body),
@@ -2263,6 +2330,36 @@ class LingxingOpenAPIService:
         spec = ENDPOINT_SPECS_BY_NAME.get(tool_name)
         if spec is None:
             raise LingxingConfigError(f"未知 endpoint spec: {tool_name}")
+        for arg in spec.args:
+            value = args.get(arg.name, arg.default)
+            if value in (None, "", []):
+                if arg.required:
+                    raise LingxingConfigError(f"缺少必要参数: {arg.name}")
+                continue
+            if arg.arg_type == "boolean" and type(value) is not bool:
+                raise LingxingConfigError(f"{arg.name} 必须为 JSON 布尔值")
+            if arg.enum and value not in arg.enum:
+                raise LingxingConfigError(f"{arg.name} 不在官方允许的枚举范围内")
+            if arg.max_items is not None and (not isinstance(value, list) or len(value) > arg.max_items):
+                raise LingxingConfigError(f"{arg.name} 必须为数组且最多 {arg.max_items} 项")
+            if (arg.minimum is not None and int(value) < arg.minimum) or (arg.maximum is not None and int(value) > arg.maximum):
+                raise LingxingConfigError(f"{arg.name} 超出允许范围")
+        if tool_name == "lingxing_product_performance":
+            _validate_date_window(args["start_date"], args["end_date"], 92)
+        if tool_name == "lingxing_return_analysis":
+            _validate_date_window(args["startDate"], args["endDate"], 366)
+        if spec.category in {"profit", "profit_report"}:
+            monthly = args.get("monthly_query", False)
+            if monthly and spec.category == "profit":
+                raise LingxingConfigError("利润统计未声明 monthlyQuery；按月查询请使用结算利润报表工具")
+            if monthly:
+                first, last = _validate_date_window(args["start_date"], args["end_date"], None, "%Y-%m")
+                if first != last:
+                    raise LingxingConfigError("按月查询的开始、结束年月必须相同")
+            else:
+                _validate_date_window(args["start_date"], args["end_date"], 7 if spec.category == "profit" else 31)
+        if tool_name == "lingxing_source_all_orders":
+            _validate_date_window(args["start_date"], args["end_date"], None)
         if spec.category in {"ad_report", "ad_base"}:
             return self._run_ad_like_spec(spec, args)
         if spec.category == "profit_report_order":
@@ -2704,8 +2801,8 @@ class LingxingOpenAPIService:
                 "lingxing_source_all_orders",
                 {
                     "sid": sid_value,
-                    "start_date": f"{site_date} 00:00:00",
-                    "end_date": f"{next_date} 00:00:00",
+                    "start_date": site_date,
+                    "end_date": next_date,
                     "date_type": 1,
                 },
                 "source_all_orders",

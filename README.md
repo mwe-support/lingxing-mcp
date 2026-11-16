@@ -55,7 +55,11 @@
 
 **官方鉴权迁移 tag：`lingxing-official-auth-bearer-migration-2026-11-16`**。此附注 tag 标识已完成线上验证的认证迁移版本；后续发布应包含此 tag 对应的提交。
 
-**Status: Bearer Authentication Migration Deployed**
+**Status: Official API Contracts Reconciled / Production Verified**
+
+2026-11-16 已逐一核对生产代码涉及的 109 个 API（113 个注册工具），见[接口核对记录](docs/official-api-audit-2026-11-16.md)和[官方请求字段快照](docs/official-api-contracts-2026-11-16.json)。广告日报使用 V2 游标分页；小时报告按活动 ID 单次查询。工具会校验官方必填项、搜索批量及日期范围，广告写参数的 `dry_run` / `confirm` 必须为 JSON 布尔值；未使用的可选数值字段应省略，不传空字符串。
+
+**官方 API 契约同步 tag：`lingxing-official-api-contract-sync-2026-11-16`**。它在此前 Bearer 认证迁移提交之上继续同步接口参数与用法，不替换原认证迁移 tag。
 
 这个公开工作区当前承接的是已经去敏后的公开候选内容：
 

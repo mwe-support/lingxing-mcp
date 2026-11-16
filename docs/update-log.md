@@ -4,6 +4,18 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ## 2026-11-16
 
+### Official API Contract Reconciliation
+- Audited all 109 distinct upstream API paths used by the 113 registered tools against the current official documentation, including aggregate dependencies and gated advertising writes. Sources, retrieval timestamps, hashes, and request fields are recorded in `official-api-contracts-2026-11-16.json`; conclusions are in `official-api-audit-2026-11-16.md`.
+- Moved 21 advertising daily reports to V2 cursor pagination, fixed mutually exclusive offset/cursor handling, and made missing-total pagination continue instead of silently stopping after one page. Repeated or prematurely terminated cursors fail explicitly.
+- Corrected required SP/SB selectors, campaign/aggregation inputs for 13 hourly tools, Listing/product-performance outbound SID types, return-analysis sort casing, source-order smoke dates, and documented date/search limits. Statistics no longer advertise the undocumented monthly flag; monthly finance reports require the same YYYY-MM month.
+- Added exact advertising item schemas, official Profile key spellings, known batch limits, strict boolean write controls, and conditional state/bid/base-value checks. No real business write was used for validation. Conflicting negative-ASIN activity-level prose versus required adGroupId is recorded explicitly.
+- Added/removed tools: none. Tool inputs and descriptions changed; built-in role allowlists and production `LINGXING_MCP_ROLE_TOOLS` are unchanged. Role counts remain minimal 14, operations 76, restricted_operations 73, finance 22; the production custom codex_ads_test role has 31 tools. Refreshed both tool snapshots and included the restricted role in the snapshot generator.
+- Preserved existing conservative queues rather than increasing production traffic. Corrected four conservative-source labels and routed token acquisition/refresh through the same queue advertised by rate-limit policy.
+- Production source backup: `/public/lingxing-mcp-backups/api-contract-sync-20261116-122511`. Final candidate and production validation results are recorded in the audit report. The repository release-audit script remains unavailable.
+- Final validation: 83 tests, production compile, role checks, 20 live read-only service scenarios (including all 13 hourly tools), bounded cursor/parameter probes, and public MCP smoke checks passed. The smoke test reported 11 successful business flags and no warnings.
+- Current documentation says uppercase return-analysis sortType, but live uppercase requests fail with `sortType只能是asc或desc`; lowercase succeeds. The service accepts either input case and sends lowercase, records the discrepancy, and preserves the verified offset displacement semantics and length=200.
+- Annotated source marker: `lingxing-official-api-contract-sync-2026-11-16`; the earlier Bearer-migration tag remains unchanged and is an ancestor of this update.
+
 ### IMPORTANT: Lingxing Official API Bearer Authentication Migration
 - Annotated Git tag: `lingxing-official-auth-bearer-migration-2026-11-16`. This marks the upstream authentication change required before Lingxing retires Query token support on 2027-01-01. Future releases must include this commit. Official source: https://apidoc.lingxing.com/new/guides/new-instructions/
 - Business API GET and POST requests now send the Lingxing token only through `Authorization: Bearer`; `app_key`, `timestamp`, and `sign` remain in the URL Query.
