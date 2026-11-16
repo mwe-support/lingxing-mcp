@@ -575,10 +575,12 @@ class LingxingOpenAPIClient:
     def get_json(self, path: str, query_params: dict[str, Any] | None = None) -> dict[str, Any]:
         path = f"/{path.lstrip('/')}"
         query_params = dict(query_params or {})
+        query_params.pop("access_token", None)
         public_query = self._build_public_query(query_params)
+        headers = {"Authorization": f"Bearer {public_query.pop('access_token')}"}
         merged_query = {**public_query, **{key: _stringify_sign_value(value) for key, value in query_params.items()}}
         query = urllib.parse.urlencode(merged_query)
-        request = urllib.request.Request(url=f"{self.base_url}{path}?{query}", method="GET")
+        request = urllib.request.Request(url=f"{self.base_url}{path}?{query}", method="GET", headers=headers)
         self._apply_rate_limit(path)
         payload = self._request(request, endpoint=path)
         self._ensure_success(payload, path)
@@ -597,10 +599,11 @@ class LingxingOpenAPIClient:
         sign_params = dict(json_body)
         sign_params.update(query_params)
         public_query = self._build_public_query(sign_params)
+        access_token = public_query.pop("access_token")
         query = urllib.parse.urlencode(public_query)
-        headers = {"Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"}
         if extra_headers:
-            headers.update({str(key): str(value) for key, value in extra_headers.items()})
+            headers.update({str(key): str(value) for key, value in extra_headers.items() if str(key).lower() != "authorization"})
         request = urllib.request.Request(
             url=f"{self.base_url}{path}?{query}",
             data=_json_dumps(json_body).encode("utf-8"),

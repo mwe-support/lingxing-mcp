@@ -7,6 +7,8 @@ import sys
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -16,6 +18,7 @@ if str(ROOT) not in sys.path:
 from lib.lingxing_openapi import (  # noqa: E402
     LingxingOpenAPIClient,
     RawResponse,
+    TokenBundle,
     build_sign_payload,
     extract_path_value,
     generate_sign,
@@ -103,6 +106,61 @@ class LingxingClientTests(unittest.TestCase):
         header_items = dict(client.last_request.header_items())
         self.assertEqual(header_items["Content-type"], "application/json")
         self.assertEqual(header_items["X-api-version"], "2")
+
+    def test_business_requests_use_bearer_and_preserve_signing(self) -> None:
+        business_params = {"sid": 1, "offset": 0, "filters": {"status": [1, 2]}, "empty": "", "none": None}
+        for method in ("get_json", "post_json"):
+            with self.subTest(method=method):
+                client = StubClient()
+                params = dict(business_params)
+                if method == "get_json":
+                    params["access_token"] = "stale-query-token"
+                with (
+                    patch.object(StubClient, "_build_public_query", LingxingOpenAPIClient._build_public_query),
+                    patch.object(client, "ensure_access_token", return_value=TokenBundle("token-123", "refresh-123", 1800000000)) as token_getter,
+                    patch("lib.lingxing_openapi.client.time.time", return_value=1700000000),
+                    patch("lib.lingxing_openapi.client.generate_sign", wraps=generate_sign) as signer,
+                ):
+                    getattr(client, method)("/probe", params)
+                request = client.last_request
+                query = parse_qs(urlsplit(request.full_url).query, keep_blank_values=True)
+                self.assertNotIn("access_token", query)
+                self.assertEqual(request.get_header("Authorization"), "Bearer token-123")
+                signed_params = {**business_params, "access_token": "token-123", "app_key": client.app_id, "timestamp": "1700000000"}
+                signer.assert_called_once_with(signed_params, client.app_id)
+                token_getter.assert_called_once_with()
+                self.assertEqual(query["sign"], [generate_sign(signed_params, client.app_id)])
+                self.assertEqual(query["app_key"], [client.app_id])
+                self.assertEqual(query["timestamp"], ["1700000000"])
+                if method == "post_json":
+                    self.assertEqual(json.loads(request.data), business_params)
+                else:
+                    self.assertEqual(query["sid"], ["1"])
+                    self.assertEqual(query["offset"], ["0"])
+                    self.assertEqual(json.loads(query["filters"][0]), business_params["filters"])
+                    self.assertEqual(params["access_token"], "stale-query-token")
+
+    def test_post_json_extra_headers_cannot_override_bearer(self) -> None:
+        for header_name in ("Authorization", "authorization", "AUTHORIZATION"):
+            with self.subTest(header_name=header_name):
+                client = StubClient()
+                client.post_json("/probe", {}, extra_headers={header_name: "Bearer stale", "X-API-VERSION": "2"})
+                headers = client.last_request.header_items()
+                self.assertEqual([value for key, value in headers if key.lower() == "authorization"], ["Bearer token-123"])
+                self.assertEqual(client.last_request.get_header("X-api-version"), "2")
+
+    def test_token_endpoints_keep_multipart_authentication(self) -> None:
+        for method, args, field in (("fetch_access_token", [], b'appSecret'), ("refresh_access_token", ["refresh-123"], b'refreshToken')):
+            with self.subTest(method=method):
+                client = StubClient()
+                payload = {"code": 0, "data": {"access_token": "token-123", "refresh_token": "refresh-123", "expires_in": 3600}}
+                with patch.object(client, "_write_token_cache"), patch.object(client, "_request", return_value=payload) as requester:
+                    getattr(client, method)(*args)
+                request = requester.call_args.args[0]
+                self.assertIsNone(request.get_header("Authorization"))
+                self.assertEqual(urlsplit(request.full_url).query, "")
+                self.assertTrue(request.get_header("Content-type").startswith("multipart/form-data;"))
+                self.assertIn(field, request.data)
 
     def test_paged_post_detailed_supports_nested_offset_pagination(self) -> None:
         client = StubClient()

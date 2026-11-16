@@ -49,7 +49,13 @@
 
 ## 当前状态
 
-**Status: Audit Passed / Not Pushed**
+领星业务 API 的 GET、POST 请求通过 `Authorization: Bearer <access_token>` 传递 token，不再将 token 放在 URL Query。`app_key`、`timestamp`、`sign` 仍在 Query；原始 token 仍以 `access_token` 为参数名参与签名一次。获取与续约 token 的接口维持原有 multipart 参数，广告接口的 `X-API-VERSION` 等附加请求头继续保留。
+
+此规则适配领星于 2027 年 1 月 1 日下线 Query token 的安排，详见[官方接入指南](https://apidoc.lingxing.com/new/guides/new-instructions/)。MCP 网关成员令牌的认证规则不受此次迁移影响。
+
+**官方鉴权迁移 tag：`lingxing-official-auth-bearer-migration-2026-11-16`**。此附注 tag 标识已完成线上验证的认证迁移版本；后续发布应包含此 tag 对应的提交。
+
+**Status: Bearer Authentication Migration Deployed**
 
 这个公开工作区当前承接的是已经去敏后的公开候选内容：
 

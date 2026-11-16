@@ -4,6 +4,17 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ## 2026-11-16
 
+### IMPORTANT: Lingxing Official API Bearer Authentication Migration
+- Annotated Git tag: `lingxing-official-auth-bearer-migration-2026-11-16`. This marks the upstream authentication change required before Lingxing retires Query token support on 2027-01-01. Future releases must include this commit. Official source: https://apidoc.lingxing.com/new/guides/new-instructions/
+- Business API GET and POST requests now send the Lingxing token only through `Authorization: Bearer`; `app_key`, `timestamp`, and `sign` remain in the URL Query.
+- Signing is unchanged: the original token participates once under `access_token`; the Authorization field name and Bearer prefix are not signed. Token acquisition/refresh keep their multipart requests.
+- Extra advertising/version headers are preserved; caller-supplied Authorization headers cannot override the token used for signing. Legacy GET `access_token` query input is ignored without mutating the caller's dictionary.
+- Added/removed tools: none. Tool schemas, built-in role allowlists, production `LINGXING_MCP_ROLE_TOOLS`, and MCP gateway authentication are unchanged; tool snapshots do not require regeneration.
+- Validation: 63 focused client/service/MCP/token-auth/audit/header tests and production Python compilation passed. Real read-only GET seller-list and POST advertising-account requests both returned code 0; transport assertions confirmed one Bearer header and no Query token.
+- Production restarted successfully and health checks passed. All 14 bootstrap-token tool definitions remained identical. Public MCP health/authentication passed; seller-list GET returned 148 rows and advertising-account POST returned 146 rows. No advertising write API was executed.
+- Source/test/documentation backup: `/public/lingxing-mcp-backups/bearer-token-20261116-111346`; original file hashes and the pre-change Git archive are preserved.
+- The repository release-audit script is unavailable; the focused tests, production checks, and scoped diff inspection above provide the available validation.
+
 ### Added Tools
 - None.
 
