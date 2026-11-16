@@ -28,6 +28,10 @@
 
 分页参数 offset 和 length 由 MCP 网关自动补充并合并分页结果。
 
+`restricted_operations` 会把 `storeId` 作为领星 SID 数组处理：未传时自动使用成员令牌的全部 `allowed_sids`，显式传入时必须是允许集合的子集。返回结果中的嵌套 `sid` 字段也会再次校验，发现越权 SID 时不返回业务数据。
+
+服务端分页大小固定为 200。领星接口实测接受 `length=200`，原来的 1000 会返回 `code=400 参数有误`。
+
 ## 主要返回字段
 
 接口返回 data.records 和 data.total。常用字段包括 asinsList、curReturnGoodsCount、curReturnGoodsItems、curReturnGoodsVolumeRatio、curVolume、eventDate、fnskuInfoList、infoDTOList、isParent、localSkuInfoList、mostCommonReturnReasonBucket、msku、ncxCount、ncxRate、orderCount、parentAsinsList、pcxHealth、preReturnGoodsCount、preReturnGoodsItems、preReturnGoodsVolumeRatio、preVolume、returnBadge、returnGoodsCountRatio、returnGoodsVolumeRatioDiff、sellerInfoList、sid、spuInfoList。

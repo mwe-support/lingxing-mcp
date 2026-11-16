@@ -134,7 +134,7 @@ def main() -> int:
     assert_equal("custom override includes base tools", tool_names(override_app, "custom"), BASE_TOOLS | {"lingxing_seller_lists"})
 
     os.environ["LINGXING_MCP_ROLE_TOOLS"] = json.dumps(
-        {"restricted_operations": ["lingxing_seller_lists", "lingxing_return_analysis"]}
+        {"restricted_operations": ["lingxing_seller_lists", "lingxing_report_export_query"]}
     )
     restricted_override_app = LingxingMCPApplication()
     assert_equal(

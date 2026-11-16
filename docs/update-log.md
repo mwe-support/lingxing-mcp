@@ -2,6 +2,31 @@
 
 This log records MCP tool-surface changes. Each entry must list added tools, removed tools, built-in role allowlist changes, production `LINGXING_MCP_ROLE_TOOLS` changes when touched, and validation results.
 
+## 2026-11-16
+
+### Added Tools
+- None.
+
+### Removed Tools
+- None globally.
+
+### Built-In Role Allowlist Changes
+- Restored `lingxing_return_analysis` to `restricted_operations`, increasing the role from 72 to 73 visible tools.
+- The remaining restricted-role exclusions are `lingxing_report_export_query`, `lingxing_report_export_download`, and `lingxing_report_export_refresh_url`.
+
+### Permission Enforcement
+- Restricted callers now treat return-analysis `storeId` as a SID array. Omitted values are replaced with all authorized SIDs; explicit values must be a subset.
+- Return-analysis nested `sid` values are checked before MCP output is returned, and any unauthorized or malformed SID fails closed.
+- Changed the endpoint page size from 1000 to 200. Live research confirmed `length=1000` returns `code=400`, while 200 succeeds.
+
+### Production Role Override
+- No `LINGXING_MCP_ROLE_TOOLS` override change is required; `restricted_operations` uses its built-in allowlist.
+
+### Validation
+- Python compile and 60 focused tests passed; role-policy validation passed with `restricted_operations=73`.
+- Production deployment, HTTP validation, and backup evidence are pending.
+- Release audit was unavailable because the repository and adjacent template directory do not contain `release_audit.py`.
+
 ## 2026-11-15
 
 ### Restricted Role Follow-Up

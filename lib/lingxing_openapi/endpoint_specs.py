@@ -856,7 +856,7 @@ STABLE_ENDPOINT_SPECS: tuple[EndpointSpec, ...] = (
         category="source",
         args=RETURN_ANALYSIS_ARGS,
         docs_path="docs/Statistics/ReturnOrderAnalysisLists.md",
-        page_size=1000,
+        page_size=200,
         data_path="data.records",
         total_path="data.total",
     ),

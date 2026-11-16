@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lib.lingxing_openapi.auth import AuthMatch, load_bearer_auth_config  # noqa: E402
+from lib.lingxing_openapi.endpoint_specs import ENDPOINT_SPECS_BY_NAME  # noqa: E402
 from lib.lingxing_openapi.errors import LingxingConfigError  # noqa: E402
 from lib.lingxing_openapi.mcp import (  # noqa: E402
     LingxingMCPApplication,
@@ -64,6 +65,7 @@ class LingxingMCPTests(unittest.TestCase):
         self.assertIn("lingxing_product_search", visible)
         self.assertIn("lingxing_order_details", visible)
         self.assertIn("lingxing_local_product_costs", visible)
+        self.assertIn("lingxing_return_analysis", visible)
 
         captured = {}
         app.tools["lingxing_product_search"].handler = lambda args: captured.update(args) or {
@@ -95,6 +97,48 @@ class LingxingMCPTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(LingxingConfigError, "没有可访问的店铺 SID"):
             app.call_tool("lingxing_product_search", {"query": "广告机"}, no_scope)
+
+        return_args = {}
+        app.tools["lingxing_return_analysis"].handler = lambda args: return_args.update(args) or {
+            "ok": True,
+            "data": [{"infoDTOList": [{"sid": 7787}]}],
+            "meta": {},
+            "warnings": [],
+        }
+        app.call_tool(
+            "lingxing_return_analysis",
+            {"startDate": "2026-11-01", "endDate": "2026-11-02", "asinType": "msku", "dateType": 0},
+            match,
+        )
+        self.assertEqual(return_args["storeId"], [7787, 7789])
+        with self.assertRaisesRegex(LingxingConfigError, "无权访问店铺 SID"):
+            app.call_tool(
+                "lingxing_return_analysis",
+                {
+                    "startDate": "2026-11-01",
+                    "endDate": "2026-11-02",
+                    "asinType": "msku",
+                    "dateType": 0,
+                    "storeId": [7787, 9999],
+                },
+                match,
+            )
+
+        app.tools["lingxing_return_analysis"].handler = lambda _: {
+            "ok": True,
+            "data": [{"infoDTOList": [{"sid": 9999}]}],
+            "meta": {},
+            "warnings": [],
+        }
+        with self.assertRaisesRegex(LingxingConfigError, "返回了未授权店铺 SID"):
+            app.call_tool(
+                "lingxing_return_analysis",
+                {"startDate": "2026-11-01", "endDate": "2026-11-02", "asinType": "msku", "dateType": 0},
+                match,
+            )
+
+    def test_return_analysis_uses_supported_page_size(self) -> None:
+        self.assertEqual(ENDPOINT_SPECS_BY_NAME["lingxing_return_analysis"].page_size, 200)
 
     def test_restricted_operations_filters_store_and_ad_account_results(self) -> None:
         app = LingxingMCPApplication()
