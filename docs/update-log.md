@@ -24,7 +24,10 @@ This log records MCP tool-surface changes. Each entry must list added tools, rem
 
 ### Validation
 - Python compile and 60 focused tests passed; role-policy validation passed with `restricted_operations=73`.
-- Production deployment, HTTP validation, and backup evidence are pending.
+- Production deployed from merged PR #12 at commit `898f371`.
+- A temporary restricted token with only SID 7787 returned 73 tools. A return-analysis call without `storeId` returned 25 records whose nested SID values were exclusively 7787; an explicit request for SID 7789 was rejected before the business handler ran.
+- The temporary token was removed after verification. Its old value, Jennifer, and Sienna returned HTTP 401; the admin token returned HTTP 200 and the service remained active.
+- Production backup: `/root/lingxing-mcp-backups/20261116100743-pre-restricted-return-analysis`.
 - Release audit was unavailable because the repository and adjacent template directory do not contain `release_audit.py`.
 
 ## 2026-11-15
